@@ -13,10 +13,9 @@
 
 void modeMidiGbSetup()
 {
-  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
   DDRC = B00111111; //Set analog in pins as outputs
-  
+  blinkMaxCount=1000;
   modeMidiGb();
 }
 
@@ -25,15 +24,29 @@ void modeMidiGb()
   while(1){                                //Loop foreverrrr
     if (Serial.available() > 0) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-      sendByteToGameboy(incomingMidiByte);
-      if(!usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
+      
+      if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
+      
       if(incomingMidiByte > 0x7F) {    
         switch (incomingMidiByte & 0xF0) {
           case 0xF0:
             midiValueMode = false;
             break;
           default:
-            incomingMidiData[0] = incomingMidiByte;
+            midiStatusChannel = incomingMidiByte&0x0F;
+            midiStatusType    = incomingMidiByte&0xF0;
+            
+            if(midiStatusChannel == memory[MEM_MGB_CH]) {
+               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH];
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+1]) {
+               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+1];
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+2]) {
+               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+2];
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+3]) {
+               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+3];
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
+               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+4];
+            }
             midiValueMode  =false;
             midiAddressMode=true;
            break;
@@ -42,130 +55,21 @@ void modeMidiGb()
         midiAddressMode = false;
         midiValueMode = true;
         incomingMidiData[1] = incomingMidiByte;
-        if((incomingMidiData[0] >> 0x04) == 0x0C) {
-          midiAddressMode = false;
-        }
       } else if (midiValueMode) {
         incomingMidiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
+        
+        sendByteToGameboy(incomingMidiData[0]);
+        sendByteToGameboy(incomingMidiData[1]);
+        sendByteToGameboy(incomingMidiData[2]);
         blinkLight(incomingMidiData[0],incomingMidiData[2]);
       }
-      
     } else {
       setMode();                // Check if mode button was depressed
       updateBlinkLights();
     }
   }
-}
-
-void updateBlinkLights()
-{
-  updateBlinkLight(0);
-  updateBlinkLight(1);
-  updateBlinkLight(2);
-  updateBlinkLight(3);
-  updateStatusLight();
-}
-
-void updateBlinkLight(int light)
-{
-  if(blinkSwitch[light]) {
-    blinkSwitchTime[light]++;
-    if(blinkSwitchTime[light] > 2000) {
-      blinkSwitch[light]=0;
-      blinkSwitchTime[light]=0;
-      digitalWrite(pinLeds[light],LOW);
-    }
-  }
-}
-
-void updateStatusLight()
-{
-  if(blinkSwitch[4]) {
-    blinkSwitchTime[4]++;
-    if(blinkSwitchTime[4] > 2000) {
-      blinkSwitch[4]=0;
-      blinkSwitchTime[4]=0;
-      digitalWrite(pinStatusLed,LOW);
-    }
-  }
-}
-
-void blinkLight(byte midiMessage, byte midiValue)
-{
-  if(midiValue) {
-  switch(midiMessage) {
-    case 0x90:
-      if(!blinkSwitch[0]) digitalWrite(pinLeds[0],HIGH);
-      blinkSwitch[0]=1;
-      blinkSwitchTime[0]=0;
-      break;
-    case 0x91:
-      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
-      blinkSwitch[1]=1;
-      blinkSwitchTime[1]=0;
-      break;
-    case 0x92:
-      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
-      blinkSwitch[2]=1;
-      blinkSwitchTime[2]=0;
-      break;
-    case 0x93:
-      if(!blinkSwitch[3]) digitalWrite(pinLeds[3],HIGH);
-      blinkSwitch[3]=1;
-      blinkSwitchTime[3]=0;
-      break;
-    case 0x94:
-      if(!blinkSwitch[0])  digitalWrite(pinLeds[0],HIGH);
-      blinkSwitch[0]=1;
-      blinkSwitchTime[0]=0;
-      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
-      blinkSwitch[1]=1;
-      blinkSwitchTime[1]=0;
-      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
-      blinkSwitch[2]=1;
-      blinkSwitchTime[2]=0;
-      break;
-  }
-  }
-  switch(midiMessage) {
-    case 0xE0:
-    case 0xE1:
-    case 0xE2:
-    case 0xE3:
-    case 0xE4:
-    case 0xB0:
-    case 0xB1:
-    case 0xB2:
-    case 0xB3:
-    case 0xB4:
-      if(!blinkSwitch[4]) digitalWrite(pinStatusLed,HIGH);
-      blinkSwitch[4]=1;
-      blinkSwitchTime[4]=0;
-      break;
-    default:
-      break;
-  }
-}
-
-void updateVisualSync()
-{
-    if(!countSyncTime) {
-      if(!blinkSwitch[4]) digitalWrite(pinStatusLed,HIGH);
-      digitalWrite(pinLeds[0],LOW);
-      digitalWrite(pinLeds[1],LOW);
-      digitalWrite(pinLeds[2],LOW);
-      digitalWrite(pinLeds[3],LOW);
-      digitalWrite(pinLeds[switchLight],HIGH);
-      blinkSwitch[4]=1;
-      blinkSwitchTime[4]=0;
-      countSyncLightTime = 0;
-      switchLight++;
-      if(switchLight==4) switchLight=0;
-    }
-    countSyncTime++;
-    if(countSyncTime == 24) countSyncTime=0; 
 }
 
 boolean checkGbSerialStopped()

@@ -13,11 +13,11 @@
 
 void modeLSDJSlaveSyncSetup()
 {
-  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
   DDRC  = B00111111; //Set analog in pins as outputs
   PORTC = B00000001;
   
+  blinkMaxCount=1000;
   modeLSDJSlaveSync();
 }
 
@@ -26,7 +26,8 @@ void modeLSDJSlaveSync()
   while(1){  //Loop forever
   if (Serial.available() > 0) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
-    Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
+    
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
     
     if(incomingMidiByte > 0x7F) {               //If we have received a MIDI Status Byte
     switch (incomingMidiByte) {                    
@@ -52,7 +53,7 @@ void modeLSDJSlaveSync()
         sequencerStop();                        // Stop the sequencer
         break;
       default:
-        if(incomingMidiByte == syncEffectsMidiChannel) { //if a midi note was received and its on the channel of the sync effects channel
+        if(incomingMidiByte == (0x90+memory[MEM_LSDJSLAVE_MIDI_CH])) { //if a midi note was received and its on the channel of the sync effects channel
            midiNoteOnMode = true;                        //turn on note capture
            incomingMidiData[0] = false;                  //and reset the captured note
         } else {

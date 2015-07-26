@@ -13,10 +13,10 @@
 
 void modeLSDJKeyboardSetup()
 {
-  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
   DDRC  = B00111111; //Set analog in pins as outputs
   PORTC = B00000010;
+  blinkMaxCount=1000;
   
   /* The stuff below makes sure the code is in the same state as LSDJ on reset / restart, mode switched, etc. */
   
@@ -38,7 +38,7 @@ void modeLSDJKeyboard()
   while(1){                              //Loop foreverrrr
   if (Serial.available() > 0) {          //If MIDI is sending
     incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-    Serial.print(incomingMidiByte, BYTE);//Echo the Byte to MIDI Output
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);//Echo the Byte to MIDI Output
     
 
     /***************************************************************************
@@ -89,7 +89,8 @@ void modeLSDJKeyboard()
          //If we dont have a note number, we assume this byte is the note number, get it...
          incomingMidiData[1] = incomingMidiByte;
       } else {
-         //We have our note and channel, so call our note function...        
+         //We have our note and channel, so call our note function...   
+              
          playLSDJNote(incomingMidiData[0], incomingMidiData[1], incomingMidiByte);
          incomingMidiData[1] = false; //Set the note to false, forcing to capture the next note
       }
@@ -113,9 +114,9 @@ void changeLSDJInstrument(byte channel,byte message)
 {
   keyboardCurrentIns = message; //set the current instrument number 
   
-  if(channel == keyboardInstrumentMidiChannel && keyboardCurrentIns != keyboardLastIns) { 
+  if(channel == (0x90+memory[MEM_KEYBD_CH]) && keyboardCurrentIns != keyboardLastIns) { 
   //if its on our midi channel and the instrument isnt the same as our currrent
-    if(!keyboardCompatabilityMode) {
+    if(!memory[MEM_KEYBD_COMPAT_MODE]) {
       sendKeyboardByteToGameboy(0x80 | message); // <- this is suppose to work but doesn't :/
     } else {
       //We will find out which is greater, the current instrument or the last instrument. then
@@ -142,7 +143,7 @@ void changeLSDJInstrument(byte channel,byte message)
  */
 void playLSDJNote(byte channel,byte note, byte velocity)
 {
-  if(channel == keyboardInstrumentMidiChannel
+  if(channel == (0x90+memory[MEM_KEYBD_CH])
      && velocity > 0x00) { //If midi channel = ours and the velocity is greater then 0
     if(note >= keyboardNoteStart) {
       keyboardNoteOffset = 0;
@@ -171,7 +172,7 @@ void playLSDJNote(byte channel,byte note, byte velocity)
 void changeLSDJOctave()
 {
   if(keyboardCurrentOct != keyboardLastOct) { 
-    if(!keyboardCompatabilityMode) { // This new mode doesnt work yet. :/
+    if(!memory[MEM_KEYBD_COMPAT_MODE]) { // This new mode doesnt work yet. :/
       keyboardCurrentOct = 0xB3 + keyboardCurrentOct; 
       sendKeyboardByteToGameboy(keyboardCurrentOct);
     } else {

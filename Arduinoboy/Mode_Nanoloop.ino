@@ -13,9 +13,8 @@
 
 void modeNanoloopSetup()
 {
-  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  
+  blinkMaxCount=1000;
   modeNanoloopSync();
 }
 
@@ -24,7 +23,8 @@ void modeNanoloopSync()
   while(1){  //Loop forever
   if (Serial.available() > 0) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
-    Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
+    
     
     if(incomingMidiByte > 0x7F) {               //If we have received a MIDI Status Byte
     switch (incomingMidiByte) { 

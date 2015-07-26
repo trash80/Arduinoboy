@@ -22,33 +22,20 @@
    set the leds to display the mode, and switch the code over to the
    right function.
  */
+ 
+
 void setMode()
 {
-  if(!forceMode && digitalRead(pinButtonMode)) { //if the button is pressed
-    mode++;                           //increment the mode number
-    if(mode > (numberOfModes - 1)) mode=0;  //if the mode is greater then 4 it will wrap back to 0
-    if(!forceMode) EEPROM.write(eepromMemoryByte, mode); //write mode to eeprom if we arnt forcing a mode in the config
+  buttonDepressed = digitalRead(pinButtonMode);
+  if(!memory[MEM_FORCE_MODE] && buttonDepressed) { //if the button is pressed
+    memory[MEM_MODE]++;                           //increment the mode number
+    if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if the mode is greater then 4 it will wrap back to 0
+    if(!memory[MEM_FORCE_MODE]) EEPROM.write(MEM_MODE, memory[MEM_MODE]); //write mode to eeprom if we arnt forcing a mode in the config
     showSelectedMode();            //set the LEDS
-    switchMode();                  //switch to the new mode
+    switchMode();
   }
 }
 
- /*
-   showSelectedMode1 turns off the last mode led, turns on the new mode led
-   and delays for a period of time to reduce jitter behavior from the mode 
-   changing too fast.
- */
-void showSelectedMode()
-{
-  digitalWrite(pinLeds[0],LOW);
-  digitalWrite(pinLeds[1],LOW);
-  digitalWrite(pinLeds[2],LOW);
-  digitalWrite(pinLeds[3],LOW);
-  digitalWrite(pinLeds[4],LOW);
-  digitalWrite(pinLeds[mode],HIGH);
-  lastMode = mode;
-  delay(300);
-}
 
  /*
    switchMode is only called from setMode. its responsible for
@@ -57,7 +44,7 @@ void showSelectedMode()
  */
 void switchMode()
 {
-  switch(mode)
+  switch(memory[MEM_MODE])
   {
     case 0:
       modeLSDJSlaveSyncSetup();
@@ -73,6 +60,12 @@ void switchMode()
       break;
     case 4:
       modeMidiGbSetup();
+      break;
+    case 5:
+      modeLSDJMapSetup();
+      break;
+    case 6:
+      modeLSDJMidioutSetup();
       break;
   }
 }
@@ -115,75 +108,7 @@ void sequencerStop()
   digitalWrite(pinLeds[1],LOW);
   digitalWrite(pinLeds[2],LOW);
   digitalWrite(pinLeds[3],LOW);
-  digitalWrite(pinLeds[mode],HIGH);
+  digitalWrite(pinLeds[memory[MEM_MODE]],HIGH);
 }
 
- /*
-   updateStatusLed should be placed inside of the main loop cycle of a mode function. It counts to a 
-   certain number to delay the action of turning off the status led, so the blink is visible to the human eye. ;)> 
-   I guess this could be called the blinking routine. 
- */
-void updateStatusLed()
-{
-  if(statusLedIsOn) {                  //is the led on?
-    countStatusLedOn++;                //then increment the counter by 1
-    if(countStatusLedOn > 3000) {      //if the counter is pretty high
-      countStatusLedOn = 0;            //then reset it to zero.
-       digitalWrite(pinStatusLed,LOW); //and turn off the status led
-       statusLedIsOn  = false;         //and set our "is it on?" to false, cause its off now. ;p
-       
-    } else if (statusLedBlink && countStatusLedOn == 1) {  //someone told me to blink, because i was already on
-       digitalWrite(pinStatusLed,LOW);                     //so I'll turn off and turn back on later..
-       
-    } else if (statusLedBlink && countStatusLedOn > 1000) {//Now that I've waited long enough I'll finish my blink.
-       statusLedBlink = false;                             //Turn off the issued blink
-       digitalWrite(pinStatusLed,HIGH);                    //... and finally turn back on.
-    }
-  }
-}
-
- /*
-   statusLedOn is the function to call when we want the status led to blink for us.
-   all it does is check if its been already asked to turn on, if it has it will set a flag
-   to make it blink. Either way it will reset the blink timer and turn on the LED
- */
-void statusLedOn()
-{
-  if(statusLedIsOn) {
-    statusLedBlink = true;   //Make it blink even though its already on
-  }
-  statusLedIsOn  = true;     //This is the flag the updator function looks for to know if its ok to increment the timer and wait to turn off the led
-  countStatusLedOn = 0;      //Reset the timer
-  digitalWrite(pinStatusLed,HIGH); //Turn on the led
-}
-
-/* cute startup sequence */
-void startupSequence()
-{
-  int ledFxA;
-  int ledFxB;
-  
-  for(ledFxB=0;ledFxB<2;ledFxB++) {
-  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) {
-    digitalWrite(pinLeds[ledFxA], HIGH);
-    delay(50);
-    digitalWrite(pinLeds[ledFxA], LOW);
-  }
-  for(ledFxA=4;ledFxA>=0;ledFxA--) {
-    digitalWrite(pinLeds[ledFxA], HIGH);
-    delay(50);
-    digitalWrite(pinLeds[ledFxA], LOW);
-  }
-  }
-  delay(100);
-  
-  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], HIGH);   // sets the LED on
-  delay(100);
-  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
-  delay(100);
-  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], HIGH);   // sets the LED on
-  delay(100);
-  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
-  delay(500);
-}
 

@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.1.0                                                          *
- * Date:    Feb 7 2009                                                     *
+ * Version: 1.2.0                                                          *
+ * Date:    Oct 31 2010                                                    *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -73,27 +73,77 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- #include <EEPROM.h>
+#include <EEPROM.h>
+#define MEM_MAX 65
+#define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
+
+//!!! do not edit these, they are the position in EEPROM memory that contain the value of each stored setting
+#define MEM_CHECK 0
+#define MEM_VERSION_FIRST 1
+#define MEM_VERSION_SECOND 2
+#define MEM_MODE 5
+#define MEM_FORCE_MODE 4
+
+#define MEM_LSDJSLAVE_MIDI_CH 6
+
+#define MEM_LSDJMASTER_MIDI_CH 7
+#define MEM_KEYBD_CH 8
+
+#define MEM_KEYBD_COMPAT_MODE 9
+#define MEM_KEYBD_CH_TO_INST 10
+
+#define MEM_MIDIOUT_NOTE_CH 11
+#define MEM_MIDIOUT_CC_CH 15
+#define MEM_MIDIOUT_CC_MODE 19
+#define MEM_MIDIOUT_CC_SCALING 23
+#define MEM_MIDIOUT_CC_NUMBERS 27
+
+#define MEM_MGB_CH 55
+#define MEM_LIVEMAP_CH 60
+
+#define MEM_MIDIOUT_BIT_DELAY 61
+#define MEM_MIDIOUT_BYTE_DELAY 63
+
+
+
 /***************************************************************************
-* Simple User Settings
+* User Settings
 ***************************************************************************/
-int syncEffectsMidiChannel = 16;         //midi sync effects for lsdj slave mode
-int masterNotePositionMidiChannel = 16;   //LSDJ in master mode will send its song position on the start button via midi note.
-int keyboardInstrumentMidiChannel = 16;  //midi channel for keyboard instruments in lsdj.
 
-boolean keyboardCompatabilityMode = true; //Set to true if you are using LSDJ version lower then 2.6, not working right now
-boolean keyboardMidiChannelToInstrument = true; //Set to true if you want to have midi channel set the instrument number
+boolean alwaysUseDefaultSettings = false; //set to true to always use the settings below, else they are pulled from memory for the software editor
 
-//Mode 0: Midi Input to LSDJ Sync
-//Mode 1: LSDJ MASTER to Midi output
-//Mode 2: LSDJ Keyboard
-//Mode 3: Midi Input to Nanoloop 
-//Mode 4: Midi Input to mGB cart (available at: code.google.com/p/ardunioboy) 
 
-boolean forceMode = false; //Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
-int mode          = 0;    //0 to 4 - default mode for force mode
-int numberOfModes = 5;    //Right now there are 5 modes, Might be more in the future
-boolean usbMode   = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
+boolean usbMode                  = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
+
+
+byte defaultMemoryMap[MEM_MAX] = {
+  0x7F,0x01,0x02,0x7F, //memory init check
+  0x00, //force mode (forces lsdj to be sl)
+  0x00, //mode
+  
+  15, //sync effects midi channel (0-15 = 1-16)
+  15, //masterNotePositionMidiChannel - LSDJ in master mode will send its song position on the start button via midi note. (0-15 = 1-16)
+  
+  15, //keyboardInstrumentMidiChannel - midi channel for keyboard instruments in lsdj. (0-15 = 1-16)
+  1, //Keyboard Compatability Mode
+  1, //Set to true if you want to have midi channel set the instrument number / doesnt do anything anymore
+  
+  0,1,2,3, //midiOutNoteMessageChannels - midi channels for lsdj midi out note messages Default: channels 1,2,3,4
+  0,1,2,3, //midiOutCCMessageChannels - midi channels for lsdj midi out CC messages Default: channels 1,2,3,4
+  1,1,1,1, //midiOutCCMode - CC Mode, 0=use 1 midi CC, with the range of 00-6F, 1=uses 7 midi CCs with the
+                       //range of 0-F (the command's first digit would be the CC#), either way the value is scaled to 0-127 on output
+  1,1,1,1, //midiOutCCScaling - CC Scaling- Setting to 1 scales the CC value range to 0-127 as oppose to lsdj's incomming 00-6F (0-112) or 0-F (0-15) 
+  1,2,3,7,10,11,12, //pu1: midiOutCCMessageNumbers - CC numbers for lsdj midi out, if CCMode is 1, all 7 ccs are used per channel at the cost of a limited resolution of 0-F
+  1,2,3,7,10,11,12, //pu2
+  1,2,3,7,10,11,12, //wav
+  1,2,3,7,10,11,12, //noi
+  
+  0, 1, 2, 3, 4, //mGB midi channels (0-15 = 1-16)
+  15, //livemap / sync map midi channel (0-15 = 1-16)
+  60,1,  //midiout bit check delay & bit check delay multiplier 
+  0,0//midiout byte received delay & byte received delay multiplier 
+};
+byte memory[MEM_MAX];
 
 /***************************************************************************
 * Lets Assign our Arduino Pins .....
@@ -106,7 +156,7 @@ int pinGBSerialIn  = 2;    // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = 4; // power pin for midi input opto-isolator
 
 int pinStatusLed = 13; // Status LED
-int pinLeds[] = {12,11,10,9,8}; // LED Pins
+int pinLeds[] = {12,11,10,9,8,13}; // LED Pins
 
 int pinButtonMode = 3; //toggle button for selecting the mode
 
@@ -115,6 +165,31 @@ int pinButtonMode = 3; //toggle button for selecting the mode
 ***************************************************************************/
 
 int eepromMemoryByte = 0; //Location of where to store settings from mem
+
+
+
+/***************************************************************************
+* Sysex Settings & vars
+***************************************************************************/
+
+boolean sysexReceiveMode = 0;
+boolean sysexProgrammingMode = 0;
+boolean sysexProgrammingWaiting = 0;
+boolean sysexProgrammingConnected = 0;
+
+unsigned long sysexProgrammerWaitTime = 2000; //2 seconds
+unsigned long sysexProgrammerCallTime = 1000; //1 second
+unsigned long sysexProgrammerLastResponse = 0;
+unsigned long sysexProgrammerLastSent = 0;
+
+byte sysexManufacturerId = 0x69; //har har harrrrr :)
+int sysexPosition;
+byte sysexData[128];
+byte longestSysexMessage = 128;
+
+int midioutBitDelay = 0;
+int midioutByteDelay = 0;
+
 
 /***************************************************************************
 * Switches and states
@@ -127,15 +202,30 @@ boolean midiProgramChange=false;
 boolean midiAddressMode  =false;
 boolean midiValueMode    =false;
 
+int midiOutLastNote[4] = {-1,-1,-1,-1};
+
 boolean statusLedIsOn    =false;
 boolean statusLedBlink   =false;
 
 boolean nanoState        =false;
 boolean nanoSkipSync     =false;
 
-boolean blinkSwitch[5];
-unsigned long int blinkSwitchTime[5];
+int buttonDepressed;
+int buttonState;
+unsigned long int buttonProgrammerWaitTime = 2000; //2 whole seconds
+unsigned long int buttonTime;
+
+
+boolean blinkSwitch[6];
+unsigned long int blinkSwitchTime[6];
 int switchLight = 0;
+
+int blinkMaxCount = 1000;
+
+unsigned long midioutNoteTimer[4];
+byte midioutNoteHold[4][4];
+byte midioutNoteHoldCounter[4];
+int midioutNoteTimerThreshold = 10;
 
 /***************************************************************************
 * Counter vars
@@ -150,6 +240,11 @@ int countClockPause =0;
 int countIncommingMidiByte =0;
 int countStatusLedOn =0;
 unsigned int waitClock =0;
+
+
+int miscLastLed;
+unsigned long int miscLedTime;
+unsigned long int miscLedMaxTime;
 
 /***************************************************************************
 * Inbound Data Placeholders
@@ -169,6 +264,13 @@ byte midiDefaultStartOffset;
 int  writePosition=0;
 int  readPosition=0;
 int lastMode=0; //Stores the last selected mode for leds.
+
+byte midiSyncByte;
+byte midiSyncByteLast;
+
+byte midiStatusType;
+byte midiStatusChannel;
+
 /***************************************************************************
 * LSDJ Keyboard mode settings
 ***************************************************************************/      
@@ -215,14 +317,15 @@ byte keyboardCommands[12];
 
 void setup() {
 /*
+  Init Memory
+*/
+  initMemory(0);
+/*
   Init Pins
 */
   for(int led=0;led<=5;led++) pinMode(pinLeds[led],OUTPUT);
   pinMode(pinStatusLed,OUTPUT);
-  
   pinMode(pinButtonMode,INPUT); 
-  
-  
   DDRC = B00111111; //Set analog in pins as outputs
   
 /*
@@ -232,6 +335,7 @@ void setup() {
     Serial.begin(38400); //31250
   } else {
     pinMode(pinMidiInputPower,OUTPUT); 
+    digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
     Serial.begin(31250); //31250
   }
 /*
@@ -242,9 +346,6 @@ void setup() {
 /*
   Misc Startup
 */
-  syncEffectsMidiChannel = 143 + syncEffectsMidiChannel; //set the midi channel to the real note-on number (144 to 159)
-  keyboardInstrumentMidiChannel = 143 + keyboardInstrumentMidiChannel; //set the midi channel to the real note-on number (144 to 159)
-  masterNotePositionMidiChannel = 143 + masterNotePositionMidiChannel; //set the midi channel to the real note-on number (144 to 159)
   keyboardNoteStart = keyboardStartOctave + 12; // Set the octave where the actual notes start (the octave below is for the mutes, cursor, etc)
 /*
   Assign the keyboard mode command array for the first octave
@@ -264,8 +365,8 @@ void setup() {
 /*
   Load Settings from EEPROM
 */
-  if(!forceMode) mode = EEPROM.read(eepromMemoryByte);
-  lastMode = mode;
+  if(!memory[MEM_FORCE_MODE]) memory[MEM_MODE] = EEPROM.read(MEM_MODE);
+  lastMode = memory[MEM_MODE];
   
   startupSequence();
   
