@@ -25,7 +25,8 @@ void modeMidiGb()
 
     if (Serial.available() > 0) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-      //addFSGameboyByte(incomingMidiByte);
+      addFSGameboyByte(incomingMidiByte);
+      
       //if(!usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
       if(incomingMidiByte > 0x7F) {    
         switch (incomingMidiByte & 0xF0) {
@@ -34,29 +35,21 @@ void modeMidiGb()
             break;
           default:
             incomingMidiData[0] = incomingMidiByte;
-            midiNoteOffMode=true;
             midiValueMode  =false;
             midiAddressMode=true;
-           if(incomingMidiData[0] < 0x90) {
-             incomingMidiData[0]+=0x10;
-             midiNoteOffMode =true;
-           } else {
-             midiNoteOffMode =false;
-           }
            break;
         }
       } else if (midiAddressMode){
         midiAddressMode = false;
         midiValueMode = true;
         incomingMidiData[1] = incomingMidiByte;
+        if((incomingMidiData[0] >> 0x04) == 0x0C) {
+          midiAddressMode = false;
+        }
       } else if (midiValueMode) {
         incomingMidiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
-        if(midiNoteOffMode) incomingMidiData[2]=0x00;
-        addFSGameboyByte(incomingMidiData[0]);
-        addFSGameboyByte(incomingMidiData[1]);
-        addFSGameboyByte(incomingMidiData[2]);
         blinkLight(incomingMidiData[0],incomingMidiData[2]);
       }
     } else {
@@ -216,22 +209,14 @@ void updateFSGameboyByteFrame()
  */
 void sendFSByteToGameboy(byte send_byte)       //changed by firestARTer: send routine changed MST is send out first!!!!!!!
 {
- for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
-//    digitalWrite(pinGBClock,HIGH);  //Set our clock output to 1
-   if(send_byte & 0x80) {          //if the first bit is equal to 1
-     digitalWrite(pinGBSerialOut,HIGH); //then send a 1
+ for(countLSDJTicks=0;countLSDJTicks!=8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
+   if(send_byte & 0x80) {
+       PORTD = B01010000;
+       PORTD = B01110000;
    } else {
-     digitalWrite(pinGBSerialOut,LOW);  //send a 0
+       PORTD = B00010000;
+       PORTD = B00110000;
    }
-   send_byte <<= 1;                //bitshift right once for the next bit we are going to send
-   digitalWrite(pinGBClock,LOW);   //send a 0 to the clock, we finished sending the bit
-
-   delayMicroseconds(gameboyBitPauseLOW);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
-   digitalWrite(pinGBClock,HIGH);   //send a 0 to the clock, we finished sending the bit
-   delayMicroseconds(gameboyBitPauseHIGH);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
-
+   send_byte <<= 1;
  }
- digitalWrite(pinGBSerialOut,LOW); //make sure the serial state returns to 0 after its done sending the bits
-// delayMicroseconds(gameboyBitPauseLOW);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
- 
 }
