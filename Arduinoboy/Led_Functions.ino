@@ -6,25 +6,32 @@
  */
 void showSelectedMode()
 {
-  for(int m=0;m<3;m++) {
   digitalWrite(pinStatusLed,LOW);
-  digitalWrite(pinLeds[0],LOW);
-  digitalWrite(pinLeds[1],LOW);
-  digitalWrite(pinLeds[2],LOW);
-  digitalWrite(pinLeds[3],LOW);
-  digitalWrite(pinLeds[4],LOW);
-  if(memory[MEM_MODE] == 5) {
-    digitalWrite(pinStatusLed,HIGH);
-  } else if(memory[MEM_MODE] == 6) {
-    digitalWrite(pinStatusLed,HIGH);
-    digitalWrite(pinLeds[0],HIGH);
-    digitalWrite(pinLeds[1],HIGH);
-    digitalWrite(pinLeds[2],HIGH);
-    digitalWrite(pinLeds[3],HIGH);
-    digitalWrite(pinLeds[4],HIGH);
-  } else {
-    digitalWrite(pinLeds[memory[MEM_MODE]],HIGH);
-  }
+  
+  for(int m=0;m<3;m++) {
+    switch(memory[MEM_MODE]) {
+      case 0:
+      case 1:
+      case 2:
+      case 3:
+      case 4:
+        digitalWrite(pinLeds[memory[MEM_MODE]],HIGH);
+        break;
+      case 5:
+        digitalWrite(pinStatusLed,HIGH);
+        digitalWrite(pinLeds[0],HIGH);
+        digitalWrite(pinLeds[1],HIGH);
+        break;
+      case 6:
+        digitalWrite(pinStatusLed,HIGH);
+        digitalWrite(pinLeds[0],HIGH);
+        digitalWrite(pinLeds[1],HIGH);
+        digitalWrite(pinLeds[2],HIGH);
+        digitalWrite(pinLeds[3],HIGH);
+        digitalWrite(pinLeds[4],HIGH);
+        break;
+      
+    }
   delay(100);
   digitalWrite(pinStatusLed,LOW);
   digitalWrite(pinLeds[0],LOW);

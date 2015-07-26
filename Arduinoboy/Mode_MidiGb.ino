@@ -21,13 +21,14 @@ void modeMidiGbSetup()
 
 void modeMidiGb()
 {
+  boolean sendByte = false;
   while(1){                                //Loop foreverrrr
-    if (Serial.available() > 0) {          //If MIDI is sending
+    if (Serial.available()) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
       
       if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
       
-      if(incomingMidiByte > 0x7F) {    
+      if(incomingMidiByte & 0x80) {    
         switch (incomingMidiByte & 0xF0) {
           case 0xF0:
             midiValueMode = false;
@@ -35,33 +36,39 @@ void modeMidiGb()
           default:
             midiStatusChannel = incomingMidiByte&0x0F;
             midiStatusType    = incomingMidiByte&0xF0;
-            
             if(midiStatusChannel == memory[MEM_MGB_CH]) {
-               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH];
+               incomingMidiData[0] = midiStatusType;
+               sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+1]) {
-               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+1];
+               incomingMidiData[0] = midiStatusType+1;
+               sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+2]) {
-               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+2];
+               incomingMidiData[0] = midiStatusType+2;
+               sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+3]) {
-               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+3];
+               incomingMidiData[0] = midiStatusType+3;
+               sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
-               incomingMidiData[0] = midiStatusType|memory[MEM_MGB_CH+4];
+               incomingMidiData[0] = midiStatusType+4;
+               sendByte = true;
             }
-            midiValueMode  =false;
-            midiAddressMode=true;
+            if(sendByte) {
+              sendByteToGameboy(incomingMidiData[0]);
+              midiValueMode  =false;
+              midiAddressMode=true;
+            }
            break;
         }
       } else if (midiAddressMode){
         midiAddressMode = false;
         midiValueMode = true;
         incomingMidiData[1] = incomingMidiByte;
+        sendByteToGameboy(incomingMidiData[1]);
       } else if (midiValueMode) {
         incomingMidiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
         
-        sendByteToGameboy(incomingMidiData[0]);
-        sendByteToGameboy(incomingMidiData[1]);
         sendByteToGameboy(incomingMidiData[2]);
         blinkLight(incomingMidiData[0],incomingMidiData[2]);
       }

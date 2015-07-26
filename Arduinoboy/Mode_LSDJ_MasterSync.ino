@@ -24,7 +24,7 @@ void modeLSDJMasterSyncSetup()
 void modeLSDJMasterSync()
 {
   while(1){
-    if (Serial.available() > 0) {                  //If serial data was send to midi input
+    if (Serial.available()) {                  //If serial data was send to midi input
       incomingMidiByte = Serial.read();            //Read it
       if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);        //Send it to the midi output
     }

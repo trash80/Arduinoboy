@@ -31,11 +31,11 @@ void modeLSDJMap()
   while(1){  //Loop forever
 
   checkClockTick();
-  if (Serial.available() > 0) {                 //If MIDI Byte Availaibleleleiel
+  if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
     checkForProgrammerSysex(incomingMidiByte);
     
-    if(incomingMidiByte > 0x7F) {               //If we have received a MIDI Status Byte
+    if(incomingMidiByte & 0x80) {                //If we have received a MIDI Status Byte
       switch (incomingMidiByte) {                    
         case 0xF8:                                //Case: Clock Message Recieved
           if(sequencerStarted){

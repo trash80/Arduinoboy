@@ -55,9 +55,9 @@ void modeLSDJMidiout()
         setMode();                // Check if mode button was depressed
         updateBlinkLights();
         
-        //if (Serial.available() > 0) {                  //If serial data was send to midi inp
-        //  checkForProgrammerSysex(Serial.read());
-        //}
+        if (Serial.available()) {                  //If serial data was send to midi inp
+          checkForProgrammerSysex(Serial.read());
+        }
       }
    }
 }

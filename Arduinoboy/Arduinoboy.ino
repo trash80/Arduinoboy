@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.2.0                                                          *
- * Date:    Oct 31 2010                                                    *
+ * Version: 1.2.1                                                          *
+ * Date:    May 3 2011                                                     *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -140,7 +140,7 @@ byte defaultMemoryMap[MEM_MAX] = {
   
   0, 1, 2, 3, 4, //mGB midi channels (0-15 = 1-16)
   15, //livemap / sync map midi channel (0-15 = 1-16)
-  60,1,  //midiout bit check delay & bit check delay multiplier 
+  80,1,  //midiout bit check delay & bit check delay multiplier 
   0,0//midiout byte received delay & byte received delay multiplier 
 };
 byte memory[MEM_MAX];

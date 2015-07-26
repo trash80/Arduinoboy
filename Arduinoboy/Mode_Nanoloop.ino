@@ -21,12 +21,12 @@ void modeNanoloopSetup()
 void modeNanoloopSync()
 {
   while(1){  //Loop forever
-  if (Serial.available() > 0) {                 //If MIDI Byte Availaibleleleiel
+  if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
     if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
     
     
-    if(incomingMidiByte > 0x7F) {               //If we have received a MIDI Status Byte
+    if(incomingMidiByte & 0x80) { 
     switch (incomingMidiByte) { 
       case 0xF8:                                 // Clock Message Recieved
                                                  // Send a clock tick out if the sequencer is running

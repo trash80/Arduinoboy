@@ -36,7 +36,7 @@ void modeLSDJKeyboardSetup()
 void modeLSDJKeyboard()
 {
   while(1){                              //Loop foreverrrr
-  if (Serial.available() > 0) {          //If MIDI is sending
+  if (Serial.available()) {          //If MIDI is sending
     incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
     if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);//Echo the Byte to MIDI Output
     
@@ -45,7 +45,7 @@ void modeLSDJKeyboard()
      * Midi to LSDJ Keyboard Handling                                          *
      ***************************************************************************/
     //If the byte is a Status Message
-    if(incomingMidiByte > 0x7F) {    
+    if(incomingMidiByte & 0x80) {    
       /* Status message Information (# = midi channel 0 to F [1-16] )
           0x8# = Note Off
           0x9# = Note On

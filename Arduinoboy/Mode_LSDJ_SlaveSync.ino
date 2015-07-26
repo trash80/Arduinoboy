@@ -24,12 +24,12 @@ void modeLSDJSlaveSyncSetup()
 void modeLSDJSlaveSync()
 {
   while(1){  //Loop forever
-  if (Serial.available() > 0) {                 //If MIDI Byte Availaibleleleiel
+  if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
     
     if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
     
-    if(incomingMidiByte > 0x7F) {               //If we have received a MIDI Status Byte
+    if(incomingMidiByte & 0x80) {               //If we have received a MIDI Status Byte
     switch (incomingMidiByte) {                    
       case 0xF8:                                //Case: Clock Message Recieved
         if(sequencerStarted && midiSyncEffectsTime && !countSyncTime   //If the seq has started and our sync effect is on and at zero
