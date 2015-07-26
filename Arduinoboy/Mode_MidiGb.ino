@@ -34,6 +34,7 @@ void modeMidiGb()
             midiValueMode = false;
             break;
           default:
+            sendByte = false;
             midiStatusChannel = incomingMidiByte&0x0F;
             midiStatusType    = incomingMidiByte&0xF0;
             if(midiStatusChannel == memory[MEM_MGB_CH]) {
@@ -51,6 +52,9 @@ void modeMidiGb()
             } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
                incomingMidiData[0] = midiStatusType+4;
                sendByte = true;
+            } else {
+              midiValueMode  =false;
+              midiAddressMode=false;
             }
             if(sendByte) {
               sendByteToGameboy(incomingMidiData[0]);
