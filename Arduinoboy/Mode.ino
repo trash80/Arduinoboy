@@ -24,7 +24,7 @@
  */
 void setMode()
 {
-  if(digitalRead(pinButtonMode)) { //if the button is pressed
+  if(!forceMode && digitalRead(pinButtonMode)) { //if the button is pressed
     mode++;                           //increment the mode number
     if(mode > (numberOfModes - 1)) mode=0;  //if the mode is greater then 4 it will wrap back to 0
     if(!forceMode) EEPROM.write(eepromMemoryByte, mode); //write mode to eeprom if we arnt forcing a mode in the config
@@ -66,6 +66,9 @@ void switchMode()
       break;
     case 3:
       modeNanoloopSetup();
+      break;
+    case 4:
+      modeMidiGbSetup();
       break;
   }
 }

@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 0.9.8                                                          *
- * Date:    March 11 2008                                                  *
+ * Version: 0.9.9.1                                                          *
+ * Date:    Sept 12 2008                                                  *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -74,16 +74,20 @@ int masterNotePositionMidiChannel = 16;   //LSDJ in master mode will send its so
 int keyboardInstrumentMidiChannel = 16;  //midi channel for keyboard instruments in lsdj.
 
 boolean keyboardCompatabilityMode = true; //Set to true if you are using LSDJ version lower then 2.6, not working right now
+boolean keyboardMidiChannelToInstrument = true; //Set to true if you want to have midi channel set the instrument number
 
 //Mode 0: Midi Input to LSDJ Sync
 //Mode 1: LSDJ MASTER to Midi output
 //Mode 2: LSDJ Keyboard
 //Mode 3: Midi Input to Nanoloop 
 int mode          = 0;
-int numberOfModes = 4; //Right now there are 4 modes, Might be more in the future
-
+int numberOfModes = 5; //Right now there are 5 modes, Might be more in the future
+boolean usbMode   = false;
 //Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
 boolean forceMode = false; 
+
+int gameboyBitPause = 1;    //Bit pause for gbmidi mode    .... 1 to 20
+int gameboyBytePause= 20;   //Byte pause for gbmidi mode ... if having trouble communicating with gb try playing with these values... 20 to 100
 
 /***************************************************************************
 * Lets Assign our Arduino Pins .....
@@ -114,11 +118,15 @@ boolean midiSyncEffectsTime = false;
 boolean midiNoteOnMode   =false;
 boolean midiNoteOffMode  =false;
 boolean midiProgramChange=false;
+boolean midiAddressMode  =false;
+boolean midiValueMode    =false;
+
 boolean statusLedIsOn    =false;
 boolean statusLedBlink   =false;
 
 boolean nanoState        =false;
 boolean nanoSkipSync     =false;
+
 /***************************************************************************
 * Counter vars
 ***************************************************************************/
@@ -139,6 +147,7 @@ byte readgbClockLine;
 byte readGbSerialIn;
 byte bit;
 int incomingMidiData[] = {0, 0, 0};
+int lastMidiData[] = {0, 0, 0};
 
 int incomingMidiNote = 0;
 int incomingMidiVel = 0;
@@ -203,17 +212,20 @@ void setup() {
   
   pinMode(pinGBClock,OUTPUT); 
   pinMode(pinGBSerialOut,OUTPUT); 
-  pinMode(pinMidiInputPower,OUTPUT); 
   pinMode(pinGBSerialIn,INPUT);
 /*
   Set MIDI Serial Rate
 */
-  Serial.begin(31250); //31250
-  
+  if(usbMode == true) {
+    Serial.begin(38400); //31250
+  } else {
+    pinMode(pinMidiInputPower,OUTPUT); 
+    digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
+    Serial.begin(31250); //31250
+  }
 /*
   Set Pin States
 */
-  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinGBClock,HIGH);    // gameboy wants a HIGH line
   digitalWrite(pinGBSerialOut,LOW);    // no data to send
 /*
