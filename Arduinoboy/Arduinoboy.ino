@@ -27,13 +27,11 @@ int mode = 0;  //Mode 0: Midi Input to LSDJ Sync, Mode 1: LSDJ MASTER to Midi ou
 /***************************************************************************
 * Lets Assign our Arduino Pins .....
 ***************************************************************************/
-int gbClockOut = 12;    // clock out to gameboy
+int gbClockLine = 12;    // clock out to gameboy
 int gbSerialOut = 11;    // serial data to gameboy
+int gbSerialIn = 10;    // serial data from gameboy
 
-int gbClockIn = 2;    // clock in from gameboy
-int gbSerialIn = 3;    // serial data from gameboy
-
-int midiInputPower = 10; // power pin for midi input opto-isolator
+int midiInputPower = 2; // power pin for midi input opto-isolator
 
 int ledSequencerStop = 8; // stopped light pin
 int ledSequencerStart = 9;  // start light pin
@@ -58,7 +56,7 @@ int countIncommingMidiByte =0;
 * Inbound Data Placeholders
 ***************************************************************************/
 byte incomingMidiByte;  //incomming midi message
-byte readGbClockIn;
+byte readgbClockLine;
 byte readGbSerialIn;
 
 int incomingMidiNote = 0;
@@ -67,20 +65,19 @@ int incomingMidiVel = 0;
 
 void setup() {
 /*
-  Init Output Pins
+  Init Pins
 */
   pinMode(ledSequencerStop,OUTPUT); 
   pinMode(ledSequencerStart,OUTPUT); 
-  pinMode(gbClockOut,OUTPUT); 
-  pinMode(gbSerialOut,OUTPUT); 
-  pinMode(midiInputPower,OUTPUT); 
   
-/*
-  Init Input Pins
-*/
-  pinMode(gbClockIn,INPUT); 
-  pinMode(gbSerialIn,INPUT);
-  
+  if(mode==0) {
+    pinMode(gbClockLine,OUTPUT); 
+    pinMode(gbSerialOut,OUTPUT); 
+    pinMode(midiInputPower,OUTPUT); 
+  } else if (mode==1) {
+    pinMode(gbClockLine,INPUT); 
+    pinMode(gbSerialIn,INPUT);
+  }
 /*
   Set MIDI Serial Rate
 */
@@ -90,7 +87,7 @@ void setup() {
   Set Pin States
 */
   digitalWrite(midiInputPower, HIGH); // turn on the optoisolator
-  digitalWrite(gbClockOut, HIGH);    // gameboy wants a HIGH line
+  digitalWrite(gbClockLine, HIGH);    // gameboy wants a HIGH line
   digitalWrite(gbSerialOut, LOW);    // no data to send
   digitalWrite(ledSequencerStop, HIGH);  // then turn it on
   
@@ -114,16 +111,16 @@ void loop () {
 void modeGameboyMasterSync()
 {
   while(1){
-  readGbClockIn = digitalRead(gbClockIn); //Read gameboy's clock line
-  if(readGbClockIn) {
-    while(readGbClockIn) {
+  readgbClockLine = digitalRead(gbClockLine); //Read gameboy's clock line
+  if(readgbClockLine) {
+    while(readgbClockLine) {
       countClockPause++;
       if(sequencerStarted && countClockPause > 8000) {
           Serial.print(0xFC, BYTE);
           countClockPause = 0;
           sequencerStop();
       }
-      readGbClockIn = digitalRead(gbClockIn);
+      readgbClockLine = digitalRead(gbClockLine);
     }
     countClockPause = 0;
     countGbClockTicks++;
@@ -189,7 +186,7 @@ void sequencerStop()
 void sendClockTickToLSDJ()
 {
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {
-    digitalWrite(gbClockOut,LOW);digitalWrite(gbClockOut,HIGH);
+    digitalWrite(gbClockLine,LOW);digitalWrite(gbClockLine,HIGH);
   }
 }
 
