@@ -13,6 +13,7 @@
 
 void modeLSDJKeyboardSetup()
 {
+  pinMode(pinGBClock,OUTPUT);
   addGameboyByte(0);
   for(int rst=0;rst<5;rst++) addGameboyByte(keyboardOctDn);
   for(int rst=0;rst<41;rst++) addGameboyByte(keyboardInsDn);
@@ -44,11 +45,7 @@ void modeLSDJKeyboard()
           incomingMidiData[0] = incomingMidiByte - 48;
           break;
         default:
-          midiNoteOnMode = false;
-          midiProgramChange = false;
-          incomingMidiData[1] = false;
           break;
-          
       }
     } else if(midiNoteOnMode) {
       if(!incomingMidiData[1]) {

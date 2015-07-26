@@ -20,7 +20,6 @@ void modeLSDJSlaveSyncSetup()
 void modeLSDJSlaveSync()
 {
   while(1){
-  setMode();
   if (Serial.available() > 0) {
     incomingMidiByte = Serial.read();
     Serial.print(incomingMidiByte, BYTE);
@@ -36,6 +35,9 @@ void modeLSDJSlaveSync()
           countSyncTime++;
           countSyncTime = countSyncTime % countSyncSteps;
         }
+        if(!countSyncPulse) statusLedOn();
+        countSyncPulse++;
+        countSyncPulse = countSyncPulse % 24;
         break;
       case 0xFA: // Transport Start Message
       case 0xFB: // Transport Continue Message
@@ -61,6 +63,10 @@ void modeLSDJSlaveSync()
       }
     }
     setMode();
+    updateStatusLed();
+  } else {
+    setMode();
+    updateStatusLed();
   }
   
   }

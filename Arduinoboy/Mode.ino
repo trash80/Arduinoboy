@@ -53,30 +53,30 @@ void switchMode()
 
 void sequencerStart()
 {
-  digitalWrite(pinLeds[3], HIGH);
-  digitalWrite(pinStatusLed, LOW);
   sequencerStarted = true;
+  countSyncPulse = 0;
+  countSyncTime = 0;
 }
 
 void sequencerStop()
 {
-  digitalWrite(pinLeds[3], LOW);
-  digitalWrite(pinStatusLed, HIGH);
   midiSyncEffectsTime = false;
   sequencerStarted = false;
+  countSyncPulse = 0;
+  countSyncTime = 0;
 }
 
 void updateStatusLed()
 {
   if(statusLedIsOn) {
     countStatusLedOn++;
-    if(countStatusLedOn > 5000) {
+    if(countStatusLedOn > 3000) {
       countStatusLedOn = 0;
        digitalWrite(pinStatusLed,LOW);
        statusLedIsOn  = false;
     } else if (statusLedBlink && countStatusLedOn == 1) {
        digitalWrite(pinStatusLed,LOW);
-    } else if (statusLedBlink && countStatusLedOn > 2000) {
+    } else if (statusLedBlink && countStatusLedOn > 1000) {
        statusLedBlink = false;
        digitalWrite(pinStatusLed,HIGH);
     }

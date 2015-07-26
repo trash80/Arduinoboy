@@ -19,7 +19,6 @@ void modeLSDJMasterSyncSetup()
 void modeLSDJMasterSync()
 {
   while(1){
-  setMode();
   readgbClockLine = digitalRead(pinGBClock); //Read gameboy's clock line
   if(readgbClockLine) {
     while(readgbClockLine) {
@@ -32,6 +31,7 @@ void modeLSDJMasterSync()
       readgbClockLine = digitalRead(pinGBClock);
       setMode();
     }
+    updateStatusLed();
     countClockPause = 0;
     countGbClockTicks++;
     if(countGbClockTicks == 8) {
@@ -41,11 +41,15 @@ void modeLSDJMasterSync()
           sequencerStart();
       }
       Serial.print(0xF8, BYTE);
+      if(!countSyncPulse) statusLedOn();
+      countSyncPulse++;
+      countSyncPulse = countSyncPulse % 24;
     }
   }
   if (Serial.available() > 0) {
     incomingMidiByte = Serial.read();
     Serial.print(incomingMidiByte, BYTE);
   }
+  setMode();
   }
 }
