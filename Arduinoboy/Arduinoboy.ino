@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.0.4                                                          *
- * Date:    Oct 25 2008                                                    *
+ * Version: 1.0.5                                                          *
+ * Date:    Oct 28 2008                                                    *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -89,7 +89,7 @@ boolean usbMode   = false; //to use usb for serial communication as oppose to MI
 
 int gameboyBitPauseLOW  = 5;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 5=GBA/SP/DMG01   ---   
 int gameboyBitPauseHIGH = 1;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 1=GBA/SP/DMG01   ---    (note: roughly 4 microseconds off from Low do to code that writes to the serial line)
-int gameboyBytePause= 30;       //Byte pause for gbmidi mode   .... 5 to 20 /// tested working value: 5=GBA/SP/GBC and 10=DMG
+int gameboyBytePause= 10;       //Byte pause for gbmidi mode   .... 5 to 20 /// tested working value: 5=GBA/SP/GBC and 10=DMG
 
 /***************************************************************************
 * Lets Assign our Arduino Pins .....

@@ -22,11 +22,10 @@ void modeMidiGbSetup()
 void modeMidiGb()
 {
   while(1){                                //Loop foreverrrr
-
+    updateFSGameboyByteFrame();
     if (Serial.available() > 0) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
       addFSGameboyByte(incomingMidiByte);
-      
       //if(!usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
       if(incomingMidiByte > 0x7F) {    
         switch (incomingMidiByte & 0xF0) {
@@ -52,11 +51,11 @@ void modeMidiGb()
         midiValueMode = false;
         blinkLight(incomingMidiData[0],incomingMidiData[2]);
       }
+      
     } else {
       setMode();                // Check if mode button was depressed
       updateBlinkLights();
     }
-    updateFSGameboyByteFrame(); // Send out Bytes to LSDJ
   }
 }
 
