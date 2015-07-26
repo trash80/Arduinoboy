@@ -1,8 +1,8 @@
 /**************************************************************************
  *         A     R     D     U     I     N     O     B     O     Y        *
  *                                                                        *
- * Version: 0.01A                                                         *
- * Date:    Feb 23 2008                                                   *
+ * Version: 0.2.1                                                         *
+ * Date:    Feb 24 2008                                                   *
  * Name:    Timothy Lamb                                                  *
  * Email:   trash80@gmail.com                                             *
  *                                                                        *
@@ -16,7 +16,8 @@
  *                                                                         *
  ***************************************************************************/
  
-int syncOut = 12;    // gb output
+int syncOut = 12;    // clock out to gameboy
+int dataOut = 11;    // serial data to gameboy
 int midiEnable = 10; // power opticouplah
 
 int statusLed = 8; // power light
@@ -32,12 +33,14 @@ void setup() {
   pinMode(statusLed,OUTPUT); 
   pinMode(clockLed,OUTPUT); 
   pinMode(syncOut,OUTPUT); 
+  pinMode(dataOut,OUTPUT); 
   pinMode(midiEnable,OUTPUT); 
   
   Serial.begin(31250);	  //midi baudrate
   
   digitalWrite(midiEnable, HIGH); // turn on the optoisolator
   digitalWrite(syncOut, HIGH);    // gameboy wants a HIGH line
+  digitalWrite(dataOut, LOW);    // no data to send
   
   blinkStatus(5,80);              // blink our status led 5 times
   digitalWrite(statusLed, HIGH);  // then turn it on
@@ -48,33 +51,41 @@ void loop () {
     incomingByte = Serial.read();
     switch (incomingByte) {
     case 248: // Clock Message Recieved
+      //send a clock tick out if the sequencer is runn
       if(seqStart == true) {
-        for(sigCount=0;sigCount<8;sigCount++) {
-          outputDelay(LOW);
-          outputDelay(HIGH);
-        }
+        sendClockTick();
       }
       break;
     case 250: // Transport Start Message
     case 251: // Transport Continue Message
-     digitalWrite(clockLed, HIGH);
-     digitalWrite(statusLed, LOW);
-     seqStart = true;
-     break;
+      sequencerStart();
+      break;
     case 252: // Transport Stop Message
-     digitalWrite(clockLed, LOW);
-     digitalWrite(statusLed, HIGH);
-     seqStart = false;
-     break;
+      sequencerStop();
+      break;
     }
   }
 }
 
-void outputDelay(byte CURRENT)
+void sequencerStart()
 {
-  digitalWrite(syncOut,CURRENT);
-  // We want to pause our output for some time because the gameboy's slow. Its usual clock rate is 8khz
-  delayMicroseconds(200);
+  digitalWrite(clockLed, HIGH);
+  digitalWrite(statusLed, LOW);
+  seqStart = true;
+}
+
+void sequencerStop()
+{
+  digitalWrite(clockLed, LOW);
+  digitalWrite(statusLed, HIGH);
+  seqStart = false;
+}
+
+void sendClockTick()
+{
+  for(sigCount=0;sigCount<8;sigCount++) {
+    digitalWrite(syncOut,LOW);digitalWrite(syncOut,HIGH);
+  }
 }
 
 void blinkStatus(int times, int period)
