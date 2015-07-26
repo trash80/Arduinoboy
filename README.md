@@ -1,4 +1,4 @@
-[image]: (http://trash80.net/arduinoboy/aboy1_2_0.jpg)
+![ScreenShot](http://trash80.net/arduinoboy/aboy1_2_0.jpg)
 
 # Arduinoboy
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
@@ -148,7 +148,7 @@ Arduinoboy is software for the [http://arduino.cc Arduino hardware platform] tha
  * Default Midi channel is 16. You can change in the top of the main source file in the archive. 
 
 ## About mGB
-http://trash80.net/arduinoboy/mGB1_2_0.png
+![ScreenShot](http://trash80.net/arduinoboy/mGB1_2_0.png)
 
 mGB is a Gameboy cartridge program (You need a Flash Cart and Transfer hardware) That enables the Gameboy to act as a full MIDI supported sound module. It works with the old DMG Gameboy as well as GBC/GBA.
 
