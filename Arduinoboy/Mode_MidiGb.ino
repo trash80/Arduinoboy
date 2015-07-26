@@ -46,22 +46,10 @@ void modeMidiGb()
         incomingMidiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
-        
-        if(lastMidiData[0] != incomingMidiData[0] || 
-           lastMidiData[1] != incomingMidiData[1] || 
-           lastMidiData[2] != incomingMidiData[2]) {
-           if(lastMidiData[0] != incomingMidiData[0]) {
-             addFSGameboyByte(incomingMidiData[0]);  
-           }
-           
+           addFSGameboyByte(incomingMidiData[0]);
            addFSGameboyByte(incomingMidiData[1]);
            addFSGameboyByte(incomingMidiData[2]);
-           
-           lastMidiData[0] = incomingMidiData[0];
-           lastMidiData[1] = incomingMidiData[1];
-           lastMidiData[2] = incomingMidiData[2];
            blinkLight(incomingMidiData[0],incomingMidiData[2]);
-        }
       }
     }
     updateFSGameboyByteFrame(); // Send out Bytes to LSDJ
