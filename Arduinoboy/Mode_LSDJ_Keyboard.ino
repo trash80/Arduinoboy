@@ -21,7 +21,6 @@ void modeLSDJKeyboardSetup()
   keyboardCurrentOct = 0;
   keyboardCurrentIns = 0;
   keyboardCurrentTbl = 0;
-  
   modeLSDJKeyboard();
 }
 
@@ -100,9 +99,13 @@ void playLSDJProgramChange()
 
 void playLSDJKeyboardNote()
 {
-  if(incomingMidiData[1] >= 0x3C) {
-    incomingMidiData[1] = incomingMidiData[1] - 0x3C;
-    if(incomingMidiData[1] >= 0x30) {
+  if(incomingMidiData[1] >= keyboardNoteStart) {
+    keyboardNoteOffset = 0;
+    incomingMidiData[1] = incomingMidiData[1] - keyboardNoteStart;
+    if(incomingMidiData[1] >= 0x3C) {
+      keyboardNoteOffset = 0x0C;
+      keyboardCurrentOct = 4;
+    } else if(incomingMidiData[1] >= 0x30) {
       keyboardCurrentOct = 4;
     } else if (incomingMidiData[1] >= 0x24) {
       keyboardCurrentOct = 3;
@@ -114,70 +117,30 @@ void playLSDJKeyboardNote()
       keyboardCurrentOct = 0;
     }
   
-  if(keyboardCurrentOct != keyboardLastOct)
-  {
-    if(keyboardCurrentOct > keyboardLastOct) {
-      keyboardDiff = keyboardCurrentOct - keyboardLastOct;
-      for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
-      {
-        addGameboyByte(keyboardOctUp);
-      }
-    } else {
-      keyboardDiff = keyboardLastOct - keyboardCurrentOct;
-      for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
-      {
-        addGameboyByte(keyboardOctDn);
+    if(keyboardCurrentOct != keyboardLastOct)
+    {
+      if(keyboardCurrentOct > keyboardLastOct) {
+        keyboardDiff = keyboardCurrentOct - keyboardLastOct;
+        for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
+        {
+          addGameboyByte(keyboardOctUp);
+        }
+      } else {
+        keyboardDiff = keyboardLastOct - keyboardCurrentOct;
+        for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
+        {
+          addGameboyByte(keyboardOctDn);
+        }
       }
     }
-  }
   
-  incomingMidiData[1] = incomingMidiData[1] % 12;
-  addGameboyByte(keyboardNotes[incomingMidiData[1]]);
-  keyboardLastOct = keyboardCurrentOct;
-  keyboardLastIns = keyboardCurrentIns;
-  } else {
-    switch(incomingMidiData[1]) {
-      case 0x30:
-        addGameboyByte(keyboardMut1);
-        break;
-      case 0x31:
-        addGameboyByte(keyboardMut2);
-        break;
-      case 0x32:
-        addGameboyByte(keyboardMut3);
-        break;
-      case 0x33:
-        addGameboyByte(keyboardMut4);
-        break;
-      case 0x34:
-        addGameboyByte(keyboardEntr);
-        break;
-      case 0x35:
-        addGameboyByte(0xE0);
-        addGameboyByte(keyboardCurL);
-        break;
-      case 0x36:
-        addGameboyByte(0xE0);
-        addGameboyByte(keyboardCurR);
-        break;
-      case 0x37:
-        addGameboyByte(0xE0);
-        addGameboyByte(keyboardCurU);
-        break;
-      case 0x38:
-        addGameboyByte(0xE0);
-        addGameboyByte(keyboardCurD);
-        break;
-      case 0x39:
-        addGameboyByte(keyboardTblDn);
-        break;
-      case 0x3A:
-        addGameboyByte(keyboardTblUp);
-        break;
-      case 0x3B:
-        addGameboyByte(keyboardTblCue);
-        break;
-    }
+    incomingMidiData[1] = (incomingMidiData[1] % 12) + keyboardNoteOffset;
+    addGameboyByte(keyboardNotes[incomingMidiData[1]]);
+    keyboardLastOct = keyboardCurrentOct;
+    keyboardLastIns = keyboardCurrentIns;
+  
+  } else if (incomingMidiData[1] >=keyboardStartOctave) {
+    addGameboyByte(keyboardCommands[incomingMidiData[1] - keyboardStartOctave]);
   }
 }
 

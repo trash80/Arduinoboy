@@ -1,17 +1,17 @@
 /***************************************************************************
  ***************************************************************************
- *                          __      _             __                       *
- *          ____ __________/ /_  __(_)___  ____  / /_  ____  __  __        *
- *         / __ `/ ___/ __  / / / / / __ \/ __ \/ __ \/ __ \/ / / /        *
- *        / /_/ / /  / /_/ / /_/ / / / / / /_/ / /_/ / /_/ / /_/ /         *
- *        \__,_/_/   \__,_/\__,_/_/_/ /_/\____/_.___/\____/\__, /          *
- *                                                        /____/           *
+ *                         __      _             __                        *
+ *         ____ __________/ /_  __(_)___  ____  / /_  ____  __  __         *
+ *        / __ `/ ___/ __  / / / / / __ \/ __ \/ __ \/ __ \/ / / /         *
+ *       / /_/ / /  / /_/ / /_/ / / / / / /_/ / /_/ / /_/ / /_/ /          *
+ *       \__,_/_/   \__,_/\__,_/_/_/ /_/\____/_.___/\____/\__, /           *
+ *                                                       /____/            *
  *                                                                         *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 0.8.7                                                          *
- * Date:    March 07 2008                                                  *
+ * Version: 0.9.1                                                          *
+ * Date:    March 08 2008                                                  *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -56,9 +56,6 @@
  *      60 - C-3 to C-8 Notes!                                             *
  *      Prgram Change to select from instrument table                      *
  *                                                                         *
- *    Special Thanks to firestARTer for help with                          *
- *    keyboard & Midi handling information.                                *
- *                                                                         *
  ***************************************************************************/
 /***************************************************************************
  *                                                                         *
@@ -76,7 +73,11 @@
 int syncEffectsMidiChannel = 16;         //midi sync effects for lsdj slave mode
 int keyboardInstrumentMidiChannel = 16;  //midi channel for keyboard instruments in lsdj
 
-//Mode 0: Midi Input to LSDJ Sync, Mode 1: LSDJ MASTER to Midi output, Mode 2: LSDJ Keyboard
+//Mode 0: Midi Input to LSDJ Sync
+//Mode 1: LSDJ MASTER to Midi output
+//Mode 2: LSDJ Keyboard
+//Mode 3: Midi Input to Nanoloop 
+//Mode 4: Pushpin Interface
 int mode = 0;
 
 //Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
@@ -113,6 +114,9 @@ boolean midiNoteOffMode  =false;
 boolean midiProgramChange=false;
 boolean statusLedIsOn    =false;
 boolean statusLedBlink   =false;
+
+boolean nanoState        =false;
+boolean nanoSkipSync     =false;
 /***************************************************************************
 * Counter vars
 ***************************************************************************/
@@ -178,6 +182,10 @@ int keyboardLastTbl = 0;
 
 int keyboardDiff = 0;
 int keyboardCount = 0;
+byte keyboardStartOctave = 0x24;
+byte keyboardNoteStart = 0;
+byte keyboardNoteOffset = 0;
+byte keyboardCommands[12];
 
 void setup() {
 /*
@@ -209,7 +217,19 @@ void setup() {
 */
   syncEffectsMidiChannel = 143 + syncEffectsMidiChannel; //set the midi channel to the real number (144 to 159)
   keyboardInstrumentMidiChannel = 143 + keyboardInstrumentMidiChannel; //set the midi channel to the real number (144 to 159)
-  
+  keyboardNoteStart = keyboardStartOctave + 12;
+  keyboardCommands[0] = keyboardMut1;
+  keyboardCommands[1] = keyboardMut2;
+  keyboardCommands[2] = keyboardMut3;
+  keyboardCommands[3] = keyboardMut4;
+  keyboardCommands[4] = keyboardCurL;
+  keyboardCommands[5] = keyboardCurR;
+  keyboardCommands[6] = keyboardCurU;
+  keyboardCommands[7] = keyboardCurD;
+  keyboardCommands[8] = keyboardEntr;
+  keyboardCommands[9] = keyboardTblDn;
+  keyboardCommands[10] = keyboardTblUp;
+  keyboardCommands[11] = keyboardTblCue;
 /*
   Load Settings from EEPROM
 */

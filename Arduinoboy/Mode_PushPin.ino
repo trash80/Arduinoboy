@@ -14,6 +14,7 @@
 // Placeholder, not implemented yet. :/
 void modePushpinSetup()
 {
+  pinMode(pinGBClock,OUTPUT);
   while(1){
   setMode();
   }
