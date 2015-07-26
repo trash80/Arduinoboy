@@ -4,7 +4,7 @@
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
 
 ## About 
-Arduinoboy is software for the [http://arduino.cc Arduino hardware platform] that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [http://littlesounddj.com LittleSoundDJ], [http://www.nanoloop.com/ Nanoloop.], and mGB (Featured here)
+Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and mGB (Featured here)
 
 ## News
  * 12/21/12
@@ -94,11 +94,11 @@ Arduinoboy is software for the [http://arduino.cc Arduino hardware platform] tha
 
 ## Video Demos
 
-  * [http://youtube.com/watch?v=TnLUuvc78XY Keyboard Mode Test]
-  * [http://youtube.com/watch?v=iVmhy-Lo7BI Sync Demos]
-  * [http://youtube.com/watch?v=VwrMuOA0VnY Arduino inside of Gameboy DMG]
-  * [http://vimeo.com/1853931 mGB Example & Arduinoboy build into a DMG]
-  * [http://www.youtube.com/watch?v=HAU9MzZ2qeE PDF explores mGB with a MIDI guitar]
+  * [Keyboard Mode Test](http://youtube.com/watch?v=TnLUuvc78XY)
+  * [Sync Demos](http://youtube.com/watch?v=iVmhy-Lo7BI)
+  * [Arduino inside of Gameboy DMG](http://youtube.com/watch?v=VwrMuOA0VnY)
+  * [mGB Example & Arduinoboy build into a DMG](http://vimeo.com/1853931)
+  * [PDF explores mGB with a MIDI guitar](http://www.youtube.com/watch?v=HAU9MzZ2qeE)
 
 ## Current Features
   * Affordable and easily accessible parts for assembly.
@@ -256,21 +256,17 @@ Note: the name and number at the bottom left of the screen indicates the midi CC
 
 ## How To
 ![ScreenShot](http://farm3.static.flickr.com/2229/2316803721_c22f9c2387.jpg)
-(Coming soon)
-[http://flickr.com/photos/trash80/2316803175/in/set-72157604068871573/ Check out the flickr set.]
-
 ![ScreenShot](http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png)
-
-[http://trash80.net/junkfood/arduinoboy/arduinoboy-schem-v.0.9.8-r1.png Old version pre 1.1.0 Here ]
-
+* [Build Photos](http://flickr.com/photos/trash80/2316803175/in/set-72157604068871573/)
+* [Old version (Pre 1.1.0)](http://trash80.net/junkfood/arduinoboy/arduinoboy-schem-v.0.9.8-r1.png)
 
 ## Thanks To
-  * [http://arduino.cc Arduino] (and the [http://www.arduino.cc/cgi-bin/yabb2/YaBB.pl?num=1187962258 MIDI IN forum thread])
-  * [http://gameboygenius.8bitcollective.com nitro2k01] for ASM help with mGB 
-  * GWEM and his [http://www.preromanbritain.com/gwem/lsdj_midi/g33k.html g33k page]
-  * [http://wayfar.net Midines] (thanks for the help x|k!)
-  * [http://www.firestarter-music.de firestARTer] for help with keyboard & Midi handling information. 
-  * [http://gieskes.nl Gijs Gieskes] Found source code that gave insight into Nanoloop sync
-  * [http://littlesounddj.com Little Sound DJ]
-  * http://devrs.com/gb (Madcatz PC link port for gb serial specs)
-  * [http://8bitpeoples.com 8bitpeoples]
+  * [Arduino](http://arduino.cc)
+  * [Nitro2k01](http://gameboygenius.8bitcollective.com nitro2k01) for ASM help with mGB 
+  * [GWEM](http://www.preromanbritain.com/gwem/lsdj_midi/g33k.html) g33k page
+  * [Midines](http://wayfar.net) Thanks for the help x|k!
+  * [firestARTer](http://www.firestarter-music.de) help with keyboard & Midi handling information. 
+  * [Gijs Gieskes](http://gieskes.nl) Found source code that gave insight into Nanoloop sync
+  * [Little Sound DJ](http://littlesounddj.com)
+  * [http://devrs.com/gb](http://devrs.com/gb) Madcatz PC link port for gb serial specs
+  * [http://chipmusic.com](http://chipmusic.com) For all things Chipmusic.
