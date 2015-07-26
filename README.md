@@ -269,4 +269,4 @@ Note: the name and number at the bottom left of the screen indicates the midi CC
   * [Gijs Gieskes](http://gieskes.nl) Found source code that gave insight into Nanoloop sync
   * [Little Sound DJ](http://littlesounddj.com)
   * [http://devrs.com/gb](http://devrs.com/gb) Madcatz PC link port for gb serial specs
-  * [http://chipmusic.com](http://chipmusic.com) For all things Chipmusic.
+  * [http://chipmusic.com](http://chipmusic.org) For all things Chipmusic.
