@@ -36,7 +36,8 @@ void modeLSDJSlaveSync()
               if(!countSyncPulse && midiDefaultStartOffset) {          //if we received a note for start offset
                 sendByteReversed(midiDefaultStartOffset);              //send the offset
               }
-              sendClockTickToLSDJ();                                   //send the clock tick
+              sendClockTickToLSDJ();                                   //send the clock tick 
+              updateVisualSync();
         }
         if(midiSyncEffectsTime) {                                      //If sync effects are turned on
           countSyncTime++;                                             //increment our tick counter
@@ -70,6 +71,7 @@ void modeLSDJSlaveSync()
     }
   }
   setMode();         //Check if the mode button was depressed
+  updateStatusLight();
   }
 }
 

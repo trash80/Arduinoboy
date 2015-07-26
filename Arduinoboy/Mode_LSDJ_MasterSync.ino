@@ -16,6 +16,7 @@ void modeLSDJMasterSyncSetup()
 {
   digitalWrite(pinStatusLed,LOW);
   pinMode(pinGBClock,INPUT); //Set the gb clock as input, we will be reading from the clock
+  countSyncTime=0;
   modeLSDJMasterSync();
 }
 
@@ -23,13 +24,13 @@ void modeLSDJMasterSync()
 {
   while(1){
     readgbClockLine = digitalRead(pinGBClock); //Read gameboy's clock line
-
     if(readgbClockLine) {                          //If Gb's Clock is On
       while(readgbClockLine) {                     //Loop untill its off
         checkLSDJStopped();                        //Check if LSDJ hit Stop
         readgbClockLine = digitalRead(pinGBClock); //Read the clock again
         bit = digitalRead(pinGBSerialIn);          //Read the serial input for song position
-        setMode(); 
+        setMode();
+        updateStatusLight();
       }
       countClockPause= 0;                          //Reset our wait timer for detecting a sequencer stop
       
@@ -72,8 +73,7 @@ boolean checkLSDJStopped()
  */
 void sendMidiClockSlaveFromLSDJ()
 {
-  countGbClockTicks++;              //Increment the bit counter
-  if(countGbClockTicks == 8) {      //If we hit 8 bits
+  if(!countGbClockTicks) {      //If we hit 8 bits
     if(!sequencerStarted) {         //If the sequencer hasnt started
       Serial.print(masterNotePositionMidiChannel, BYTE); //Send the midi channel byte
       Serial.print(readGbSerialIn, BYTE);                //Send the row value as a note
@@ -86,5 +86,9 @@ void sendMidiClockSlaveFromLSDJ()
     
     countGbClockTicks=0;            //Reset the bit counter
     readGbSerialIn = 0x00;                //Reset our serial read value
-  }  
+    
+    updateVisualSync();
+  }
+  countGbClockTicks++;              //Increment the bit counter
+ if(countGbClockTicks==8) countGbClockTicks=0; 
 }

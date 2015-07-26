@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 0.9.9.1                                                          *
- * Date:    Sept 12 2008                                                  *
+ * Version: 1.0.1                                                        *
+ * Date:    Oct 12 2008                                                    *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -80,14 +80,16 @@ boolean keyboardMidiChannelToInstrument = true; //Set to true if you want to hav
 //Mode 1: LSDJ MASTER to Midi output
 //Mode 2: LSDJ Keyboard
 //Mode 3: Midi Input to Nanoloop 
-int mode          = 0;
-int numberOfModes = 5; //Right now there are 5 modes, Might be more in the future
-boolean usbMode   = false;
-//Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
-boolean forceMode = false; 
+//Mode 4: Midi Input to mGB cart (available at: code.google.com/p/ardunioboy) 
 
-int gameboyBitPause = 1;    //Bit pause for gbmidi mode    .... 1 to 20
-int gameboyBytePause= 20;   //Byte pause for gbmidi mode ... if having trouble communicating with gb try playing with these values... 20 to 100
+boolean forceMode = false; //Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
+int mode          = 0;    //0 to 4 - default mode for force mode
+int numberOfModes = 5;    //Right now there are 5 modes, Might be more in the future
+boolean usbMode   = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
+
+int gameboyBitPauseLOW  = 5;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 5=GBA/SP/DMG01   ---   
+int gameboyBitPauseHIGH = 1;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 1=GBA/SP/DMG01   ---    (note: roughly 4 microseconds off from Low do to code that writes to the serial line)
+int gameboyBytePause= 10;       //Byte pause for gbmidi mode   .... 5 to 20 /// tested working value: 5=GBA/SP/GBC and 10=DMG
 
 /***************************************************************************
 * Lets Assign our Arduino Pins .....
@@ -127,11 +129,16 @@ boolean statusLedBlink   =false;
 boolean nanoState        =false;
 boolean nanoSkipSync     =false;
 
+boolean blinkSwitch[5];
+unsigned long int blinkSwitchTime[5];
+int switchLight = 0;
+
 /***************************************************************************
 * Counter vars
 ***************************************************************************/
 int countLSDJTicks = 0;            //for loop int (we need to cycle 8 pulses)
 int countSyncTime  = 0;
+int countSyncLightTime=0;
 int countSyncSteps = 0;
 int countSyncPulse = 0;
 int countGbClockTicks =0;
@@ -139,6 +146,7 @@ int countClockPause =0;
 int countIncommingMidiByte =0;
 int countStatusLedOn =0;
 unsigned int waitClock =0;
+
 /***************************************************************************
 * Inbound Data Placeholders
 ***************************************************************************/

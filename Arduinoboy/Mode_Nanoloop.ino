@@ -39,7 +39,7 @@ void modeNanoloopSync()
             nanoState = sendTickToNanoloop(true, true);
           }
           nanoState = sendTickToNanoloop(nanoState, nanoSkipSync);
-          
+          updateVisualSync();
           break;
         }
         break;
@@ -56,6 +56,7 @@ void modeNanoloopSync()
     }
   }
   setMode();         //Check if the mode button was depressed
+  updateStatusLight();
   }
 }
 

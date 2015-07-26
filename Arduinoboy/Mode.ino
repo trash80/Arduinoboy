@@ -40,7 +40,11 @@ void setMode()
  */
 void showSelectedMode()
 {
-  digitalWrite(pinLeds[lastMode],LOW);
+  digitalWrite(pinLeds[0],LOW);
+  digitalWrite(pinLeds[1],LOW);
+  digitalWrite(pinLeds[2],LOW);
+  digitalWrite(pinLeds[3],LOW);
+  digitalWrite(pinLeds[4],LOW);
   digitalWrite(pinLeds[mode],HIGH);
   lastMode = mode;
   delay(300);
@@ -86,10 +90,11 @@ void switchMode()
  
 void sequencerStart()
 {
-  digitalWrite(pinStatusLed,HIGH);
   sequencerStarted = true; //Sequencer has started?
   countSyncPulse = 0;      //Used for status LED, counts 24 ticks (quarter notes)
   countSyncTime = 0;       //Used to count a custom amount of clock ticks (2/4/8) for sync effects
+  countSyncLightTime=0;
+  switchLight=0;
 }
 
  /*
@@ -100,11 +105,17 @@ void sequencerStart()
  */
 void sequencerStop()
 {
-  digitalWrite(pinStatusLed,LOW);
   midiSyncEffectsTime = false;//Turn off MIDI sync effects in LSDJ slave mode
   sequencerStarted = false;   //Sequencer has started?
   countSyncPulse = 0;         //Used for status LED, counts 24 ticks (quarter notes)
   countSyncTime = 0;          //Used to count a custom amount of clock ticks (2/4/8) for sync effects
+  countSyncLightTime=0;
+  switchLight=0;
+  digitalWrite(pinLeds[0],LOW);
+  digitalWrite(pinLeds[1],LOW);
+  digitalWrite(pinLeds[2],LOW);
+  digitalWrite(pinLeds[3],LOW);
+  digitalWrite(pinLeds[mode],HIGH);
 }
 
  /*
