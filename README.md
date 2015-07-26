@@ -53,8 +53,8 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
      * Made Wav pitch sweep stable and changed it so it glitches out at values above 8. :D
 
  * 11/05/08
-   * New Google group created for Arduinoboy and mGB. [http://groups.google.com/group/arduinoboy]
-   * New Flickr Group. Share your Arduinoboy pics. :) [http://flickr.com/groups/arduinoboy]
+   * New Google group created for Arduinoboy and mGB. http://groups.google.com/group/arduinoboy
+   * New Flickr Group. Share your Arduinoboy pics. :) http://flickr.com/groups/arduinoboy
    * mGB to version 1.2.4
     * Fixed small bug with the indicator arrow, it was offset vertically a bit.
     * Fixed bug with unexpected behavior with large PB Ranges
