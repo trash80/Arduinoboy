@@ -26,7 +26,7 @@ void modeMidiGb()
     if (Serial.available()) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
       
-      if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
+      if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte); //Echo the Byte to MIDI Output
       
       if(incomingMidiByte & 0x80) {    
         switch (incomingMidiByte & 0xF0) {
@@ -38,26 +38,26 @@ void modeMidiGb()
             midiStatusChannel = incomingMidiByte&0x0F;
             midiStatusType    = incomingMidiByte&0xF0;
             if(midiStatusChannel == memory[MEM_MGB_CH]) {
-               incomingMidiData[0] = midiStatusType;
+               midiData[0] = midiStatusType;
                sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+1]) {
-               incomingMidiData[0] = midiStatusType+1;
+               midiData[0] = midiStatusType+1;
                sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+2]) {
-               incomingMidiData[0] = midiStatusType+2;
+               midiData[0] = midiStatusType+2;
                sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+3]) {
-               incomingMidiData[0] = midiStatusType+3;
+               midiData[0] = midiStatusType+3;
                sendByte = true;
             } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
-               incomingMidiData[0] = midiStatusType+4;
+               midiData[0] = midiStatusType+4;
                sendByte = true;
             } else {
               midiValueMode  =false;
               midiAddressMode=false;
             }
             if(sendByte) {
-              sendByteToGameboy(incomingMidiData[0]);
+              sendByteToGameboy(midiData[0]);
               midiValueMode  =false;
               midiAddressMode=true;
             }
@@ -66,15 +66,15 @@ void modeMidiGb()
       } else if (midiAddressMode){
         midiAddressMode = false;
         midiValueMode = true;
-        incomingMidiData[1] = incomingMidiByte;
-        sendByteToGameboy(incomingMidiData[1]);
+        midiData[1] = incomingMidiByte;
+        sendByteToGameboy(midiData[1]);
       } else if (midiValueMode) {
-        incomingMidiData[2] = incomingMidiByte;
+        midiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
         
-        sendByteToGameboy(incomingMidiData[2]);
-        blinkLight(incomingMidiData[0],incomingMidiData[2]);
+        sendByteToGameboy(midiData[2]);
+        blinkLight(midiData[0],midiData[2]);
       }
     } else {
       setMode();                // Check if mode button was depressed
@@ -88,7 +88,7 @@ boolean checkGbSerialStopped()
   countClockPause++;                                 //Increment the counter
   if(countClockPause > 16000) {                      //if we've reached our waiting period
       countClockPause = 0;                           //reset our clock
-      Serial.print(0xFC, BYTE);                      //send the transport stop message
+      Serial.write(0xFC);                      //send the transport stop message
     return true;
   }
   return false;

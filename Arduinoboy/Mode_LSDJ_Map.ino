@@ -54,23 +54,23 @@ void modeLSDJMap()
           midiTickHit=false;
           break;
         default:
-          incomingMidiData[0] = incomingMidiByte;
+          midiData[0] = incomingMidiByte;
           midiNoteOnMode = true;
-          if(incomingMidiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
+          if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
         }
     } else if(midiNoteOnMode) {   //if we've received a message thats not a status and our note capture mode is true
       midiNoteOnMode = false;
-      incomingMidiData[1] = incomingMidiByte;
-      if(incomingMidiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
+      midiData[1] = incomingMidiByte;
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
     } else {
       midiNoteOnMode = true;
-      if(incomingMidiData[0] == (0x90+memory[MEM_LIVEMAP_CH]) && incomingMidiByte) {
-          sendByteToGameboy(incomingMidiData[1]);
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH]) && incomingMidiByte) {
+          sendByteToGameboy(midiData[1]);
           updateVisualSync();
           midiTickHit = false;
       }
     }
-    //Serial.print(incomingMidiByte, BYTE);
+    //Serial.write(incomingMidiByte);
     checkClockTick();
   } else {
     setMode();         //Check if the mode button was depressed

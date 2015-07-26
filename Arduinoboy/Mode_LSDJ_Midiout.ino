@@ -32,23 +32,23 @@ void modeLSDJMidiout()
           switch(incomingMidiByte)
           {
            case 0x7F: //clock tick
-             Serial.print(0xF8, BYTE);
+             Serial.write(0xF8);
              break;
            case 0x7E: //seq stop
-             Serial.print(0xFC, BYTE);
+             Serial.write(0xFC);
              stopAllNotes();
              break;
            case 0x7D: //seq start
-             Serial.print(0xFA, BYTE);
+             Serial.write(0xFA);
              break;
            default:
-             incomingMidiData[0] = (incomingMidiByte - 0x70);
+             midiData[0] = (incomingMidiByte - 0x70);
              midiValueMode = true;
              break;
           }
         } else if (midiValueMode == true) {
           midiValueMode = false;
-          midioutDoAction(incomingMidiData[0],incomingMidiByte);
+          midioutDoAction(midiData[0],incomingMidiByte);
         }
       
       } else {
@@ -93,9 +93,10 @@ void checkStopNote(byte m)
 void stopNote(byte m)
 {
   for(int x=0;x<midioutNoteHoldCounter[m];x++) {
-    Serial.print((0x80 + (memory[MEM_MIDIOUT_NOTE_CH+m])), BYTE);
-    Serial.print(midioutNoteHold[m][x], BYTE);
-    Serial.print(0x00, BYTE);
+    midiData[0] = (0x80 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
+    midiData[1] = midioutNoteHold[m][x];
+    midiData[2] = 0x00;
+    Serial.write(midiData,3);
   }
   midiOutLastNote[m] = -1;
   midioutNoteHoldCounter[m] = 0;
@@ -103,9 +104,10 @@ void stopNote(byte m)
 
 void playNote(byte m, byte n)
 {
-  Serial.print((0x90 + (memory[MEM_MIDIOUT_NOTE_CH+m])), BYTE);
-  Serial.print(n, BYTE);
-  Serial.print(0x7F, BYTE);
+  midiData[0] = (0x90 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
+  midiData[1] = n;
+  midiData[2] = 0x7F;
+  Serial.write(midiData,3);
   
   midioutNoteHold[m][midioutNoteHoldCounter[m]] =n;
   midioutNoteHoldCounter[m]++;
@@ -123,9 +125,10 @@ void playCC(byte m, byte n)
       //if(v) v --;
     }
     n=(m*7)+((n>>4) & 0x07);
-    Serial.print((0xB0 + (memory[MEM_MIDIOUT_CC_CH+m])), BYTE);
-    Serial.print((memory[MEM_MIDIOUT_CC_NUMBERS+n]), BYTE);
-    Serial.print(v, BYTE);
+    midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
+    midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
+    midiData[2] = v;
+    Serial.write(midiData,3);
   } else {
     if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
       float s;
@@ -133,16 +136,18 @@ void playCC(byte m, byte n)
       v = ((s / 0x6f) * 0x7f);
     }
     n=(m*7);
-    Serial.print((0xB0 + (memory[MEM_MIDIOUT_CC_CH+m])), BYTE);
-    Serial.print((memory[MEM_MIDIOUT_CC_NUMBERS+n]), BYTE);
-    Serial.print(v, BYTE);
+    midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
+    midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
+    midiData[2] = v;
+    Serial.write(midiData,3);
   }
 }
 
 void playPC(byte m, byte n)
 {
-  Serial.print((0xC0 + (memory[MEM_MIDIOUT_NOTE_CH+m])), BYTE);
-  Serial.print(n, BYTE);
+  midiData[0] = (0xC0 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
+  midiData[1] = n;
+  Serial.write(midiData,2);
 }                                                                    
 
 void stopAllNotes()
@@ -151,9 +156,10 @@ void stopAllNotes()
     if(midiOutLastNote[m]>=0) {
       stopNote(m);
     }
-    Serial.print((0xB0 + (memory[MEM_MIDIOUT_NOTE_CH+m])), BYTE); //Send the midi channel byte
-    Serial.print(123, BYTE); //Send the midi channel byte
-    Serial.print(0x7F, BYTE); //Send the midi channel byte
+    midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
+    midiData[1] = 123;
+    midiData[2] = 0x7F;
+    Serial.write(midiData,3); //Send midi
   }
 }
 

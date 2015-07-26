@@ -38,7 +38,7 @@ void modeLSDJKeyboard()
   while(1){                              //Loop foreverrrr
   if (Serial.available()) {          //If MIDI is sending
     incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);//Echo the Byte to MIDI Output
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);//Echo the Byte to MIDI Output
     
 
     /***************************************************************************
@@ -66,14 +66,14 @@ void modeLSDJKeyboard()
           //There are 3 bytes total we need: Channel, Note, and velocity, these wil be assigned to a array until we have the velocity,
           //at that point we can then call our note out function to LSDJ
           midiNoteOnMode = true;                    //Set our stupid "Note on mode" on
-          incomingMidiData[0] = incomingMidiByte;   //Assign the byte to the first position of a data array. (this is the midi channel)
-          incomingMidiData[1] = false;              //Force the second position to false (this will hold the note number)
+          midiData[0] = incomingMidiByte;   //Assign the byte to the first position of a data array. (this is the midi channel)
+          midiData[1] = false;              //Force the second position to false (this will hold the note number)
           break;
         case 0xC0:
           //Program change message
           midiProgramChange = true;                   //Set our silly "Program Change mode" ... we need to get the next byte later
           midiNoteOnMode = false;                     //Turn Note-on mode off
-          incomingMidiData[0] = incomingMidiByte - 48;//Set the number to a "note on" message so we can use the same "channel" variable as note on messages
+          midiData[0] = incomingMidiByte - 48;//Set the number to a "note on" message so we can use the same "channel" variable as note on messages
           break;
         case 0xF0:
            //Do nothing, these dont interfear with our note-on mode
@@ -85,19 +85,19 @@ void modeLSDJKeyboard()
       }
     } else if(midiNoteOnMode) {
       //It wasnt a status bit, so lets assume it was a note message if the last status message was note-on.
-      if(!incomingMidiData[1]) {
+      if(!midiData[1]) {
          //If we dont have a note number, we assume this byte is the note number, get it...
-         incomingMidiData[1] = incomingMidiByte;
+         midiData[1] = incomingMidiByte;
       } else {
          //We have our note and channel, so call our note function...   
               
-         playLSDJNote(incomingMidiData[0], incomingMidiData[1], incomingMidiByte);
-         incomingMidiData[1] = false; //Set the note to false, forcing to capture the next note
+         playLSDJNote(midiData[0], midiData[1], incomingMidiByte);
+         midiData[1] = false; //Set the note to false, forcing to capture the next note
       }
     } else if (midiProgramChange) {
-        changeLSDJInstrument(incomingMidiData[0], incomingMidiByte); 
+        changeLSDJInstrument(midiData[0], incomingMidiByte); 
         midiProgramChange = false;
-        incomingMidiData[0] = false;
+        midiData[0] = false;
     }
   }
   

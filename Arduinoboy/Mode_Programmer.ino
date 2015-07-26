@@ -27,19 +27,19 @@ void checkProgrammerConnected()
 
 void programmerSendSettings()
 {
-  Serial.print(0xF0,BYTE);
-  Serial.print(sysexManufacturerId,BYTE);
-  Serial.print(0x40,BYTE);
+  Serial.write(0xF0);
+  Serial.write(sysexManufacturerId);
+  Serial.write(0x40);
   sendMemory();
-  Serial.print(0xF7,BYTE);
+  Serial.write(0xF7);
 }
 
 void setProgrammerRequestConnect()
 {
-  Serial.print(0xF0,BYTE);
-  Serial.print(sysexManufacturerId,BYTE);
-  Serial.print(65,BYTE);
-  Serial.print(0xF7,BYTE);
+  Serial.write(0xF0);
+  Serial.write(sysexManufacturerId);
+  Serial.write(65);
+  Serial.write(0xF7);
 }
 
 void setProgrammerMemorySave()
@@ -77,12 +77,12 @@ void programmerCheckTimeout()
 void programmerSendConnectRequest()
 {
   if(millis() > (sysexProgrammerLastSent+sysexProgrammerCallTime)) {
-    Serial.print(0xF0,BYTE);
-    Serial.print(sysexManufacturerId,BYTE);
-    Serial.print(0x7F,BYTE);
-    Serial.print(defaultMemoryMap[MEM_VERSION_FIRST],BYTE);
-    Serial.print(defaultMemoryMap[MEM_VERSION_SECOND],BYTE);
-    Serial.print(0xF7,BYTE);
+    Serial.write(0xF0);
+    Serial.write(sysexManufacturerId);
+    Serial.write(0x7F);
+    Serial.write(defaultMemoryMap[MEM_VERSION_FIRST]);
+    Serial.write(defaultMemoryMap[MEM_VERSION_SECOND]);
+    Serial.write(0xF7);
     sysexProgrammerLastSent = millis();
   }
 }
@@ -121,10 +121,10 @@ void setMode(byte mode)
 
 void sendMode()
 {
-  Serial.print(0xF0,BYTE);
-  Serial.print(sysexManufacturerId,BYTE);
-  Serial.print(memory[MEM_MODE],BYTE);
-  Serial.print(0xF7,BYTE);
+  Serial.write(0xF0);
+  Serial.write(sysexManufacturerId);
+  Serial.write(memory[MEM_MODE]);
+  Serial.write(0xF7);
 }
 
 void setMidioutDelay(byte a,byte b,byte c,byte d)

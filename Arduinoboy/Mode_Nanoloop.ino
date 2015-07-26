@@ -23,7 +23,7 @@ void modeNanoloopSync()
   while(1){  //Loop forever
   if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
-    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);       //Send it back to the Midi out
     
     
     if(incomingMidiByte & 0x80) { 

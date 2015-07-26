@@ -253,8 +253,8 @@ byte incomingMidiByte;  //incomming midi message
 byte readgbClockLine;
 byte readGbSerialIn;
 byte bit;
-int incomingMidiData[] = {0, 0, 0};
-int lastMidiData[] = {0, 0, 0};
+byte midiData[] = {0, 0, 0};
+byte lastMidiData[] = {0, 0, 0};
 
 int incomingMidiNote = 0;
 int incomingMidiVel = 0;

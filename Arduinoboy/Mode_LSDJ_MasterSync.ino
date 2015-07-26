@@ -26,7 +26,7 @@ void modeLSDJMasterSync()
   while(1){
     if (Serial.available()) {                  //If serial data was send to midi input
       incomingMidiByte = Serial.read();            //Read it
-      if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);        //Send it to the midi output
+      if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);        //Send it to the midi output
     }
     readgbClockLine = PINC & 0x01; //Read gameboy's clock line
     if(readgbClockLine) {                          //If Gb's Clock is On
@@ -66,7 +66,7 @@ boolean checkLSDJStopped()
     if(sequencerStarted) {
       readgbClockLine=false;
       countClockPause = 0;                           //reset our clock
-      Serial.print(0xFC, BYTE);                      //send the transport stop message
+      Serial.write(0xFC);                      //send the transport stop message
       sequencerStop();                               //call the global sequencer stop function
     }
     return true;
@@ -84,14 +84,14 @@ void sendMidiClockSlaveFromLSDJ()
 {
   if(!countGbClockTicks) {      //If we hit 8 bits
     if(!sequencerStarted) {         //If the sequencer hasnt started
-      Serial.print((0x90+memory[MEM_LSDJMASTER_MIDI_CH]), BYTE); //Send the midi channel byte
-      Serial.print(readGbSerialIn, BYTE);                //Send the row value as a note
-      Serial.print(0x7F, BYTE);                          //Send a velocity 127
+      Serial.write((0x90+memory[MEM_LSDJMASTER_MIDI_CH])); //Send the midi channel byte
+      Serial.write(readGbSerialIn);                //Send the row value as a note
+      Serial.write(0x7F);                          //Send a velocity 127
       
-      Serial.print(0xFA, BYTE);     //send MIDI transport start message 
+      Serial.write(0xFA);     //send MIDI transport start message 
       sequencerStart();             //call the global sequencer start function
     }
-    Serial.print(0xF8, BYTE);       //Send the MIDI Clock Tick
+    Serial.write(0xF8);       //Send the MIDI Clock Tick
     
     countGbClockTicks=0;            //Reset the bit counter
     readGbSerialIn = 0x00;                //Reset our serial read value

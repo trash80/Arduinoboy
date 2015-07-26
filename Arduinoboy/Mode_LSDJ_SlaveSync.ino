@@ -27,7 +27,7 @@ void modeLSDJSlaveSync()
   if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = Serial.read();           //Read it
     
-    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.print(incomingMidiByte, BYTE);       //Send it back to the Midi out
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);       //Send it back to the Midi out
     
     if(incomingMidiByte & 0x80) {               //If we have received a MIDI Status Byte
     switch (incomingMidiByte) {                    
@@ -55,19 +55,19 @@ void modeLSDJSlaveSync()
       default:
         if(incomingMidiByte == (0x90+memory[MEM_LSDJSLAVE_MIDI_CH])) { //if a midi note was received and its on the channel of the sync effects channel
            midiNoteOnMode = true;                        //turn on note capture
-           incomingMidiData[0] = false;                  //and reset the captured note
+           midiData[0] = false;                  //and reset the captured note
         } else {
            midiNoteOnMode = false;                       //turn off note capture
         }
       }
     } else if(midiNoteOnMode) {   //if we've received a message thats not a status and our note capture mode is true
-      if(!incomingMidiData[0]) {                  //if there is no note number yet
-         incomingMidiData[0] = incomingMidiByte;  //then assume the byte is a note and assign it to a place holder
+      if(!midiData[0]) {                  //if there is no note number yet
+         midiData[0] = incomingMidiByte;  //then assume the byte is a note and assign it to a place holder
       } else {                                    //else assumed velocity
          if(incomingMidiByte > 0x00) {            
-           getSlaveSyncEffect(incomingMidiData[0]); //then call our sync effects function
+           getSlaveSyncEffect(midiData[0]); //then call our sync effects function
          }
-         incomingMidiData[0] = false;             //and reset the captured note
+         midiData[0] = false;             //and reset the captured note
       }
     }
   }
@@ -120,7 +120,7 @@ void getSlaveSyncEffect(byte note)
       countSyncSteps = 8;
       break;
     default:                        //All other notes will make LSDJ Start at the row number thats the same as the note number.
-      midiDefaultStartOffset = incomingMidiData[0];
+      midiDefaultStartOffset = midiData[0];
       break;
     }
 }
