@@ -34,9 +34,16 @@ void modeMidiGb()
             break;
           default:
             incomingMidiData[0] = incomingMidiByte;
-            midiValueMode = false;
-            midiAddressMode = true;
-            break;
+            midiNoteOffMode=true;
+            midiValueMode  =false;
+            midiAddressMode=true;
+           if(incomingMidiData[0] < 0x90) {
+             incomingMidiData[0]+=0x10;
+             midiNoteOffMode =true;
+           } else {
+             midiNoteOffMode =false;
+           }
+           break;
         }
       } else if (midiAddressMode){
         midiAddressMode = false;
@@ -46,15 +53,17 @@ void modeMidiGb()
         incomingMidiData[2] = incomingMidiByte;
         midiAddressMode = true;
         midiValueMode = false;
-           addFSGameboyByte(incomingMidiData[0]);
-           addFSGameboyByte(incomingMidiData[1]);
-           addFSGameboyByte(incomingMidiData[2]);
-           blinkLight(incomingMidiData[0],incomingMidiData[2]);
+        if(midiNoteOffMode) incomingMidiData[2]=0x00;
+        addFSGameboyByte(incomingMidiData[0]);
+        addFSGameboyByte(incomingMidiData[1]);
+        addFSGameboyByte(incomingMidiData[2]);
+        blinkLight(incomingMidiData[0],incomingMidiData[2]);
       }
+    } else {
+      setMode();                // Check if mode button was depressed
+      updateBlinkLights();
     }
     updateFSGameboyByteFrame(); // Send out Bytes to LSDJ
-    updateBlinkLights();
-    setMode();                // Check if mode button was depressed
   }
 }
 
