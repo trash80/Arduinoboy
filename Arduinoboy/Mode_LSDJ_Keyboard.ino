@@ -13,10 +13,10 @@
 
 void modeLSDJKeyboardSetup()
 {
-  sendByteToGameboy(0);
-  for(int rst=0;rst<5;rst++) sendByteToGameboy(keyboardOctDn);
-  for(int rst=0;rst<41;rst++) sendByteToGameboy(keyboardInsDn);
-  for(int rst=0;rst<41;rst++) sendByteToGameboy(keyboardTblDn);
+  addGameboyByte(0);
+  for(int rst=0;rst<5;rst++) addGameboyByte(keyboardOctDn);
+  for(int rst=0;rst<41;rst++) addGameboyByte(keyboardInsDn);
+  for(int rst=0;rst<41;rst++) addGameboyByte(keyboardTblDn);
   keyboardCurrentOct = 0;
   keyboardCurrentIns = 0;
   keyboardCurrentTbl = 0;
@@ -27,8 +27,7 @@ void modeLSDJKeyboardSetup()
 void modeLSDJKeyboard()
 {
   while(1){
-  setMode();
-  updateStatusLed();
+  
   if (Serial.available() > 0) {
     incomingMidiByte = Serial.read();
     Serial.print(incomingMidiByte, BYTE);
@@ -37,11 +36,19 @@ void modeLSDJKeyboard()
         case 0x90:
           midiNoteOnMode = true;
           incomingMidiData[0] = incomingMidiByte;
+          incomingMidiData[1] = false;
           break;
         case 0xC0:
           midiProgramChange = true;
+          midiNoteOnMode = false;
           incomingMidiData[0] = incomingMidiByte - 48;
           break;
+        default:
+          midiNoteOnMode = false;
+          midiProgramChange = false;
+          incomingMidiData[1] = false;
+          break;
+          
       }
     } else if(midiNoteOnMode) {
       if(!incomingMidiData[1]) {
@@ -49,10 +56,7 @@ void modeLSDJKeyboard()
       } else {
          incomingMidiData[2] = incomingMidiByte;
          playLSDJKeyboard();
-         midiNoteOnMode=false;
-         incomingMidiData[0] = false;
          incomingMidiData[1] = false;
-         incomingMidiData[2] = false;
       }
     } else if (midiProgramChange) {
         incomingMidiData[1] = incomingMidiByte;
@@ -61,13 +65,19 @@ void modeLSDJKeyboard()
         incomingMidiData[0] = false;
         incomingMidiData[1] = false;
     }
+    updateGameboyByteFrame();
     updateStatusLed();
+    setMode();
+  } else {
+    updateGameboyByteFrame();
+    updateStatusLed();
+    setMode();
   }
   }
 }
 void playLSDJKeyboard()
 {
-  if(incomingMidiData[0] == keyboardInstrumentMidiChannel) {
+  if(incomingMidiData[0] == keyboardInstrumentMidiChannel && incomingMidiData[2] > 0x00) {
     playLSDJKeyboardNote();
   }
 }
@@ -79,12 +89,12 @@ void playLSDJProgramChange()
     if(keyboardCurrentIns > keyboardLastIns) {
       keyboardDiff = keyboardCurrentIns - keyboardLastIns;
       for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++) {
-        sendByteToGameboy(keyboardInsUp);
+        addGameboyByte(keyboardInsUp);
       }
     } else {
       keyboardDiff = keyboardLastIns - keyboardCurrentIns;
       for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++) {
-        sendByteToGameboy(keyboardInsDn);
+        addGameboyByte(keyboardInsDn);
       }
     }
     keyboardLastIns = keyboardCurrentIns;
@@ -93,9 +103,7 @@ void playLSDJProgramChange()
 
 void playLSDJKeyboardNote()
 {
-  if(incomingMidiData[1] >= 0x3C 
-      && incomingMidiData[2] > 0x00
-      ) {
+  if(incomingMidiData[1] >= 0x3C) {
     incomingMidiData[1] = incomingMidiData[1] - 0x3C;
     if(incomingMidiData[1] >= 0x30) {
       keyboardCurrentOct = 4;
@@ -115,63 +123,84 @@ void playLSDJKeyboardNote()
       keyboardDiff = keyboardCurrentOct - keyboardLastOct;
       for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
       {
-        sendByteToGameboy(keyboardOctUp);
+        addGameboyByte(keyboardOctUp);
       }
     } else {
       keyboardDiff = keyboardLastOct - keyboardCurrentOct;
       for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
       {
-        sendByteToGameboy(keyboardOctDn);
+        addGameboyByte(keyboardOctDn);
       }
     }
   }
   
   incomingMidiData[1] = incomingMidiData[1] % 12;
-  sendByteToGameboy(keyboardNotes[incomingMidiData[1]]);
+  addGameboyByte(keyboardNotes[incomingMidiData[1]]);
   keyboardLastOct = keyboardCurrentOct;
   keyboardLastIns = keyboardCurrentIns;
   } else {
     switch(incomingMidiData[1]) {
       case 0x30:
-        sendByteToGameboy(keyboardMut1);
+        addGameboyByte(keyboardMut1);
         break;
       case 0x31:
-        sendByteToGameboy(keyboardMut2);
+        addGameboyByte(keyboardMut2);
         break;
       case 0x32:
-        sendByteToGameboy(keyboardMut3);
+        addGameboyByte(keyboardMut3);
         break;
       case 0x33:
-        sendByteToGameboy(keyboardMut4);
+        addGameboyByte(keyboardMut4);
         break;
       case 0x34:
-        sendByteToGameboy(keyboardEntr);
+        addGameboyByte(keyboardEntr);
         break;
       case 0x35:
-        sendByteToGameboy(0xE0);
-        sendByteToGameboy(keyboardCurL);
+        addGameboyByte(0xE0);
+        addGameboyByte(keyboardCurL);
         break;
       case 0x36:
-        sendByteToGameboy(0xE0);
-        sendByteToGameboy(keyboardCurR);
+        addGameboyByte(0xE0);
+        addGameboyByte(keyboardCurR);
         break;
       case 0x37:
-        sendByteToGameboy(0xE0);
-        sendByteToGameboy(keyboardCurD);
+        addGameboyByte(0xE0);
+        addGameboyByte(keyboardCurU);
         break;
       case 0x38:
-        sendByteToGameboy(0xE0);
-        sendByteToGameboy(keyboardCurU);
+        addGameboyByte(0xE0);
+        addGameboyByte(keyboardCurD);
         break;
       case 0x39:
-        sendByteToGameboy(keyboardTblDn);
+        addGameboyByte(keyboardTblDn);
         break;
       case 0x3A:
-        sendByteToGameboy(keyboardTblUp);
+        addGameboyByte(keyboardTblUp);
         break;
       case 0x3B:
-        sendByteToGameboy(keyboardTblCue);
+        addGameboyByte(keyboardTblCue);
         break;
+    }
+  }
+}
+
+void addGameboyByte(byte send_byte)
+{
+  serialWriteBuffer[writePosition] = send_byte;
+  writePosition++;
+  writePosition = writePosition % 256;
+}
+
+void updateGameboyByteFrame()
+{
+  if(readPosition != writePosition){
+    waitClock++;
+    if(waitClock > 100) {
+      waitClock=0;
+      statusLedOn();
+      sendByteToGameboy(serialWriteBuffer[readPosition]);
+      readPosition++;
+      readPosition = readPosition % 256;
     }
   }
 }
@@ -189,7 +218,5 @@ void sendByteToGameboy(byte send_byte)
     digitalWrite(pinGBClock,LOW);
   }
   digitalWrite(pinGBSerialOut,LOW);
-  delayMicroseconds(1600);
-  statusLedOn();
 }
 

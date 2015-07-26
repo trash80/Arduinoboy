@@ -1,7 +1,7 @@
 /***************************************************************************
  *         A     R     D     U     I     N     O     B     O     Y         *
  *                                                                         *
- * Version: 0.8.5                                                          *
+ * Version: 0.8.6                                                          *
  * Date:    March 07 2008                                                  *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
@@ -111,7 +111,7 @@ int countGbClockTicks =0;
 int countClockPause =0;
 int countIncommingMidiByte =0;
 int countStatusLedOn =0;
-
+unsigned int waitClock =0;
 /***************************************************************************
 * Inbound Data Placeholders
 ***************************************************************************/
@@ -123,7 +123,9 @@ int incomingMidiData[] = {0, 0, 0};
 int incomingMidiNote = 0;
 int incomingMidiVel = 0;
 byte readToggleMode;
-
+byte serialWriteBuffer[256];
+int  writePosition=0;
+int  readPosition=0;
 /***************************************************************************
 * LSDJ Keyboard mode settings
 ***************************************************************************/      
