@@ -13,20 +13,20 @@
 
 void modeMidiGbSetup()
 {
+  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  pinMode(pinGBClock,OUTPUT);     //make sure our gameboy Clock is set for OUTPUT mode
-  digitalWrite(pinGBClock,LOW);   //Generally this should be HIGH ie: 1, on, whatever. but since we are emulating a pc keyboard it should be LOW/0/off
+  DDRC = B00111111; //Set analog in pins as outputs
+  
   modeMidiGb();
 }
 
 void modeMidiGb()
 {
   while(1){                                //Loop foreverrrr
-    updateFSGameboyByteFrame();
     if (Serial.available() > 0) {          //If MIDI is sending
       incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-      addFSGameboyByte(incomingMidiByte);
-      //if(!usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
+      sendByteToGameboy(incomingMidiByte);
+      if(!usbMode) Serial.print(incomingMidiByte, BYTE); //Echo the Byte to MIDI Output
       if(incomingMidiByte > 0x7F) {    
         switch (incomingMidiByte & 0xF0) {
           case 0xF0:
@@ -179,42 +179,18 @@ boolean checkGbSerialStopped()
   return false;
 }
 
-void addFSGameboyByte(byte send_byte)
-{
-  serialWriteBuffer[writePosition] = send_byte; //assign new byte
-  writePosition++;                              //increment the write position
-  writePosition = writePosition % 256;          //make sure our write position is between 0 to 255 by using a mod of 256
-}
-
- /*
-  updateGameboyByteFrame is responcible responsibel resp.... job is to wait a period of time, 
-  and then send a byte to the gameboy byte output function.
- */
-void updateFSGameboyByteFrame()
-{
-  if(readPosition != writePosition){ //if we have something to read out
-    waitClock++;                     //then increment our counter
-    if(waitClock > gameboyBytePause) {             //if we've exceeded our wait time
-      waitClock=0;                   //reset the counter
-      //statusLedOn();                 //turn on the awesome visuals
-      sendFSByteToGameboy(serialWriteBuffer[readPosition]); //send the byte out
-      readPosition++;                //increment our read position
-      readPosition = readPosition % 256; //wrap our reading range from 0 to 255
-    }
-  }
-}
  /*
  sendByteToGameboy does what it says. yay magic
  */
-void sendFSByteToGameboy(byte send_byte)       //changed by firestARTer: send routine changed MST is send out first!!!!!!!
+void sendByteToGameboy(byte send_byte)
 {
  for(countLSDJTicks=0;countLSDJTicks!=8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
    if(send_byte & 0x80) {
-       PORTD = B01010000;
-       PORTD = B01110000;
+       PORTC = B00000010;
+       PORTC = B00000011;
    } else {
-       PORTD = B00010000;
-       PORTD = B00110000;
+       PORTC = B00000000;
+       PORTC = B00000001;
    }
    send_byte <<= 1;
  }

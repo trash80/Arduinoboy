@@ -156,3 +156,34 @@ void statusLedOn()
   countStatusLedOn = 0;      //Reset the timer
   digitalWrite(pinStatusLed,HIGH); //Turn on the led
 }
+
+/* cute startup sequence */
+void startupSequence()
+{
+  int ledFxA;
+  int ledFxB;
+  
+  for(ledFxB=0;ledFxB<2;ledFxB++) {
+  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) {
+    digitalWrite(pinLeds[ledFxA], HIGH);
+    delay(50);
+    digitalWrite(pinLeds[ledFxA], LOW);
+  }
+  for(ledFxA=4;ledFxA>=0;ledFxA--) {
+    digitalWrite(pinLeds[ledFxA], HIGH);
+    delay(50);
+    digitalWrite(pinLeds[ledFxA], LOW);
+  }
+  }
+  delay(100);
+  
+  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], HIGH);   // sets the LED on
+  delay(100);
+  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
+  delay(100);
+  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], HIGH);   // sets the LED on
+  delay(100);
+  for(ledFxA=0;ledFxA<numberOfModes;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
+  delay(500);
+}
+

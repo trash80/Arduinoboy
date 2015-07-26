@@ -13,15 +13,15 @@
 
 void modeLSDJKeyboardSetup()
 {
+  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  pinMode(pinGBClock,OUTPUT);     //make sure our gameboy Clock is set for OUTPUT mode
-  digitalWrite(pinGBClock,LOW);   //Generally this should be HIGH ie: 1, on, whatever. but since we are emulating a pc keyboard it should be LOW/0/off
-  addGameboyByte(0);              //Send 8bits of nothing. don't ask I dont know.
+  DDRC  = B00111111; //Set analog in pins as outputs
+  PORTC = B00000010;
   
   /* The stuff below makes sure the code is in the same state as LSDJ on reset / restart, mode switched, etc. */
   
-  for(int rst=0;rst<5;rst++) addGameboyByte(keyboardOctDn);   //Return lsdj to the first octave
-  for(int rst=0;rst<41;rst++) addGameboyByte(keyboardInsDn);  //Return lsdj to the first instrument
+  for(int rst=0;rst<5;rst++) sendKeyboardByteToGameboy(keyboardOctDn);   //Return lsdj to the first octave
+  for(int rst=0;rst<41;rst++) sendKeyboardByteToGameboy(keyboardInsDn);  //Return lsdj to the first instrument
   
   keyboardCurrentOct = 0;  //Set our current octave to 0.
   keyboardLastOct    = 0;  //Set our last octave to 0.
@@ -100,7 +100,6 @@ void modeLSDJKeyboard()
     }
   }
   
-  updateGameboyByteFrame(); // Send out Bytes to LSDJ
   updateStatusLed();        // Update our status blinker
   setMode();                // Check if mode button was depressed
   }
@@ -117,19 +116,19 @@ void changeLSDJInstrument(byte channel,byte message)
   if(channel == keyboardInstrumentMidiChannel && keyboardCurrentIns != keyboardLastIns) { 
   //if its on our midi channel and the instrument isnt the same as our currrent
     if(!keyboardCompatabilityMode) {
-      addGameboyByte(0x80 | message); // <- this is suppose to work but doesn't :/
+      sendKeyboardByteToGameboy(0x80 | message); // <- this is suppose to work but doesn't :/
     } else {
       //We will find out which is greater, the current instrument or the last instrument. then
       //cycle up or down to that instrument
       if(keyboardCurrentIns > keyboardLastIns) {
         keyboardDiff = keyboardCurrentIns - keyboardLastIns;
         for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++) {
-          addGameboyByte(keyboardInsUp);  //send the instrument up command to go up to the requested instrument
+          sendKeyboardByteToGameboy(keyboardInsUp);  //send the instrument up command to go up to the requested instrument
         }
       } else {
         keyboardDiff = keyboardLastIns - keyboardCurrentIns;
         for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++) {
-          addGameboyByte(keyboardInsDn);  //send the instrument down command to down to the requested instrument
+          sendKeyboardByteToGameboy(keyboardInsDn);  //send the instrument down command to down to the requested instrument
         }
       }
     }
@@ -154,12 +153,12 @@ void playLSDJNote(byte channel,byte note, byte velocity)
       
       if(note >= 0x3C) keyboardNoteOffset = 0x0C; //if the note really high we need to use the second row of keyboard keys
       note = (note % 12) + keyboardNoteOffset;    //get a 0 to 11 range of notes and add the offset 
-      addGameboyByte(keyboardNotes[note]);        // and finally send the note
+      sendKeyboardByteToGameboy(keyboardNotes[note]);        // and finally send the note
     
     } else if (note >= keyboardStartOctave) { //If we are at the octave below notes
       keyboardDiff = note - keyboardStartOctave; //Get a value between 0 and 11
-      if(keyboardDiff < 8 && keyboardDiff > 3) addGameboyByte(0xE0); //if we are sending cursor values we have to send a 0xE0 byte for "extended" pc keyboard mode
-      addGameboyByte(keyboardCommands[note - keyboardStartOctave]); //send the byte corrisponding to the note number in the keyboard command array
+      if(keyboardDiff < 8 && keyboardDiff > 3) sendKeyboardByteToGameboy(0xE0); //if we are sending cursor values we have to send a 0xE0 byte for "extended" pc keyboard mode
+      sendKeyboardByteToGameboy(keyboardCommands[note - keyboardStartOctave]); //send the byte corrisponding to the note number in the keyboard command array
     }
   }
 }
@@ -174,7 +173,7 @@ void changeLSDJOctave()
   if(keyboardCurrentOct != keyboardLastOct) { 
     if(!keyboardCompatabilityMode) { // This new mode doesnt work yet. :/
       keyboardCurrentOct = 0xB3 + keyboardCurrentOct; 
-      addGameboyByte(keyboardCurrentOct);
+      sendKeyboardByteToGameboy(keyboardCurrentOct);
     } else {
       ///We will find out which is greater, the current octave or the last. then
       //cycle up or down to that octave
@@ -182,13 +181,13 @@ void changeLSDJOctave()
         keyboardDiff = keyboardCurrentOct - keyboardLastOct;
         for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
         {
-           addGameboyByte(keyboardOctUp);
+           sendKeyboardByteToGameboy(keyboardOctUp);
         }
       } else {
         keyboardDiff = keyboardLastOct - keyboardCurrentOct;
         for(keyboardCount=0;keyboardCount<keyboardDiff;keyboardCount++)
         {
-          addGameboyByte(keyboardOctDn);
+          sendKeyboardByteToGameboy(keyboardOctDn);
         }
       }
     }
@@ -196,56 +195,38 @@ void changeLSDJOctave()
   }
 }
 
- /*
-  Reguardless how porely optimized my code is the real bottleneck is either LSDJ, gameboy, or the serial line, 
-  Therefor a crude "buffer" is setup to capture the bytes we want to send and slowly output them to lsdj...
-  
-  addGameboyByte put a byte into our output buffer
- */
- 
-void addGameboyByte(byte send_byte)
-{
-  serialWriteBuffer[writePosition] = send_byte; //assign new byte
-  writePosition++;                              //increment the write position
-  writePosition = writePosition % 256;          //make sure our write position is between 0 to 255 by using a mod of 256
-}
 
- /*
-  updateGameboyByteFrame is responcible responsibel resp.... job is to wait a period of time, 
-  and then send a byte to the gameboy byte output function.
- */
-void updateGameboyByteFrame()
+/*
+  sendKeyboardByteToGameboy
+*/
+void sendKeyboardByteToGameboy(byte send_byte) 
 {
-  if(readPosition != writePosition){ //if we have something to read out
-    waitClock++;                     //then increment our counter
-    if(waitClock > 40) {             //if we've exceeded our wait time
-      waitClock=0;                   //reset the counter
-      statusLedOn();                 //turn on the awesome visuals
-      sendByteToGameboy(serialWriteBuffer[readPosition]); //send the byte out
-      readPosition++;                //increment our read position
-      readPosition = readPosition % 256; //wrap our reading range from 0 to 255
-    }
-  }
-}
-
- /*
-  sendByteToGameboy does what it says. yay magic
- */
-void sendByteToGameboy(byte send_byte) 
-{
+  PORTC = B00000000;
+  delayMicroseconds(50);  //Delays are added to simulate PC keyboard rate
+  PORTC = B00000001;
+  delayMicroseconds(50);
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
-    digitalWrite(pinGBClock,HIGH);  //Set our clock output to 1
     if(send_byte & 0x01) {          //if the first bit is equal to 1
-      digitalWrite(pinGBSerialOut,HIGH); //then send a 1
+      PORTC = B00000010;
+      delayMicroseconds(50);
+      PORTC = B00000011;
+      delayMicroseconds(50);
     } else {
-      digitalWrite(pinGBSerialOut,LOW);  //send a 0
+      PORTC = B00000000;
+      delayMicroseconds(50);
+      PORTC = B00000001;
+      delayMicroseconds(50);
     }
     send_byte >>= 1;                //bitshift right once for the next bit we are going to send
-   delayMicroseconds(gameboyBitPauseLOW);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
-    digitalWrite(pinGBClock,LOW);   //send a 0 to the clock, we finished sending the bit
-   delayMicroseconds(gameboyBitPauseHIGH);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
   }
-  digitalWrite(pinGBSerialOut,LOW); //make sure the serial state returns to 0 after its done sending the bits
-  delayMicroseconds(gameboyBitPauseLOW);        // firestARter : play around with this value, sometimes the gameboy needs more time between messages
+  
+  PORTC = B00000000;
+  delayMicroseconds(50);
+  PORTC = B00000001;
+  delayMicroseconds(50);
+  PORTC = B00000010;
+  delayMicroseconds(50);
+  PORTC = B00000011;
+  delay(4);
 }
 

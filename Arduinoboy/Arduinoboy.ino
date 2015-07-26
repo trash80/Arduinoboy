@@ -10,26 +10,34 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.0.5                                                          *
- * Date:    Oct 28 2008                                                    *
+ * Version: 1.1.0                                                          *
+ * Date:    Feb 7 2009                                                     *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Notes:                                                                  *
- *     Pins have changed from the original diagram, expect build           *
- *     instructions to follow here soon:                                   *
- *     http://code.google.com/p/arduinoboy/                                *
+ * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
+ * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
+ * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
+ * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
+ * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
+ *                                                                         *
+ *  As of version 1.1.0 Gameboy Pins have changes from 5,6,7 to Analog in  *
+ *  pins 0,1,2 ... This allows direct port access which not interfearing   *
+ *  with serial communication. There are no more "delay" settings, and     * 
+ *  everything seems much faster / better now.                             *
+ *                                                                         *
+ *  http://code.google.com/p/arduinoboy/                                   *
  *                                                                         *
  *   Arduino pin settings:  (Layout is final)                              *
  *     - 6 LEDS on pins 8 to 13                                            *
  *     - Push button on pin 3 (for selecting mode)                         *
  *     - MIDI Opto-isolator power on pin 4                                 *
- *     - Gameboy Clock line on pin 5                                       *
- *     - Gameboy Serial Data input on 6                                    *
- *     - Serial Data from gameboy on pin 7                                 *
+ *     - Gameboy Clock line on analog in pin 0                             *
+ *     - Gameboy Serial Data input on analog in pin 1                      *
+ *     - Serial Data from gameboy on analog in pin 2                       *
  *                                                                         *
  * Program Information:                                                    *
  *    LSDJ Slave Mode Midi Note Effects:                                   *
@@ -87,17 +95,13 @@ int mode          = 0;    //0 to 4 - default mode for force mode
 int numberOfModes = 5;    //Right now there are 5 modes, Might be more in the future
 boolean usbMode   = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
 
-int gameboyBitPauseLOW  = 5;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 5=GBA/SP/DMG01   ---   
-int gameboyBitPauseHIGH = 1;    //Bit pause for gbmidi mode    .... 1 to 10 /// tested working value: 1=GBA/SP/DMG01   ---    (note: roughly 4 microseconds off from Low do to code that writes to the serial line)
-int gameboyBytePause= 10;       //Byte pause for gbmidi mode   .... 5 to 20 /// tested working value: 5=GBA/SP/GBC and 10=DMG
-
 /***************************************************************************
 * Lets Assign our Arduino Pins .....
 ***************************************************************************/
 
-int pinGBClock = 5;    // clock out to gameboy
-int pinGBSerialOut = 6;    // serial data to gameboy
-int pinGBSerialIn = 7;    // serial data from gameboy
+int pinGBClock     = 0;    // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = 1;    // Analog In 1 - serial data to gameboy
+int pinGBSerialIn  = 2;    // Analog In 2 - serial data from gameboy
 
 int pinMidiInputPower = 4; // power pin for midi input opto-isolator
 
@@ -218,9 +222,9 @@ void setup() {
   
   pinMode(pinButtonMode,INPUT); 
   
-  pinMode(pinGBClock,OUTPUT); 
-  pinMode(pinGBSerialOut,OUTPUT); 
-  pinMode(pinGBSerialIn,INPUT);
+  
+  DDRC = B00111111; //Set analog in pins as outputs
+  
 /*
   Set MIDI Serial Rate
 */
@@ -228,7 +232,6 @@ void setup() {
     Serial.begin(38400); //31250
   } else {
     pinMode(pinMidiInputPower,OUTPUT); 
-    digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
     Serial.begin(31250); //31250
   }
 /*
@@ -263,6 +266,9 @@ void setup() {
 */
   if(!forceMode) mode = EEPROM.read(eepromMemoryByte);
   lastMode = mode;
+  
+  startupSequence();
+  
   showSelectedMode(); //Light up the LED that shows which mode we are in.
 }
 

@@ -14,8 +14,10 @@
 
 void modeLSDJMasterSyncSetup()
 {
+  
+  digitalWrite(pinMidiInputPower,LOW); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  pinMode(pinGBClock,INPUT); //Set the gb clock as input, we will be reading from the clock
+  DDRC  = B00000000; //Set analog in pins as inputs
   countSyncTime=0;
   modeLSDJMasterSync();
 }
@@ -23,12 +25,12 @@ void modeLSDJMasterSyncSetup()
 void modeLSDJMasterSync()
 {
   while(1){
-    readgbClockLine = digitalRead(pinGBClock); //Read gameboy's clock line
+    readgbClockLine = PINC & 0x01; //Read gameboy's clock line
     if(readgbClockLine) {                          //If Gb's Clock is On
       while(readgbClockLine) {                     //Loop untill its off
         checkLSDJStopped();                        //Check if LSDJ hit Stop
-        readgbClockLine = digitalRead(pinGBClock); //Read the clock again
-        bit = digitalRead(pinGBSerialIn);          //Read the serial input for song position
+        readgbClockLine = PINC & 0x01;            //Read the clock again
+        bit = (PINC & 0x04)>>2;                   //Read the serial input for song position
         setMode();
         updateStatusLight();
       }

@@ -13,9 +13,8 @@
 
 void modeNanoloopSetup()
 {
+  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  pinMode(pinGBClock,OUTPUT);      //Set the gb clock as output
-  digitalWrite(pinGBClock,LOW);    //Gameboy likes to get low
   
   modeNanoloopSync();
 }
@@ -64,13 +63,16 @@ boolean sendTickToNanoloop(boolean state, boolean last_state)
 {
   if(!state) {
     if(last_state) {
-      digitalWrite(pinGBSerialOut,HIGH);
+       PORTC = B00000010;
+       PORTC = B00000011;
     } else {
-      digitalWrite(pinGBSerialOut,LOW);
+       PORTC = B00000000;
+       PORTC = B00000001;
     }
     return true;
   } else {
-    digitalWrite(pinGBSerialOut,HIGH);
+    PORTC = B00000010;
+    PORTC = B00000011;
     return false;
   }
 }

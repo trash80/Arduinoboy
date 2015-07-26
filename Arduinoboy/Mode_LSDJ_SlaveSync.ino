@@ -13,10 +13,10 @@
 
 void modeLSDJSlaveSyncSetup()
 {
+  digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinStatusLed,LOW);
-  pinMode(pinGBClock,OUTPUT);      //Set the gb clock as output
-  digitalWrite(pinGBClock,HIGH);   //Gameboy likes to get high
-  digitalWrite(pinGBSerialOut,LOW);//Nothing to send 
+  DDRC  = B00111111; //Set analog in pins as outputs
+  PORTC = B00000001;
   
   modeLSDJSlaveSync();
 }
@@ -34,7 +34,7 @@ void modeLSDJSlaveSync()
         if(sequencerStarted && midiSyncEffectsTime && !countSyncTime   //If the seq has started and our sync effect is on and at zero
           || sequencerStarted && !midiSyncEffectsTime) {               //or seq is started and there is no sync effects
               if(!countSyncPulse && midiDefaultStartOffset) {          //if we received a note for start offset
-                sendByteReversed(midiDefaultStartOffset);              //send the offset
+                //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
               }
               sendClockTickToLSDJ();                                   //send the clock tick 
               updateVisualSync();
@@ -76,35 +76,17 @@ void modeLSDJSlaveSync()
 }
 
 /*
-  Again its magic time, but this time its backweirds
-  We'll send a byte to the gameboy starting with big endian
-  From this point on I'm sick of writing comments
-*/
-void sendByteReversed(byte send_byte)
-{
-  for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {  //NEWS FLASH: there are 8 bits in a byte
-    digitalWrite(pinGBClock,LOW);                            //Set the clock to zero, wes about to send you somethin
-    if(send_byte & 0x80) {                                   //Magic
-      digitalWrite(pinGBSerialOut,HIGH);                     //1
-    } else {
-      digitalWrite(pinGBSerialOut,LOW);                      //0
-    }
-    send_byte <<= 1;                                         //More magic
-    digitalWrite(pinGBClock,HIGH);                           //Make the clock 1, so we can make a funky squarewave
-  }
-  digitalWrite(pinGBSerialOut,LOW);                          //We are done, turn the serial off
-}
-
-/*
   sendClockTickToLSDJ is a lovely loving simple function I wish they where all this short
   Technicallyly we are sending nothing but a 8bit clock pulse
 */
 void sendClockTickToLSDJ()
 {
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {
-    digitalWrite(pinGBClock,LOW);digitalWrite(pinGBClock,HIGH);
+       PORTC = B00000000;
+       PORTC = B00000001;
   }
 }
+
 
 /*
   getSlaveSyncEffect receives a note, and assigns the propper effect of that note
