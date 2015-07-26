@@ -255,13 +255,11 @@ Note: the name and number at the bottom left of the screen indicates the midi CC
   * cc64: (sustain) turns off note off. <64 = off, >63 = on
 
 ## How To
-
+![ScreenShot](http://farm3.static.flickr.com/2229/2316803721_c22f9c2387.jpg)
 (Coming soon)
 [http://flickr.com/photos/trash80/2316803175/in/set-72157604068871573/ Check out the flickr set.]
 
-[http://flickr.com/photos/trash80/sets/72157604068871573/ http://farm3.static.flickr.com/2229/2316803721_c22f9c2387.jpg]
-
-http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png
+![ScreenShot](http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png)
 
 [http://trash80.net/junkfood/arduinoboy/arduinoboy-schem-v.0.9.8-r1.png Old version pre 1.1.0 Here ]
 
