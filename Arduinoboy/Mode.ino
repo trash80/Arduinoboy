@@ -11,24 +11,46 @@
  *                                                                         *
  ***************************************************************************/
  
+/* ***************************************************************************/
+/* "Mode" Functions. Deals with changing the setup of arduino.              */
+/* ***************************************************************************/
+
+ /*
+   setMode will check if the push button is depressed, If it is it will 
+   increment the mode number and make sure its in the 
+   range 0 to 4 by mod (%). It will then write the mode to memory,
+   set the leds to display the mode, and switch the code over to the
+   right function.
+ */
 void setMode()
 {
-  if(digitalRead(pinButtonMode)) {
-    mode++;
-    if(mode >= 5) mode = 0;
-    if(!forceMode) EEPROM.write(eepromMemoryByte, mode);
-    showSelectedMode();
-    switchMode();
+  if(digitalRead(pinButtonMode)) { //if the button is pressed
+    mode++;                           //increment the mode number
+    if(mode > (numberOfModes - 1)) mode=0;  //if the mode is greater then 4 it will wrap back to 0
+    if(!forceMode) EEPROM.write(eepromMemoryByte, mode); //write mode to eeprom if we arnt forcing a mode in the config
+    showSelectedMode();            //set the LEDS
+    switchMode();                  //switch to the new mode
   }
 }
 
+ /*
+   showSelectedMode1 turns off the last mode led, turns on the new mode led
+   and delays for a period of time to reduce jitter behavior from the mode 
+   changing too fast.
+ */
 void showSelectedMode()
 {
-  for(int led=0;led<=5;led++) digitalWrite(pinLeds[led],LOW);
+  digitalWrite(pinLeds[lastMode],LOW);
   digitalWrite(pinLeds[mode],HIGH);
+  lastMode = mode;
   delay(300);
 }
 
+ /*
+   switchMode is only called from setMode. its responsible for
+   linking the mode number to its corrisponding function, 
+   and then calling that function. function. function.
+ */
 void switchMode()
 {
   switch(mode)
@@ -45,50 +67,78 @@ void switchMode()
     case 3:
       modeNanoloopSetup();
       break;
-    case 4:
-      modePushpinSetup();
-      break;
   }
 }
 
+
+/* ***************************************************************************/
+/* General Global Functions Used in more then one of the modes               */
+/* ***************************************************************************/
+
+ /*
+   sequencerStart is called when either LSDJ has started to play in master mode, 
+   or when a MIDI Start or continue command is received in lsdj slave mode.
+   Basically it just resets some counters we use and sets a "start" flag.
+ */
+ 
 void sequencerStart()
 {
-  sequencerStarted = true;
-  countSyncPulse = 0;
-  countSyncTime = 0;
+  digitalWrite(pinStatusLed,HIGH);
+  sequencerStarted = true; //Sequencer has started?
+  countSyncPulse = 0;      //Used for status LED, counts 24 ticks (quarter notes)
+  countSyncTime = 0;       //Used to count a custom amount of clock ticks (2/4/8) for sync effects
 }
 
+ /*
+   sequencerStop is called when either LSDJ has stopped sending sync commands for
+   some time in LSDJ Master mode, or when a MIDI Stop command is received in
+   lsdj slave mode.
+   Basically it just resets some counters we use and sets the "start" flag to false.
+ */
 void sequencerStop()
 {
-  midiSyncEffectsTime = false;
-  sequencerStarted = false;
-  countSyncPulse = 0;
-  countSyncTime = 0;
+  digitalWrite(pinStatusLed,LOW);
+  midiSyncEffectsTime = false;//Turn off MIDI sync effects in LSDJ slave mode
+  sequencerStarted = false;   //Sequencer has started?
+  countSyncPulse = 0;         //Used for status LED, counts 24 ticks (quarter notes)
+  countSyncTime = 0;          //Used to count a custom amount of clock ticks (2/4/8) for sync effects
 }
 
+ /*
+   updateStatusLed should be placed inside of the main loop cycle of a mode function. It counts to a 
+   certain number to delay the action of turning off the status led, so the blink is visible to the human eye. ;)> 
+   I guess this could be called the blinking routine. 
+ */
 void updateStatusLed()
 {
-  if(statusLedIsOn) {
-    countStatusLedOn++;
-    if(countStatusLedOn > 3000) {
-      countStatusLedOn = 0;
-       digitalWrite(pinStatusLed,LOW);
-       statusLedIsOn  = false;
-    } else if (statusLedBlink && countStatusLedOn == 1) {
-       digitalWrite(pinStatusLed,LOW);
-    } else if (statusLedBlink && countStatusLedOn > 1000) {
-       statusLedBlink = false;
-       digitalWrite(pinStatusLed,HIGH);
+  if(statusLedIsOn) {                  //is the led on?
+    countStatusLedOn++;                //then increment the counter by 1
+    if(countStatusLedOn > 3000) {      //if the counter is pretty high
+      countStatusLedOn = 0;            //then reset it to zero.
+       digitalWrite(pinStatusLed,LOW); //and turn off the status led
+       statusLedIsOn  = false;         //and set our "is it on?" to false, cause its off now. ;p
+       
+    } else if (statusLedBlink && countStatusLedOn == 1) {  //someone told me to blink, because i was already on
+       digitalWrite(pinStatusLed,LOW);                     //so I'll turn off and turn back on later..
+       
+    } else if (statusLedBlink && countStatusLedOn > 1000) {//Now that I've waited long enough I'll finish my blink.
+       statusLedBlink = false;                             //Turn off the issued blink
+       digitalWrite(pinStatusLed,HIGH);                    //... and finally turn back on.
     }
   }
 }
 
+ /*
+   statusLedOn is the function to call when we want the status led to blink for us.
+   all it does is check if its been already asked to turn on, if it has it will set a flag
+   to make it blink. Either way it will reset the blink timer and turn on the LED
+ */
 void statusLedOn()
 {
   if(statusLedIsOn) {
-    statusLedBlink = true;
+    statusLedBlink = true;   //Make it blink even though its already on
   }
-  statusLedIsOn  = true;
-  countStatusLedOn = 0;
-  digitalWrite(pinStatusLed,HIGH);
+  statusLedIsOn  = true;     //This is the flag the updator function looks for to know if its ok to increment the timer and wait to turn off the led
+  countStatusLedOn = 0;      //Reset the timer
+  digitalWrite(pinStatusLed,HIGH); //Turn on the led
 }

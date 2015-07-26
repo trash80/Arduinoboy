@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 0.9.1                                                          *
- * Date:    March 08 2008                                                  *
+ * Version: 0.9.8                                                          *
+ * Date:    March 11 2008                                                  *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -66,19 +66,21 @@
  *                                                                         *
  ***************************************************************************/
  #include <EEPROM.h>
- 
 /***************************************************************************
 * Simple User Settings
 ***************************************************************************/
 int syncEffectsMidiChannel = 16;         //midi sync effects for lsdj slave mode
-int keyboardInstrumentMidiChannel = 16;  //midi channel for keyboard instruments in lsdj
+int masterNotePositionMidiChannel = 16;   //LSDJ in master mode will send its song position on the start button via midi note.
+int keyboardInstrumentMidiChannel = 16;  //midi channel for keyboard instruments in lsdj.
+
+boolean keyboardCompatabilityMode = true; //Set to true if you are using LSDJ version lower then 2.6, not working right now
 
 //Mode 0: Midi Input to LSDJ Sync
 //Mode 1: LSDJ MASTER to Midi output
 //Mode 2: LSDJ Keyboard
 //Mode 3: Midi Input to Nanoloop 
-//Mode 4: Pushpin Interface
-int mode = 0;
+int mode          = 0;
+int numberOfModes = 4; //Right now there are 4 modes, Might be more in the future
 
 //Enforces the mode above, without reading from memory, use this to force the mode if you dont have a push button setup. 
 boolean forceMode = false; 
@@ -135,14 +137,17 @@ unsigned int waitClock =0;
 byte incomingMidiByte;  //incomming midi message
 byte readgbClockLine;
 byte readGbSerialIn;
+byte bit;
 int incomingMidiData[] = {0, 0, 0};
 
 int incomingMidiNote = 0;
 int incomingMidiVel = 0;
 byte readToggleMode;
 byte serialWriteBuffer[256];
+byte midiDefaultStartOffset;
 int  writePosition=0;
 int  readPosition=0;
+int lastMode=0; //Stores the last selected mode for leds.
 /***************************************************************************
 * LSDJ Keyboard mode settings
 ***************************************************************************/      
@@ -203,7 +208,7 @@ void setup() {
 /*
   Set MIDI Serial Rate
 */
-  Serial.begin(31250);
+  Serial.begin(31250); //31250
   
 /*
   Set Pin States
@@ -211,13 +216,16 @@ void setup() {
   digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
   digitalWrite(pinGBClock,HIGH);    // gameboy wants a HIGH line
   digitalWrite(pinGBSerialOut,LOW);    // no data to send
-  digitalWrite(pinStatusLed,HIGH);
 /*
   Misc Startup
 */
-  syncEffectsMidiChannel = 143 + syncEffectsMidiChannel; //set the midi channel to the real number (144 to 159)
-  keyboardInstrumentMidiChannel = 143 + keyboardInstrumentMidiChannel; //set the midi channel to the real number (144 to 159)
-  keyboardNoteStart = keyboardStartOctave + 12;
+  syncEffectsMidiChannel = 143 + syncEffectsMidiChannel; //set the midi channel to the real note-on number (144 to 159)
+  keyboardInstrumentMidiChannel = 143 + keyboardInstrumentMidiChannel; //set the midi channel to the real note-on number (144 to 159)
+  masterNotePositionMidiChannel = 143 + masterNotePositionMidiChannel; //set the midi channel to the real note-on number (144 to 159)
+  keyboardNoteStart = keyboardStartOctave + 12; // Set the octave where the actual notes start (the octave below is for the mutes, cursor, etc)
+/*
+  Assign the keyboard mode command array for the first octave
+*/
   keyboardCommands[0] = keyboardMut1;
   keyboardCommands[1] = keyboardMut2;
   keyboardCommands[2] = keyboardMut3;
@@ -234,9 +242,13 @@ void setup() {
   Load Settings from EEPROM
 */
   if(!forceMode) mode = EEPROM.read(eepromMemoryByte);
-  showSelectedMode();
+  lastMode = mode;
+  showSelectedMode(); //Light up the LED that shows which mode we are in.
 }
 
+/*
+  Main Loop, which we don't use to be able to isolate each mode into its own setup and loop functions
+*/
 void loop () {
   setMode();
   switchMode();
