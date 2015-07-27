@@ -7,16 +7,6 @@ Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gam
 Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and [mGB](https://github.com/trash80/mGB)
 
 ## News
- * 12/21/12
-   * mGB to version 1.3.3 : End of the world release. ;)
-     * Fixed a bug with the new pitchbend resolution
-     * Optimized some of the pitchbend routine
- * 12/20/12
-   * mGB to version 1.3.2
-     * Increased pitchbend resolution
- * 12/19/12
-   * mGB to version 1.3.1
-     * Fixed PU1 Envelope retrigger bug. 
  * 12/23/11
    * Arduinoboy to version 1.2.3
      * Fixed code to work in Arduino 1.0 Software.
