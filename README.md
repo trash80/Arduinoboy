@@ -1,5 +1,3 @@
-![ScreenShot](http://trash80.net/arduinoboy/aboy1_2_0.jpg)
-
 # Arduinoboy
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
 
