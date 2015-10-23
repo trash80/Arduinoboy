@@ -16,19 +16,19 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
   * Affordable and easily accessible parts for assembly.
   * Accurate MIDI Sync, Start and Stop commands.
   * Push Button to select the sync/state mode (7 modes available)
-   # LSDJ as MIDI Slave Sync with sync effects and midi note transport control. Also Note value to LSDJ song position row offset on Song Start.
-   # LSDJ as MIDI Master Sync. Send Midi sync with LSDJ, LSDJ also sends a Midi Note on message that corresponds to the song row number
-   # LSDJ PC Keyboard mode. with the first octave controlling M-U-T-E, Cursor control (LSDJ Live mode only), Table selection and table cue.
-   # MIDI to Nanoloop sync
-   # Full MIDI with mGB (Details below)
-   # LSDJ LIVE MAP ... incoming MIDI notes cue LSDJ row numbers, requires custom LSDJ version on the LSDJ site.
-   # LSDJ MIDIOUT ... sends MIDI out from LSDJ, requires custom LSDJ version on the LSDJ site.
+  * LSDJ as MIDI Slave Sync with sync effects and midi note transport control. Also Note value to LSDJ song position row offset on Song Start.
+  * LSDJ as MIDI Master Sync. Send Midi sync with LSDJ, LSDJ also sends a Midi Note on message that corresponds to the song row number
+
+  * LSDJ PC Keyboard mode. with the first octave controlling M-U-T-E, Cursor control (LSDJ Live mode only), Table selection and table cue.
+  * MIDI to Nanoloop sync
+  * Full MIDI with mGB (Details below)
+  * LSDJ LIVE MAP ... incoming MIDI notes cue LSDJ row numbers, requires custom LSDJ version on the LSDJ site.
+  * LSDJ MIDIOUT ... sends MIDI out from LSDJ, requires custom LSDJ version on the LSDJ site.
   * Midi Out Doubles as a Midi Thru
   * "Filtering" data for only sync messages, no dedicated MIDI line required.
   * Tested and works with DMG (Original), Gameboy Color, and Advance/SP.
   * Can be powered by the gamelink port.
   * USB upgradeable via Arduino.
-
   * mGB Cartridge Mode: Full MIDI in support across all Gameboy Channels, including a unique "poly" mode. Tested and works with DMG01, GBC, GBA, GB AdvanceSP
 
 ## Future Features & wishlist
@@ -59,11 +59,9 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
   * Prgram Change to select from instrument table
  * Default Midi channel is 16. You can change in the top of the main source file in the archive. 
 
-## How To
-![ScreenShot](http://farm3.static.flickr.com/2229/2316803721_c22f9c2387.jpg)
-![ScreenShot](http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png)
-* [Build Photos](http://flickr.com/photos/trash80/2316803175/in/set-72157604068871573/)
-* [Old version (Pre 1.1.0)](http://trash80.net/junkfood/arduinoboy/arduinoboy-schem-v.0.9.8-r1.png)
+## Schematics
+![pro mini](http://i.imgur.com/DjBTYIm.png)
+![crayon schematic](http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png)
 
 ## Thanks To
   * [Arduino](http://arduino.cc)
