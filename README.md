@@ -60,8 +60,8 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
  * Default Midi channel is 16. You can change in the top of the main source file in the archive. 
 
 ## Schematics
-![pro mini](http://i.imgur.com/DjBTYIm.png)
-![crayon schematic](http://trash80.net/arduinoboy/arduinoboy_schematic_1_1_0.png)
+![pro mini](Schematic/promini.png)
+![crayon schematic](Schematic/arduinoboy_schematic_1_1_0.png)
 
 ## Thanks To
   * [Arduino](http://arduino.cc)
