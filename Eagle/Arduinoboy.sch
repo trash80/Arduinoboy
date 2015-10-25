@@ -3448,10 +3448,6 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <library name="David">
 <packages>
 <package name="GBA-LINK">
-<wire x1="0" y1="0" x2="10.48" y2="0" width="0.127" layer="21"/>
-<wire x1="10.48" y1="0" x2="10.48" y2="8.11" width="0.127" layer="21"/>
-<wire x1="10.48" y1="8.11" x2="0" y2="8.11" width="0.127" layer="21"/>
-<wire x1="0" y1="8.11" x2="0" y2="0" width="0.127" layer="21"/>
 <pad name="VCC" x="3.32" y="0.06" drill="0.9" diameter="1.27" shape="offset" rot="R270"/>
 <pad name="SI" x="5.25" y="0.06" drill="0.9" diameter="1.27" shape="offset" rot="R270"/>
 <pad name="SC" x="7.18" y="0.06" drill="0.9" diameter="1.27" shape="offset" rot="R270"/>
@@ -3460,12 +3456,12 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <pad name="GND" x="7.18" y="1.67" drill="0.9" diameter="1.27" shape="offset" rot="R90"/>
 <pad name="SHEILD1" x="0" y="1.965" drill="2.2" diameter="3.5" rot="R90"/>
 <pad name="SHEILD2" x="10.47" y="1.965" drill="2.2" diameter="3.5" rot="R90"/>
-<text x="2.58" y="-2.68" size="0.6096" layer="25" font="vector">VCC</text>
-<text x="2.86" y="3.87" size="0.6096" layer="25" font="vector">SO</text>
-<text x="4.84" y="-2.7" size="0.6096" layer="25" font="vector">SI</text>
-<text x="4.76" y="3.82" size="0.6096" layer="25" font="vector">SD</text>
-<text x="6.71" y="-2.7" size="0.6096" layer="25" font="vector">SC</text>
-<text x="6.49" y="3.82" size="0.6096" layer="25" font="vector">GND</text>
+<text x="2.619596875" y="-2.898096875" size="0.6096" layer="25" font="vector">VCC</text>
+<text x="2.8798" y="4.0087875" size="0.6096" layer="25" font="vector">SO</text>
+<text x="4.800403125" y="-2.87844375" size="0.6096" layer="25" font="vector">SI</text>
+<text x="4.740203125" y="3.97861875" size="0.6096" layer="25" font="vector">SD</text>
+<text x="6.71" y="-2.858615625" size="0.6096" layer="25" font="vector">SC</text>
+<text x="6.49" y="4.018271875" size="0.6096" layer="25" font="vector">GND</text>
 </package>
 </packages>
 <symbols>
@@ -3769,13 +3765,13 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <pinref part="U$3" gate="G$1" pin="A1"/>
 <pinref part="JP3" gate="G$1" pin="3"/>
 <wire x1="-20.32" y1="124.46" x2="-40.64" y2="124.46" width="0.1524" layer="91"/>
-<pinref part="U$1" gate="G$1" pin="SI"/>
 <wire x1="-40.64" y1="124.46" x2="-50.8" y2="124.46" width="0.1524" layer="91"/>
 <wire x1="-58.42" y1="101.6" x2="-66.04" y2="101.6" width="0.1524" layer="91"/>
 <wire x1="-66.04" y1="101.6" x2="-66.04" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="-66.04" y1="111.76" x2="-40.64" y2="111.76" width="0.1524" layer="91"/>
 <wire x1="-40.64" y1="111.76" x2="-40.64" y2="124.46" width="0.1524" layer="91"/>
 <junction x="-40.64" y="124.46"/>
+<pinref part="U$1" gate="G$1" pin="SI"/>
 </segment>
 </net>
 <net name="N$23" class="0">
@@ -3800,8 +3796,8 @@ Standard 5-pin 0.1" header. Use with straight break away headers (SKU : PRT-0011
 <wire x1="-63.5" y1="139.7" x2="-45.72" y2="139.7" width="0.1524" layer="91"/>
 <wire x1="-45.72" y1="139.7" x2="-45.72" y2="129.54" width="0.1524" layer="91"/>
 <junction x="-45.72" y="129.54"/>
-<pinref part="U$1" gate="G$1" pin="VCC"/>
 <wire x1="-63.5" y1="104.14" x2="-58.42" y2="104.14" width="0.1524" layer="91"/>
+<pinref part="U$1" gate="G$1" pin="VCC"/>
 </segment>
 </net>
 <net name="N$5" class="0">
