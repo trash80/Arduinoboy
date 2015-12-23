@@ -27,7 +27,7 @@ used by devices to sync. Different devices are using different values
 //SoftwareSerial Serial(6, 0);
 //Serial Serial;
 
-unsigned char divider = 6;
+unsigned char divider = 1;
 
 unsigned char multiplier = 2; // use 12 for converting from volca to midi
 
