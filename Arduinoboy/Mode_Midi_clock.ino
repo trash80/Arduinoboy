@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 ///*
 //  attiny midi clock to cv clock converter
 // - works for gb clock - nanoloop
