@@ -118,6 +118,7 @@ void playNote(byte m, byte n)
 void playCC(byte m, byte n)
 {
   byte v = n;
+  byte c = n;
   
   if(memory[MEM_MIDIOUT_CC_MODE+m]) {
     if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
@@ -125,6 +126,13 @@ void playCC(byte m, byte n)
       //if(v) v --;
     }
     n=(m*7)+((n>>4) & 0x07);
+    //change MIDI out ch on the fly with command X6y (y=0-F => MIDI out ch 1-16)
+    if (n == 6) { //use another X[first digit] by changing the 6 (0-6 is allowed)
+      c = (c & 0xF);
+      memory[MEM_MIDIOUT_NOTE_CH+m] = c;
+      memory[MEM_MIDIOUT_CC_CH+m] = c;
+      return;
+    }
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
     midiData[2] = v;
