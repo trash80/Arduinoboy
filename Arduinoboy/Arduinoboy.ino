@@ -74,6 +74,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <EEPROM.h>
+#include <PS2Keybaord.h>
 #define MEM_MAX 65
 #define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
 
@@ -103,6 +104,11 @@
 
 #define MEM_MIDIOUT_BIT_DELAY 61
 #define MEM_MIDIOUT_BYTE_DELAY 63
+
+// values for the PS/2 Keyboard input
+#define PS2_DATA_PIN 7
+#define PS2_CLOCK_PIN 6
+PS2Keyboard keyboard;
 
 
 
@@ -250,6 +256,7 @@ unsigned long int miscLedMaxTime;
 * Inbound Data Placeholders
 ***************************************************************************/
 byte incomingMidiByte;  //incomming midi message
+byte incomingPS2Byte;
 byte readgbClockLine;
 byte readGbSerialIn;
 byte bit;
