@@ -19,8 +19,8 @@ void modeLSDJMapSetup()
  #ifdef MIDI_INTERFACE
   usbMIDI.setHandleRealTimeSystem(usbMidiLSDJMapRealtimeMessage);
  #endif
-  blinkMaxCount=10;
-  //modeLSDJMap();
+  blinkMaxCount=1000;
+  modeLSDJMap();
 }
 
 void modeLSDJMap()
