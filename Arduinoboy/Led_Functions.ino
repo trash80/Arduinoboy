@@ -23,22 +23,22 @@ void showSelectedMode()
         digitalWrite(pinLeds[1],HIGH);
         break;
       case 6:
-        digitalWrite(pinStatusLed,HIGH);
         digitalWrite(pinLeds[0],HIGH);
         digitalWrite(pinLeds[1],HIGH);
         digitalWrite(pinLeds[2],HIGH);
         digitalWrite(pinLeds[3],HIGH);
         digitalWrite(pinLeds[4],HIGH);
+        digitalWrite(pinLeds[5],HIGH);
         break;
 
     }
   delay(100);
-  digitalWrite(pinStatusLed,LOW);
   digitalWrite(pinLeds[0],LOW);
   digitalWrite(pinLeds[1],LOW);
   digitalWrite(pinLeds[2],LOW);
   digitalWrite(pinLeds[3],LOW);
   digitalWrite(pinLeds[4],LOW);
+  digitalWrite(pinLeds[5],LOW);
   delay(100);
   }
   lastMode = memory[MEM_MODE];
@@ -48,14 +48,14 @@ void showSelectedMode()
 void updateVisualSync()
 {
     if(!countSyncTime) {
-      if(!blinkSwitch[4]) digitalWrite(pinStatusLed,HIGH);
+      if(!blinkSwitch[5]) digitalWrite(pinStatusLed,HIGH);
       digitalWrite(pinLeds[0],LOW);
       digitalWrite(pinLeds[1],LOW);
       digitalWrite(pinLeds[2],LOW);
       digitalWrite(pinLeds[3],LOW);
       digitalWrite(pinLeds[switchLight],HIGH);
-      blinkSwitch[4]=1;
-      blinkSwitchTime[4]=0;
+      blinkSwitch[5]=1;
+      blinkSwitchTime[5]=0;
       countSyncLightTime = 0;
       switchLight++;
       if(switchLight==4) switchLight=0;
@@ -90,11 +90,11 @@ void updateBlinkLight(uint8_t light)
 
 void updateStatusLight()
 {
-  if(blinkSwitch[4]) {
-    blinkSwitchTime[4]++;
-    if(blinkSwitchTime[4] == blinkMaxCount) {
-      blinkSwitch[4]=0;
-      blinkSwitchTime[4]=0;
+  if(blinkSwitch[5]) {
+    blinkSwitchTime[5]++;
+    if(blinkSwitchTime[5] == blinkMaxCount) {
+      blinkSwitch[5]=0;
+      blinkSwitchTime[5]=0;
       digitalWrite(pinStatusLed,LOW);
     }
   }
@@ -148,9 +148,9 @@ void blinkLight(byte midiMessage, byte midiValue)
     case 0xB2:
     case 0xB3:
     case 0xB4:
-      if(!blinkSwitch[4]) digitalWrite(pinStatusLed,HIGH);
-      blinkSwitch[4]=1;
-      blinkSwitchTime[4]=0;
+      if(!blinkSwitch[5]) digitalWrite(pinStatusLed,HIGH);
+      blinkSwitch[5]=1;
+      blinkSwitchTime[5]=0;
       break;
     default:
       break;

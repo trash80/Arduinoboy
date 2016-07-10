@@ -164,7 +164,7 @@ int pinGBSerialOut = 17;    // Analog In 1 - serial data to gameboy
 int pinGBSerialIn  = 18;    // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = 0; // Not used!
 int pinStatusLed = 13; // Status LED
-int pinLeds[] = {23,22,21,20,4,3}; // LED Pins
+int pinLeds[] = {23,22,21,20,4,13}; // LED Pins
 int pinButtonMode = 2; //toggle button for selecting the mode
 
 HardwareSerial *serial = &Serial1;
