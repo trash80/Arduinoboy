@@ -14,9 +14,13 @@
 void modeLSDJSlaveSyncSetup()
 {
   digitalWrite(pinStatusLed,LOW);
-  DDRC  = B00111111; //Set analog in pins as outputs
-  PORTC = B00000001;
-  
+  pinMode(pinGBClock,OUTPUT);
+  digitalWrite(pinGBClock,HIGH);
+
+#ifdef MIDI_INTERFACE
+  usbMIDI.setHandleRealTimeSystem(usbMidiLSDJSlaveRealtimeMessage);
+#endif
+
   blinkMaxCount=1000;
   modeLSDJSlaveSync();
 }
@@ -24,20 +28,21 @@ void modeLSDJSlaveSyncSetup()
 void modeLSDJSlaveSync()
 {
   while(1){  //Loop forever
-  if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
-    incomingMidiByte = Serial.read();           //Read it
-    
-    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);       //Send it back to the Midi out
-    
+  modeLSDJSlaveSyncUsbMidiReceive();
+  if (serial->available()) {                 //If MIDI Byte Availaibleleleiel
+    incomingMidiByte = serial->read();           //Read it
+
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) serial->write(incomingMidiByte);       //Send it back to the Midi out
+
     if(incomingMidiByte & 0x80) {               //If we have received a MIDI Status Byte
-    switch (incomingMidiByte) {                    
+    switch (incomingMidiByte) {
       case 0xF8:                                //Case: Clock Message Recieved
-        if(sequencerStarted && midiSyncEffectsTime && !countSyncTime   //If the seq has started and our sync effect is on and at zero
-          || sequencerStarted && !midiSyncEffectsTime) {               //or seq is started and there is no sync effects
+        if((sequencerStarted && midiSyncEffectsTime && !countSyncTime)   //If the seq has started and our sync effect is on and at zero
+          || (sequencerStarted && !midiSyncEffectsTime)) {               //or seq is started and there is no sync effects
               if(!countSyncPulse && midiDefaultStartOffset) {          //if we received a note for start offset
                 //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
               }
-              sendClockTickToLSDJ();                                   //send the clock tick 
+              sendClockTickToLSDJ();                                   //send the clock tick
               updateVisualSync();
         }
         if(midiSyncEffectsTime) {                                      //If sync effects are turned on
@@ -64,7 +69,7 @@ void modeLSDJSlaveSync()
       if(!midiData[0]) {                  //if there is no note number yet
          midiData[0] = incomingMidiByte;  //then assume the byte is a note and assign it to a place holder
       } else {                                    //else assumed velocity
-         if(incomingMidiByte > 0x00) {            
+         if(incomingMidiByte > 0x00) {
            getSlaveSyncEffect(midiData[0]); //then call our sync effects function
          }
          midiData[0] = false;             //and reset the captured note
@@ -83,8 +88,8 @@ void modeLSDJSlaveSync()
 void sendClockTickToLSDJ()
 {
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {
-       PORTC = B00000000;
-       PORTC = B00000001;
+    GB_SET(0,0,0);
+    GB_SET(1,0,0);
   }
 }
 
@@ -123,4 +128,58 @@ void getSlaveSyncEffect(byte note)
       midiDefaultStartOffset = midiData[0];
       break;
     }
+}
+
+void usbMidiLSDJSlaveRealtimeMessage(uint8_t message)
+{
+    switch(message) {
+      case 0xF8:
+          if((sequencerStarted && midiSyncEffectsTime && !countSyncTime)   //If the seq has started and our sync effect is on and at zero
+            || (sequencerStarted && !midiSyncEffectsTime)) {               //or seq is started and there is no sync effects
+                if(!countSyncPulse && midiDefaultStartOffset) {          //if we received a note for start offset
+                  //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
+                }
+                sendClockTickToLSDJ();                                   //send the clock tick
+                updateVisualSync();
+          }
+          if(midiSyncEffectsTime) {                                      //If sync effects are turned on
+            countSyncTime++;                                             //increment our tick counter
+            countSyncTime = countSyncTime % countSyncSteps;              //and mod it by the number of steps we want for the effect
+          }
+      break;
+      case 0xFA:                                // Case: Transport Start Message
+      case 0xFB:                                // and Case: Transport Continue Message
+          sequencerStart();                       // Start the sequencer
+      break;
+      case 0xFC:                                // Case: Transport Stop Message
+          sequencerStop();
+      break;
+    }
+}
+
+
+void modeLSDJSlaveSyncUsbMidiReceive()
+{
+#ifdef MIDI_INTERFACE
+
+    while(usbMIDI.read(memory[MEM_LSDJSLAVE_MIDI_CH]+1)) {
+        switch(usbMIDI.getType()) {
+            case 1: // note on
+                getSlaveSyncEffect(usbMIDI.getData1());
+            break;
+            /*
+            case 0: // note on
+            break;
+            case 3: // CC
+            break;
+            case 4: // PG
+            break;
+            case 5: // AT
+            break;
+            case 6: // PB
+            break;
+            */
+        }
+    }
+#endif
 }

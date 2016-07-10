@@ -1,13 +1,13 @@
 
  /*
    showSelectedMode1 turns off the last mode led, turns on the new mode led
-   and delays for a period of time to reduce jitter behavior from the mode 
+   and delays for a period of time to reduce jitter behavior from the mode
    changing too fast.
  */
 void showSelectedMode()
 {
   digitalWrite(pinStatusLed,LOW);
-  
+
   for(int m=0;m<3;m++) {
     switch(memory[MEM_MODE]) {
       case 0:
@@ -30,7 +30,7 @@ void showSelectedMode()
         digitalWrite(pinLeds[3],HIGH);
         digitalWrite(pinLeds[4],HIGH);
         break;
-      
+
     }
   delay(100);
   digitalWrite(pinStatusLed,LOW);
@@ -61,7 +61,7 @@ void updateVisualSync()
       if(switchLight==4) switchLight=0;
     }
     countSyncTime++;
-    if(countSyncTime == 24) countSyncTime=0; 
+    if(countSyncTime == 24) countSyncTime=0;
 }
 
 
@@ -76,7 +76,7 @@ void updateBlinkLights()
   updateBlinkLight(5);
 }
 
-void updateBlinkLight(int light)
+void updateBlinkLight(uint8_t light)
 {
   if(blinkSwitch[light]) {
     blinkSwitchTime[light]++;
@@ -175,9 +175,9 @@ void updateProgrammerLeds()
   updateBlinkLights();
 }
  /*
-   updateStatusLed should be placed inside of the main loop cycle of a mode function. It counts to a 
-   certain number to delay the action of turning off the status led, so the blink is visible to the human eye. ;)> 
-   I guess this could be called the blinking routine. 
+   updateStatusLed should be placed inside of the main loop cycle of a mode function. It counts to a
+   certain number to delay the action of turning off the status led, so the blink is visible to the human eye. ;)>
+   I guess this could be called the blinking routine.
  */
 void updateStatusLed()
 {
@@ -187,10 +187,10 @@ void updateStatusLed()
       countStatusLedOn = 0;            //then reset it to zero.
        digitalWrite(pinStatusLed,LOW); //and turn off the status led
        statusLedIsOn  = false;         //and set our "is it on?" to false, cause its off now. ;p
-       
+
     } else if (statusLedBlink && countStatusLedOn == 1) {  //someone told me to blink, because i was already on
        digitalWrite(pinStatusLed,LOW);                     //so I'll turn off and turn back on later..
-       
+
     } else if (statusLedBlink && countStatusLedOn > 1000) {//Now that I've waited long enough I'll finish my blink.
        statusLedBlink = false;                             //Turn off the issued blink
        digitalWrite(pinStatusLed,HIGH);                    //... and finally turn back on.
@@ -218,7 +218,7 @@ void startupSequence()
 {
   int ledFxA;
   int ledFxB;
-  
+
   for(ledFxB=0;ledFxB<2;ledFxB++) {
   for(ledFxA=0;ledFxA<6;ledFxA++) {
     digitalWrite(pinLeds[ledFxA], HIGH);
@@ -232,7 +232,7 @@ void startupSequence()
   }
   }
   delay(50);
-  
+
   for(ledFxA=0;ledFxA<6;ledFxA++) digitalWrite(pinLeds[ledFxA], HIGH);   // sets the LED on
   delay(100);
   for(ledFxA=0;ledFxA<6;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
@@ -241,6 +241,5 @@ void startupSequence()
   delay(100);
   for(ledFxA=0;ledFxA<6;ledFxA++) digitalWrite(pinLeds[ledFxA], LOW);      // sets the digital pin as output
   delay(500);
-  
-}
 
+}

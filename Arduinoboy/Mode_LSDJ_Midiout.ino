@@ -14,8 +14,13 @@
 void modeLSDJMidioutSetup()
 {
   digitalWrite(pinStatusLed,LOW);
-  DDRC  = B00000011; //Set analog in pins as inputs
-  PORTC = B00000001;
+  pinMode(pinGBClock,OUTPUT);
+  digitalWrite(pinGBClock,HIGH);
+
+ #ifdef MIDI_INTERFACE
+  usbMIDI.setHandleRealTimeSystem(NULL);
+ #endif
+
   countGbClockTicks=0;
   lastMidiData[0] = -1;
   lastMidiData[1] = -1;
@@ -32,14 +37,23 @@ void modeLSDJMidiout()
           switch(incomingMidiByte)
           {
            case 0x7F: //clock tick
-             Serial.write(0xF8);
+             serial->write(0xF8);
+#ifdef MIDI_INTERFACE
+             usbMIDI.sendRealTime((int)0xF8);
+#endif
              break;
            case 0x7E: //seq stop
-             Serial.write(0xFC);
+             serial->write(0xFC);
+#ifdef MIDI_INTERFACE
+             usbMIDI.sendRealTime((int)0xFC);
+#endif
              stopAllNotes();
              break;
            case 0x7D: //seq start
-             Serial.write(0xFA);
+             serial->write(0xFA);
+#ifdef MIDI_INTERFACE
+             usbMIDI.sendRealTime((int)0xFA);
+#endif
              break;
            default:
              midiData[0] = (incomingMidiByte - 0x70);
@@ -50,13 +64,15 @@ void modeLSDJMidiout()
           midiValueMode = false;
           midioutDoAction(midiData[0],incomingMidiByte);
         }
-      
+
       } else {
         setMode();                // Check if mode button was depressed
         updateBlinkLights();
-        
-        if (Serial.available()) {                  //If serial data was send to midi inp
-          checkForProgrammerSysex(Serial.read());
+#ifdef MIDI_INTERFACE
+        while(usbMIDI.read()) ;
+#endif
+        if (serial->available()) {                  //If serial data was send to midi inp
+          checkForProgrammerSysex(serial->read());
         }
       }
    }
@@ -96,7 +112,10 @@ void stopNote(byte m)
     midiData[0] = (0x80 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
     midiData[1] = midioutNoteHold[m][x];
     midiData[2] = 0x00;
-    Serial.write(midiData,3);
+    serial->write(midiData,3);
+#ifdef MIDI_INTERFACE
+    usbMIDI.sendNoteOff(midioutNoteHold[m][x], 0, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
   }
   midiOutLastNote[m] = -1;
   midioutNoteHoldCounter[m] = 0;
@@ -107,8 +126,11 @@ void playNote(byte m, byte n)
   midiData[0] = (0x90 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
   midiData[1] = n;
   midiData[2] = 0x7F;
-  Serial.write(midiData,3);
-  
+  serial->write(midiData,3);
+#ifdef MIDI_INTERFACE
+  usbMIDI.sendNoteOn(n, 127, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+
   midioutNoteHold[m][midioutNoteHoldCounter[m]] =n;
   midioutNoteHoldCounter[m]++;
   midioutNoteTimer[m] = millis();
@@ -118,7 +140,7 @@ void playNote(byte m, byte n)
 void playCC(byte m, byte n)
 {
   byte v = n;
-  
+
   if(memory[MEM_MIDIOUT_CC_MODE+m]) {
     if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
       v = (v & 0x0F)*8;
@@ -128,7 +150,10 @@ void playCC(byte m, byte n)
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
     midiData[2] = v;
-    Serial.write(midiData,3);
+    serial->write(midiData,3);
+#ifdef MIDI_INTERFACE
+    usbMIDI.sendControlChange((memory[MEM_MIDIOUT_CC_NUMBERS+n]), v, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
   } else {
     if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
       float s;
@@ -139,7 +164,10 @@ void playCC(byte m, byte n)
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
     midiData[2] = v;
-    Serial.write(midiData,3);
+    serial->write(midiData,3);
+#ifdef MIDI_INTERFACE
+    usbMIDI.sendControlChange((memory[MEM_MIDIOUT_CC_NUMBERS+n]), v, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
   }
 }
 
@@ -147,8 +175,11 @@ void playPC(byte m, byte n)
 {
   midiData[0] = (0xC0 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
   midiData[1] = n;
-  Serial.write(midiData,2);
-}                                                                    
+  serial->write(midiData,2);
+#ifdef MIDI_INTERFACE
+  usbMIDI.sendProgramChange(n, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+}
 
 void stopAllNotes()
 {
@@ -159,27 +190,29 @@ void stopAllNotes()
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
     midiData[1] = 123;
     midiData[2] = 0x7F;
-    Serial.write(midiData,3); //Send midi
+    serial->write(midiData,3); //Send midi
+#ifdef MIDI_INTERFACE
+    usbMIDI.sendControlChange(123, 127, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
   }
 }
 
 boolean getIncommingSlaveByte()
 {
   delayMicroseconds(midioutBitDelay);
-  PORTC = B00000000; //rightmost bit is clock line, 2nd bit is data to gb, 3rd is your mom
+  GB_SET(0,0,0);
   delayMicroseconds(midioutBitDelay);
-  PORTC = B00000001;
+  GB_SET(1,0,0);
   delayMicroseconds(2);
-  if((PINC & B00000100)) {
+  if(digitalRead(pinGBSerialIn)) {
     incomingMidiByte = 0;
     for(countClockPause=0;countClockPause!=7;countClockPause++) {
-      PORTC = B00000000;
+      GB_SET(0,0,0);
       delayMicroseconds(2);
-      PORTC = B00000001;
-      incomingMidiByte = (incomingMidiByte << 1) + ((PINC & B00000100)>>2);
+      GB_SET(1,0,0);
+      incomingMidiByte = (incomingMidiByte << 1) + digitalRead(pinGBSerialIn);
     }
     return true;
   }
   return false;
 }
-
