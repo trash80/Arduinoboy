@@ -169,7 +169,7 @@ void modeLSDJMapUsbMidiReceive()
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;
-        if(ch != memory[MEM_LIVEMAP_CH] || ch != (memory[MEM_LIVEMAP_CH] + 1)){
+        if(ch != memory[MEM_LIVEMAP_CH] && ch != (memory[MEM_LIVEMAP_CH] + 1)){
             continue;
         }
 
