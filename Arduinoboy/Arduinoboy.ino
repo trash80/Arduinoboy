@@ -137,7 +137,7 @@ byte defaultMemoryMap[MEM_MAX] = {
   1,2,3,7,10,11,12, //noi
 
   0, 1, 2, 3, 4, //mGB midi channels (0-15 = 1-16)
-  0, //livemap / sync map midi channel (0-15 = 1-16)
+  0, //sync map midi channel start (0-15 = 1-16) (for song rows 0x80 to 0xFF it's this channel plus 1)
   80,1,  //midiout bit check delay & bit check delay multiplier
   0,0//midiout byte received delay & byte received delay multiplier
 };
@@ -343,11 +343,9 @@ byte keyboardCommands[12];
 /***************************************************************************
 * LSDJ Midi Map mode vars
 ***************************************************************************/
-int  lastMidiNote = -1;
+int  mapCurrentRow = -1;
 uint8_t mapQueueMessage = 0;
-unsigned long currentTime;
 unsigned long mapQueueTime;
-unsigned long mapQueueTimeSent;
 // mapQueueWait is used for delaying a sync byte
 // if it is called right before a note on message on sequencer start
 // (Note value is also a clock tick)

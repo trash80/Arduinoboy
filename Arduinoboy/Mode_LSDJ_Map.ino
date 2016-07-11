@@ -46,16 +46,16 @@ void modeLSDJMap()
           usbMidiSendRTMessage(incomingMidiByte);
           break;
         case 0xFC:                                // Case: Transport Stop Message
-          lastMidiNote = -1;
-          setMapByte(0xFE);
           sequencerStop();
+          setMapByte(0xFE);
           usbMidiSendRTMessage(incomingMidiByte);
           break;
         default:
           midiData[0] = incomingMidiByte;
           midiNoteOnMode = true;
 
-          if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) resetMidiCue();
+          if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+             || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) resetMapCue();
         }
     } else if(midiNoteOnMode) {   //if we've received a message thats not a status and our note capture mode is true
 
@@ -63,27 +63,25 @@ void modeLSDJMap()
       midiData[1] = incomingMidiByte;
 
       usbMidiSendTwoByteMessage(midiData[0],midiData[1]);
-      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) resetMidiCue();
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+         || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) resetMapCue();
 
     } else {
       midiNoteOnMode = true;
-      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) {
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+        || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
           if(incomingMidiByte) {
-              lastMidiNote = midiData[1];
-              if(incomingMidiByte == 0x01) {
+              if(midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
                   setMapByte(128+midiData[1]);
               } else {
                   setMapByte(midiData[1]);
               }
-          } else if(lastMidiNote == midiData[1]) {
-              lastMidiNote = -1;
+          } else {
               setMapByte(0xFE);
           }
-      } else if (midiData[0] == (0x80+memory[MEM_LIVEMAP_CH])) {
-          if(lastMidiNote == midiData[1]) {
-              lastMidiNote = -1;
-              setMapByte(0xFE);
-          }
+      } else if (midiData[0] == (0x80+memory[MEM_LIVEMAP_CH])
+                 || midiData[0] == (0x80+(memory[MEM_LIVEMAP_CH]+1))) {
+          setMapByte(0xFE);
       }
       usbMidiSendThreeByteMessage(midiData[0], midiData[1], incomingMidiByte);
       checkMapQueue();
@@ -104,11 +102,16 @@ void setMapByte(uint8_t b)
         setMapQueueMessage(0xFF);
         break;
       case 0xFE:
-        setMapQueueMessage(0xFE);
+        if(!sequencerStarted) {
+            sendByteToGameboy(0xFE);
+        } else {
+            setMapQueueMessage(mapCurrentRow);
+        }
         break;
       default:
+        mapCurrentRow = b;
         sendByteToGameboy(b);
-        resetMidiCue();
+        resetMapCue();
     }
 }
 
@@ -120,7 +123,7 @@ void setMapQueueMessage(uint8_t m)
     }
 }
 
-void resetMidiCue()
+void resetMapCue()
 {
     mapQueueMessage=0;
 }
@@ -128,10 +131,17 @@ void resetMidiCue()
 void checkMapQueue()
 {
   if(mapQueueMessage && micros()>mapQueueTime) {
-      sendByteToGameboy(mapQueueMessage);
-      updateVisualSync();
+      if(mapQueueMessage == 0xFF) {
+          sendByteToGameboy(mapQueueMessage);
+      } else {
+          if(mapCurrentRow == mapQueueMessage) {
+              // Only kill playback if the row is the last one that's been played.
+              mapCurrentRow = -1;
+              sendByteToGameboy(0xFE);
+          }
+      }
       mapQueueMessage=0;
-      mapQueueTimeSent=micros()+mapQueueWait;
+      updateVisualSync();
   }
 }
 
@@ -147,9 +157,8 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
         sequencerStart();                     // Start the sequencer
       break;
       case 0xFC:                                // Case: Transport Stop Message
-        lastMidiNote = -1;
-        setMapByte(0xFE);
         sequencerStop();                        // Stop the sequencer
+        setMapByte(0xFE);
       break;
     }
 }
@@ -158,21 +167,21 @@ void modeLSDJMapUsbMidiReceive()
 {
 #ifdef MIDI_INTERFACE
 
-    while(usbMIDI.read(memory[MEM_LIVEMAP_CH]+1)) {
+    while(usbMIDI.read()) {
+        uint8_t ch = usbMIDI.getChannel() - 1;
+        if(ch != memory[MEM_LIVEMAP_CH] || ch != (memory[MEM_LIVEMAP_CH] + 1)){
+            continue;
+        }
+
         switch(usbMIDI.getType()) {
             case 0: // note off
-                if(lastMidiNote == usbMIDI.getData1()) {
-                    lastMidiNote = -1;
-                    setMapByte(0xFE);
-                }
+                setMapByte(0xFE);
             break;
             case 1: // note on
-                lastMidiNote = usbMIDI.getData1();
-                uint8_t v = usbMIDI.getData2();
-                if(v == 0x01) {
-                    setMapByte(128+lastMidiNote);
+                if(ch == (memory[MEM_LIVEMAP_CH] + 1)) {
+                    setMapByte(128+usbMIDI.getData1());
                 } else {
-                    setMapByte(lastMidiNote);
+                    setMapByte(usbMIDI.getData1());
                 }
             break;
             /*
