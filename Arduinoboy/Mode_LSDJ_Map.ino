@@ -104,7 +104,7 @@ void setMapByte(uint8_t b)
       case 0xFE:
         if(!sequencerStarted) {
             sendByteToGameboy(0xFE);
-        } else {
+        } else if (mapCurrentRow >= 0) {
             setMapQueueMessage(mapCurrentRow);
         }
         break;
@@ -117,7 +117,7 @@ void setMapByte(uint8_t b)
 
 void setMapQueueMessage(uint8_t m)
 {
-    if(!mapQueueMessage || mapQueueMessage == 0xFF) {
+    if(mapQueueMessage == -1 || mapQueueMessage == 0xFF) {
         mapQueueTime=micros()+mapQueueWait;
         mapQueueMessage=m;
     }
@@ -125,22 +125,22 @@ void setMapQueueMessage(uint8_t m)
 
 void resetMapCue()
 {
-    mapQueueMessage=0;
+    mapQueueMessage=-1;
 }
 
 void checkMapQueue()
 {
-  if(mapQueueMessage && micros()>mapQueueTime) {
+  if(mapQueueMessage >= 0 && micros()>mapQueueTime) {
       if(mapQueueMessage == 0xFF) {
           sendByteToGameboy(mapQueueMessage);
       } else {
-          if(mapCurrentRow == mapQueueMessage) {
+          if(mapQueueMessage == 0xFE || mapCurrentRow == mapQueueMessage) {
               // Only kill playback if the row is the last one that's been played.
               mapCurrentRow = -1;
               sendByteToGameboy(0xFE);
           }
       }
-      mapQueueMessage=0;
+      mapQueueMessage=-1;
       updateVisualSync();
   }
 }

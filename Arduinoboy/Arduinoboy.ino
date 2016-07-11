@@ -344,7 +344,7 @@ byte keyboardCommands[12];
 * LSDJ Midi Map mode vars
 ***************************************************************************/
 int  mapCurrentRow = -1;
-uint8_t mapQueueMessage = 0;
+int  mapQueueMessage = -1;
 unsigned long mapQueueTime;
 // mapQueueWait is used for delaying a sync byte
 // if it is called right before a note on message on sequencer start
