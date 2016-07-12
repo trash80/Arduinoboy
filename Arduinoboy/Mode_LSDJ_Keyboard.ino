@@ -38,8 +38,10 @@ void modeLSDJKeyboard()
 {
   while(1){                              //Loop foreverrrr
   if (keyboard.available()) {
-    incomingPS2Byte = keyboard.read();
-    if (incomingPS2Byte != -1) sendKeyboardByteToGameboy(incomingPS2Byte);
+    incomingPS2Byte = keyboard.readScanCode();
+    if (incomingPS2Byte) {
+      sendKeyboardByteToGameboy(incomingPS2Byte);
+    }
   }
   
   if (Serial.available()) {          //If MIDI is sending
