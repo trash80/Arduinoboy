@@ -107,7 +107,7 @@
 
 // values for the PS/2 Keyboard input
 #define PS2_DATA_PIN 7
-#define PS2_CLOCK_PIN 6
+#define PS2_CLOCK_PIN 3
 PS2Keyboard keyboard;
 
 
