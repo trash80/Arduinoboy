@@ -332,7 +332,7 @@ void setup() {
 */
   for(int led=0;led<=5;led++) pinMode(pinLeds[led],OUTPUT);
   pinMode(pinStatusLed,OUTPUT);
-  pinMode(pinButtonMode,INPUT); 
+  pinMode(pinButtonMode,INPUT_PULLUP); 
   DDRC = B00111111; //Set analog in pins as outputs
   
 /*
