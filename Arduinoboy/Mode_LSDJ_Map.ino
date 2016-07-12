@@ -154,6 +154,7 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
       break;
       case 0xFA:                                // Case: Transport Start Message
       case 0xFB:                                // and Case: Transport Continue Message
+        resetMapCue();
         sequencerStart();                     // Start the sequencer
       break;
       case 0xFC:                                // Case: Transport Stop Message
