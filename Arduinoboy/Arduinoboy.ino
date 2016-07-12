@@ -164,7 +164,7 @@ int pinMidiInputPower = 4; // power pin for midi input opto-isolator
 int pinStatusLed = 13; // Status LED
 int pinLeds[] = {12,11,10,9,8,13}; // LED Pins
 
-int pinButtonMode = 3; //toggle button for selecting the mode
+int pinButtonMode = 6; //toggle button for selecting the mode
 
 /***************************************************************************
 * Memory
