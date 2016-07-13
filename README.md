@@ -8,10 +8,10 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 
 ## News
  * 07/10/16
-   * New Version in the works 1.3.0a, please download from the [Releases] (https://github.com/trash80/Arduinoboy/releases) if you want the most recent stable version.
+   * New Version 1.3.0a, please download from the [Releases] (https://github.com/trash80/Arduinoboy/releases) if you want the most recent stable version.
    * Added Teensy 3.x & LC support. Check the main file for the pin configuration.
    * Added USB MIDI support for Teensy
-   * Updated LSDJ Midimap mode. This will work with the upcoming LSDJ Arduinoboy version.
+   * Updated LSDJ LIVEMAP / SYNCMAP mode. This only works with LSDJ Arduinoboy version 4.8.7 and above. Licensed users can [download it here](http://littlesounddj.com/lsd/latest/full_version/lsdj4_8_7-arduinoboy.zip) Livemap has been removed in favor of stable sync slave mode.
  * 06/26/15 
    * Project has been moved to GitHub. mGB has been moved to it's own project [Available here](https://github.com/trash80/mGB)
  * 12/23/11
@@ -24,7 +24,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
    * Arduinoboy to version 1.2.0
      * Added EEPROM based settings to all modes which include reassigning MIDI channels in mGB
      * Created software editor for Arduinoboy settings. The file is in the zip and requires the free Max Runtime: http://cycling74.com/downloads/
-     * Added 2 new Modes that require a new version of LSDJ. There is a unofficial release of LSDJ which supports these new modes, available here: http://littlesounddj.com/lsd/latest/full_version/lsdj4_0_8-unofficial-arduinoboy.zip 
+     * Added 2 new Modes that require a new version of LSDJ. There is a unofficial release of LSDJ which supports these new modes, available here: http://littlesounddj.com/lsd/latest/full_version
       * LIVEMAP / SYNCMAP
        * LIVEMAP - Lsdj will use its own clock, but a incoming midi note will cue midi note # to song row # in live mode.
        * SYNCMAP - Lsdj will sync to incoming MIDI sync, and notes immediately change the song row #.
