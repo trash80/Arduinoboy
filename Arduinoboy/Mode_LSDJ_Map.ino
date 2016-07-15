@@ -37,7 +37,7 @@ void modeLSDJMap()
     if(incomingMidiByte & 0x80) {                //If we have received a MIDI Status Byte
       switch (incomingMidiByte) {
         case 0xF8:
-          setMapByte(0xFF);
+          setMapByte(0xFF, false);
           usbMidiSendRTMessage(incomingMidiByte);
           break;
         case 0xFA:                                // Case: Transport Start Message
@@ -47,7 +47,7 @@ void modeLSDJMap()
           break;
         case 0xFC:                                // Case: Transport Stop Message
           sequencerStop();
-          setMapByte(0xFE);
+          setMapByte(0xFE, false);
           usbMidiSendRTMessage(incomingMidiByte);
           break;
         default:
@@ -72,16 +72,16 @@ void modeLSDJMap()
         || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
           if(incomingMidiByte) {
               if(midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
-                  setMapByte(128+midiData[1]);
+                  setMapByte(128+midiData[1], false);
               } else {
-                  setMapByte(midiData[1]);
+                  setMapByte(midiData[1], false);
               }
           } else {
-              setMapByte(0xFE);
+              setMapByte(0xFE, false);
           }
       } else if (midiData[0] == (0x80+memory[MEM_LIVEMAP_CH])
                  || midiData[0] == (0x80+(memory[MEM_LIVEMAP_CH]+1))) {
-          setMapByte(0xFE);
+          setMapByte(0xFE, false);
       }
       usbMidiSendThreeByteMessage(midiData[0], midiData[1], incomingMidiByte);
       checkMapQueue();
@@ -95,17 +95,22 @@ void modeLSDJMap()
   }
 }
 
-void setMapByte(uint8_t b)
+void setMapByte(uint8_t b, boolean usb)
 {
+    uint8_t wait = mapQueueWaitSerial;
+    if(usb) {
+        wait = mapQueueWaitUsb;
+    }
+
     switch(b) {
       case 0xFF:
-        setMapQueueMessage(0xFF);
+        setMapQueueMessage(0xFF, wait);
         break;
       case 0xFE:
         if(!sequencerStarted) {
             sendByteToGameboy(0xFE);
         } else if (mapCurrentRow >= 0) {
-            setMapQueueMessage(mapCurrentRow);
+            setMapQueueMessage(mapCurrentRow, wait);
         }
         break;
       default:
@@ -115,10 +120,10 @@ void setMapByte(uint8_t b)
     }
 }
 
-void setMapQueueMessage(uint8_t m)
+void setMapQueueMessage(uint8_t m, uint8_t wait)
 {
     if(mapQueueMessage == -1 || mapQueueMessage == 0xFF) {
-        mapQueueTime=micros()+mapQueueWait;
+        mapQueueTime=millis()+wait;
         mapQueueMessage=m;
     }
 }
@@ -130,7 +135,7 @@ void resetMapCue()
 
 void checkMapQueue()
 {
-  if(mapQueueMessage >= 0 && micros()>mapQueueTime) {
+  if(mapQueueMessage >= 0 && millis()>mapQueueTime) {
       if(mapQueueMessage == 0xFF) {
           sendByteToGameboy(mapQueueMessage);
       } else {
@@ -150,7 +155,7 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
 {
     switch(message) {
       case 0xF8:
-        setMapByte(0xFF);
+        setMapByte(0xFF, true);
       break;
       case 0xFA:                                // Case: Transport Start Message
       case 0xFB:                                // and Case: Transport Continue Message
@@ -159,7 +164,7 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
       break;
       case 0xFC:                                // Case: Transport Stop Message
         sequencerStop();                        // Stop the sequencer
-        setMapByte(0xFE);
+        setMapByte(0xFE, true);
       break;
     }
 }
@@ -176,13 +181,13 @@ void modeLSDJMapUsbMidiReceive()
 
         switch(usbMIDI.getType()) {
             case 0: // note off
-                setMapByte(0xFE);
+                setMapByte(0xFE, true);
             break;
             case 1: // note on
                 if(ch == (memory[MEM_LIVEMAP_CH] + 1)) {
-                    setMapByte(128+usbMIDI.getData1());
+                    setMapByte(128+usbMIDI.getData1(), true);
                 } else {
-                    setMapByte(usbMIDI.getData1());
+                    setMapByte(usbMIDI.getData1(), true);
                 }
             break;
             /*

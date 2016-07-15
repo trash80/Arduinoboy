@@ -349,7 +349,8 @@ unsigned long mapQueueTime;
 // mapQueueWait is used for delaying a sync byte
 // if it is called right before a note on message on sequencer start
 // (Note value is also a clock tick)
-unsigned long mapQueueWait = 2000; //2ms
+uint8_t mapQueueWaitSerial = 2; //2ms
+uint8_t mapQueueWaitUsb = 5; //5ms - Needs to be longer because message packet is processed all at once
 
 /***************************************************************************
 * mGB Settings
