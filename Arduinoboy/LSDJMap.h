@@ -2,7 +2,6 @@
 #ifndef ModeLSDJMap_h
 #define ModeLSDJMap_h
 
-#include "Arduino.h"
 #include "Mode.h"
 
 class LSDJMapClass : public ModeClass {
