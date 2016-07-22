@@ -9,17 +9,25 @@ void LSDJMasterClass::begin()
 void LSDJMasterClass::update()
 {
     midi->update();
-    int data = gameboy->receiveByte();
-    if(data == 0xFF) {
-        wait = millis() + 100;
+    if(sequencerStarted && !gameboy->readClock()) {
         midi->sendTransportClock();
-    } else if (data >= 0) {
-        midi->sendTransportStart();
-        sequencerStarted = true;
-    } else {
-        if(sequencerStarted && wait < millis()) {
-            sequencerStarted = false;
-            midi->sendTransportStop();
+        interface->blinkEvery(24);
+        wait = millis() + 100;
+        delay(5);
+    } else if (sequencerStarted && gameboy->readClock() && wait < millis()) {
+        midi->sendTransportStop();
+        interface->reset();
+        sequencerStarted = false;
+    } else if (!sequencerStarted) {
+        int data = gameboy->receiveByte();
+
+        if (data >= 0) {
+            midi->sendTransportClock();
+            midi->sendTransportStart();
+            interface->reset();
+            interface->blinkEvery(24);
+            sequencerStarted = true;
+            wait = millis() + 100;
         }
     }
 }

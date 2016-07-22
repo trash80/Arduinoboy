@@ -33,20 +33,24 @@ void GameboySerialClass::sendKeyboard(uint8_t data)
 
 int GameboySerialClass::receiveByte()
 {
-    if(!digitalRead(pinClock)) {
+    if(!digitalReadFast(pinClock)) {
         //Clock is low, start read sequence
         unsigned long timeout = millis() + 100;
         uint8_t d = digitalReadFast(pinDataIn);
-        uint8_t count = 8;
-
-        while(!digitalReadFast(pinClock) && timeout > millis()) ;
+        uint8_t count = 7;
 
         while((count--) && timeout > millis()) {
-            while(digitalReadFast(pinClock) && timeout > millis()) ;
+            while(!digitalReadFast(pinClock) && timeout > millis());
+            while(digitalReadFast(pinClock) && timeout > millis());
             d<<=1;
             d |= digitalReadFast(pinDataIn);
         }
-        if(timeout < millis()) return d;
+
+        while(!digitalReadFast(pinClock) && timeout > millis());
+
+        if(timeout > millis()) {
+            return d;
+        }
     }
     return -1;
 }

@@ -7,11 +7,12 @@
 #include "LSDJMaster.h"
 #include "LSDJMap.h"
 
-GameboySerial gameboy1(16,17,18);
-GameboySerial gameboy2(19,20,21);
 
 const uint8_t ledPins[2] = {13,13};
 LedInterface interface(ledPins, 2);
+
+GameboySerial gameboy1(16,17,18, &interface);
+GameboySerial gameboy2(19,20,21, &interface);
 
 ModeController controller(&interface);
 
@@ -65,7 +66,7 @@ void setup()
     controller.attachMode(1, &LSDJSlave2);
 
     controller.attachMode(2, &LSDJMaster1);
-    controller.attachMode(2, &LSDJMaster2);
+    //controller.attachMode(2, &LSDJMaster2);
 
     controller.begin();
     controller.setMode(2);
