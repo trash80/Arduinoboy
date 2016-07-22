@@ -12,7 +12,7 @@ class GameboySerialClass {
     void setInputMode();
     void sendByte(uint8_t data);
     void sendKeyboard(uint8_t data);
-    uint8_t receiveByte();
+    int receiveByte();
     uint8_t readClock();
     uint8_t readData();
   private:

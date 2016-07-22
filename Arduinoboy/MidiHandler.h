@@ -39,6 +39,10 @@ class MidiHandlerClass {
     void sendProgramChange(uint8_t channel, uint8_t patchNumber);
     void sendAfterTouch(uint8_t channel, uint8_t patchNumber);
     void sendPitchBend(uint8_t channel, uint16_t value);
+    void sendTransportClock() { sendRealTime(0xF8); };
+    void sendTransportStart() { sendRealTime(0xFA); };
+    void sendTransportContinue() { sendRealTime(0xFB); };
+    void sendTransportStop() { sendRealTime(0xFC); };
     void onUsbRealTime(uint8_t message);
   private:
     boolean relayMidi;

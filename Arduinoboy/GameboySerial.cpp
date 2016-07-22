@@ -31,17 +31,32 @@ void GameboySerialClass::sendKeyboard(uint8_t data)
 
 }
 
-uint8_t GameboySerialClass::receiveByte()
+int GameboySerialClass::receiveByte()
 {
-    return 0;
+    if(!digitalRead(pinClock)) {
+        //Clock is low, start read sequence
+        unsigned long timeout = millis() + 100;
+        uint8_t d = digitalReadFast(pinDataIn);
+        uint8_t count = 8;
+
+        while(!digitalReadFast(pinClock) && timeout > millis()) ;
+
+        while((count--) && timeout > millis()) {
+            while(digitalReadFast(pinClock) && timeout > millis()) ;
+            d<<=1;
+            d |= digitalReadFast(pinDataIn);
+        }
+        if(timeout < millis()) return d;
+    }
+    return -1;
 }
 
 uint8_t GameboySerialClass::readClock()
 {
-    return digitalRead(pinClock);
+    return digitalReadFast(pinClock);
 }
 
 uint8_t GameboySerialClass::readData()
 {
-    return digitalRead(pinDataIn);
+    return digitalReadFast(pinDataIn);
 }

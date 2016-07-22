@@ -4,6 +4,7 @@
 #include "MidiHandler.h"
 
 #include "LSDJSlave.h"
+#include "LSDJMaster.h"
 #include "LSDJMap.h"
 
 GameboySerial gameboy1(16,17,18);
@@ -23,6 +24,29 @@ ModeLSDJMap LSDJMap2(&gameboy2, &midi, &interface);
 ModeLSDJSlave LSDJSlave1(&gameboy1, &midi, &interface);
 ModeLSDJSlave LSDJSlave2(&gameboy1, &midi, &interface);
 
+ModeLSDJMaster LSDJMaster1(&gameboy1, &midi, &interface);
+ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
+/*
+
+midiSerial has serial device
+midiMerger merges midi devices together
+midiMapper maps an aggragator to midi channels of arduinoboy ModeLSDJSlave
+
+MidiSerial midi1(&Serial1);
+MidiSerial midi2(&Serial2);
+MidiSerialUsb midi3(&usbMIDI);
+
+MidiSerialMerger midiAll(&midi1);
+midiAll.addDevice(&midi3);
+
+MidiChannelFilter LSDJMapFilter1(channels);
+MidiChannelFilter LSDJMapFilter2(channels);
+
+MidiMapper midiMapper;
+midiMapper.connectInput(&midiAll, &LSDJMapFilter1, &LSDJMap1);
+midiMapper.connectInput(&midiAll, &LSDJMapFilter2, &LSDJMap2);
+
+*/
 void setup()
 {
     //midi.attachDevice(&usb);
@@ -40,7 +64,12 @@ void setup()
     controller.attachMode(1, &LSDJSlave1);
     controller.attachMode(1, &LSDJSlave2);
 
+    controller.attachMode(2, &LSDJMaster1);
+    controller.attachMode(2, &LSDJMaster2);
+
     controller.begin();
+    controller.setMode(2);
+
 }
 
 void loop()
