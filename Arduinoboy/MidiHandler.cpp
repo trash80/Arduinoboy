@@ -235,70 +235,121 @@ void MidiHandlerClass::sendRealTime(uint8_t message)
 #ifdef MIDI_INTERFACE
     if(usbMidi) usbMIDI.sendRealTime(message);
 #endif
+
+    switch (message) {
+        case 0xF8:
+            // Transport Sync Message
+            callback->onTransportClock();
+            break;
+        case 0xFA:
+            // Transport Start Message
+            callback->onTransportStart();
+            break;
+        case 0xFB:
+            // Transport Continue Message
+            callback->onTransportContinue();
+            break;
+        case 0xFC:
+            // Case: Transport Stop Message
+            callback->onTransportStop();
+            break;
+    }
 }
 
-void MidiHandlerClass::sendNoteOn(uint8_t channel, uint8_t note, uint8_t value)
+void MidiHandlerClass::sendNoteOn(uint8_t c, uint8_t number, uint8_t value)
 {
-    uint8_t c = channel - 1;
-    uint8_t d[3] = {c, note, value};
+    channel = c;
+    data1 = number;
+    data2 = value;
+
+    c--;
+
+    uint8_t d[3] = {c, number, value};
     serial->write(d, 3);
 
 #ifdef MIDI_INTERFACE
-    if(usbMidi) usbMIDI.sendNoteOn(note, value, channel);
+    if(usbMidi) usbMIDI.sendNoteOn(number, value, channel);
 #endif
+    callback->onNoteOn();
 }
 
-void MidiHandlerClass::sendNoteOff(uint8_t channel, uint8_t note, uint8_t value)
+void MidiHandlerClass::sendNoteOff(uint8_t c, uint8_t number, uint8_t value)
 {
-    uint8_t c = channel - 1;
-    uint8_t d[3] = {c, note, value};
+    channel = c;
+    data1 = number;
+    data2 = value;
+
+    c--;
+
+    uint8_t d[3] = {c, number, value};
     serial->write(d, 3);
 
 #ifdef MIDI_INTERFACE
-    if(usbMidi) usbMIDI.sendNoteOff(note, value, channel);
+    if(usbMidi) usbMIDI.sendNoteOff(number, value, channel);
 #endif
+    callback->onNoteOff();
 }
 
-void MidiHandlerClass::sendPolyPressure(uint8_t channel, uint8_t note, uint8_t value)
+void MidiHandlerClass::sendPolyPressure(uint8_t c, uint8_t number, uint8_t value)
 {
-    uint8_t c = channel - 1;
-    uint8_t d[3] = {c, note, value};
+    channel = c;
+    data1 = number;
+    data2 = value;
+
+    c--;
+    uint8_t d[3] = {c, number, value};
     serial->write(d, 3);
 
 #ifdef MIDI_INTERFACE
-    if(usbMidi) usbMIDI.sendPolyPressure(note, value, channel);
+    if(usbMidi) usbMIDI.sendPolyPressure(number, value, channel);
 #endif
+    callback->onPolyPressure();
 }
 
-void MidiHandlerClass::sendControlChange(uint8_t channel, uint8_t number, uint8_t value)
+void MidiHandlerClass::sendControlChange(uint8_t c, uint8_t number, uint8_t value)
 {
-    uint8_t c = channel - 1;
+    channel = c;
+    data1 = number;
+    data2 = value;
+
+    c--;
     uint8_t d[3] = {c, number, value};
     serial->write(d, 3);
 
 #ifdef MIDI_INTERFACE
     if(usbMidi) usbMIDI.sendControlChange(number, value, channel);
 #endif
+    callback->onControlChange();
 }
 
-void MidiHandlerClass::sendProgramChange(uint8_t channel, uint8_t number)
+void MidiHandlerClass::sendProgramChange(uint8_t c, uint8_t value)
 {
-    uint8_t c = channel - 1;
-    uint8_t d[2] = {c, number};
+    channel = c;
+    data1 = value;
+    data2 = 0;
+    c--;
+    uint8_t d[2] = {c, value};
     serial->write(d, 2);
 
 #ifdef MIDI_INTERFACE
-    if(usbMidi) usbMIDI.sendProgramChange(number,channel);
+    if(usbMidi) usbMIDI.sendProgramChange(value,channel);
 #endif
+
+    callback->onProgramChange();
 }
 
-void MidiHandlerClass::sendPitchBend(uint8_t channel, uint16_t value)
+void MidiHandlerClass::sendPitchBend(uint8_t c, uint16_t value)
 {
-    uint8_t c = channel - 1;
+    channel = c;
+    data1 = value;
+    data2 = 0;
+    c--;
     uint8_t d[3] = {c, (uint8_t) (value&0x7f), (uint8_t) ((value>>7)&0x7f)};
     serial->write(d, 3);
 
 #ifdef MIDI_INTERFACE
     if(usbMidi) usbMIDI.sendPitchBend(value, channel);
 #endif
+
+    callback->onPitchBend();
 }

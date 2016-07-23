@@ -28,6 +28,7 @@ void LSDJSlaveClass::onTransportStart()
 void LSDJSlaveClass::onTransportContinue()
 {
     sequencerStarted = true;
+    interface->reset();
 }
 
 void LSDJSlaveClass::onTransportStop()

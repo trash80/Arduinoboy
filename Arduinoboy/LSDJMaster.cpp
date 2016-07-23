@@ -13,7 +13,7 @@ void LSDJMasterClass::update()
         midi->sendTransportClock();
         interface->blinkEvery(24);
         wait = millis() + 100;
-        delay(5);
+        delay(1);
     } else if (sequencerStarted && gameboy->readClock() && wait < millis()) {
         midi->sendTransportStop();
         interface->reset();

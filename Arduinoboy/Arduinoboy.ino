@@ -6,6 +6,10 @@
 #include "LSDJSlave.h"
 #include "LSDJMaster.h"
 #include "LSDJMap.h"
+#include "NanoloopSlave.h"
+#include "LSDJKeyboard.h"
+#include "LSDJMidiout.h"
+#include "MidiGameboy.h"
 
 
 const uint8_t ledPins[2] = {13,13};
@@ -17,17 +21,26 @@ GameboySerial gameboy2(19,20,21, &interface);
 ModeController controller(&interface);
 
 MidiHandler midi(&Serial1, &controller);
-//MidiHandlerUsb midi(&Serial1, &controller);
 
 ModeLSDJMap LSDJMap1(&gameboy1, &midi, &interface);
 ModeLSDJMap LSDJMap2(&gameboy2, &midi, &interface);
 
 ModeLSDJSlave LSDJSlave1(&gameboy1, &midi, &interface);
-ModeLSDJSlave LSDJSlave2(&gameboy1, &midi, &interface);
+ModeLSDJSlave LSDJSlave2(&gameboy2, &midi, &interface);
 
 ModeLSDJMaster LSDJMaster1(&gameboy1, &midi, &interface);
 ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
+
+ModeNanoloopSync NanoloopSlave1(&gameboy1, &midi, &interface);
+ModeNanoloopSync NanoloopSlave2(&gameboy2, &midi, &interface);
+
 /*
+
+ModeLSDJMidiout LSDJMidiout1(&gameboy1, &midi, &interface);
+ModeLSDJMidiout LSDJMidiout2(&gameboy2, &midi, &interface);
+
+ModeMidiGameboy MidiGameboy1(&gameboy2, &midi, &interface);
+ModeMidiGameboy MidiGameboy2(&gameboy2, &midi, &interface);
 
 midiSerial has serial device
 midiMerger merges midi devices together
@@ -65,8 +78,8 @@ void setup()
     controller.attachMode(1, &LSDJSlave1);
     controller.attachMode(1, &LSDJSlave2);
 
-    controller.attachMode(2, &LSDJMaster1);
-    //controller.attachMode(2, &LSDJMaster2);
+    controller.attachMode(2, &NanoloopSlave1);
+    controller.attachMode(2, &NanoloopSlave2);
 
     controller.begin();
     controller.setMode(2);
