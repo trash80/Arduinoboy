@@ -76,6 +76,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <EEPROM.h>
+#include <PS2Keyboard.h>
 #define MEM_MAX 65
 #define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
 
@@ -105,6 +106,11 @@
 
 #define MEM_MIDIOUT_BIT_DELAY 61
 #define MEM_MIDIOUT_BYTE_DELAY 63
+
+// values for the PS/2 Keyboard input
+#define PS2_DATA_PIN 7
+#define PS2_CLOCK_PIN 3
+PS2Keyboard keyboard;
 
 /***************************************************************************
 * User Settings
@@ -182,7 +188,12 @@ int pinGBSerialIn  = A2;    // Analog In 2 - serial data from gameboy
 int pinMidiInputPower = 4; // power pin for midi input opto-isolator
 int pinStatusLed = 13; // Status LED
 int pinLeds[] = {12,11,10,9,8,13}; // LED Pins
+<<<<<<< HEAD
 int pinButtonMode = 3; //toggle button for selecting the mode
+=======
+
+int pinButtonMode = 6; //toggle button for selecting the mode
+>>>>>>> dual-mode-keyboard
 
 HardwareSerial *serial = &Serial;
 
@@ -275,6 +286,7 @@ unsigned long int miscLedMaxTime;
 * Inbound Data Placeholders
 ***************************************************************************/
 byte incomingMidiByte;  //incomming midi message
+byte incomingPS2Byte;
 byte readgbClockLine;
 byte readGbSerialIn;
 byte bit;
@@ -368,12 +380,18 @@ void setup() {
 */
   for(int led=0;led<=5;led++) pinMode(pinLeds[led],OUTPUT);
   pinMode(pinStatusLed,OUTPUT);
+<<<<<<< HEAD
   pinMode(pinButtonMode,INPUT);
 
   pinMode(pinGBClock,OUTPUT);
   pinMode(pinGBSerialIn,INPUT);
   pinMode(pinGBSerialOut,OUTPUT);
 
+=======
+  pinMode(pinButtonMode,INPUT_PULLUP);
+  DDRC = B00111111; //Set analog in pins as outputs
+
+>>>>>>> dual-mode-keyboard
 /*
   Set MIDI Serial Rate
 */

@@ -26,7 +26,7 @@
 
 void setMode()
 {
-  buttonDepressed = digitalRead(pinButtonMode);
+  buttonDepressed = !digitalRead(pinButtonMode);
   if(!memory[MEM_FORCE_MODE] && buttonDepressed) { //if the button is pressed
     memory[MEM_MODE]++;                           //increment the mode number
     if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if the mode is greater then 4 it will wrap back to 0
