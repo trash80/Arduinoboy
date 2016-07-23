@@ -68,6 +68,22 @@ int GameboySerialClass::receiveByte()
     return -1;
 }
 
+int GameboySerialClass::receiveByteClocked()
+{
+    sendBit(0);
+    delayMicroseconds(1);
+    if(digitalReadFast(pinDataIn)) {
+        uint8_t d = 0;
+        uint8_t count = 7;
+        while(count--) {
+            sendBit(0);
+            d = (d<<1) | digitalReadFast(pinDataIn);
+        }
+        return d;
+    }
+    return -1;
+}
+
 uint8_t GameboySerialClass::readClock()
 {
     return digitalReadFast(pinClock);

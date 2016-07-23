@@ -31,8 +31,8 @@ ModeLSDJSlave LSDJSlave2(&gameboy2, &midi, &interface);
 ModeLSDJMaster LSDJMaster1(&gameboy1, &midi, &interface);
 ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
 
-ModeNanoloopSync NanoloopSlave1(&gameboy1, &midi, &interface);
-ModeNanoloopSync NanoloopSlave2(&gameboy2, &midi, &interface);
+ModeNanoloopSlave NanoloopSlave1(&gameboy1, &midi, &interface);
+ModeNanoloopSlave NanoloopSlave2(&gameboy2, &midi, &interface);
 
 /*
 
