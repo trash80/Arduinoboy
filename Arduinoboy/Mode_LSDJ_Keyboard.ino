@@ -40,6 +40,13 @@ void modeLSDJKeyboardSetup()
 void modeLSDJKeyboard()
 {
   while(1){                              //Loop foreverrrr
+  if (keyboard.available()) {
+    incomingPS2Byte = keyboard.readScanCode();
+    if (incomingPS2Byte) {
+      sendKeyboardByteToGameboy(incomingPS2Byte);
+    }
+  }
+  
   modeLSDJKeyboardMidiReceive();
   if (serial->available()) {          //If MIDI is sending
     incomingMidiByte = serial->read();    //Get the byte sent from MIDI
