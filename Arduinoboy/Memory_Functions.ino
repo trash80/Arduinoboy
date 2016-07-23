@@ -40,14 +40,7 @@ void loadMemory()
 void printMemory()
 {
   for(int m=0;m<=MEM_MAX;m++){
-    Serial.println(memory[m],HEX);
-  }
-}
-
-void sendMemory()
-{
-  for(int m=0;m<=MEM_MAX;m++){
-    Serial.write(memory[m]);
+    serial->println(memory[m],HEX);
   }
 }
 

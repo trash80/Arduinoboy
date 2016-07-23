@@ -1,7 +1,7 @@
 # Arduinoboy
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
 
-## About 
+## About
 Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and [mGB](https://github.com/trash80/mGB)
 
 ## Video Demos
@@ -57,7 +57,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
   * 47 - B-1 Cue Table
   * 48 - C-2 to C-8 Notes!
   * Prgram Change to select from instrument table
- * Default Midi channel is 16. You can change in the top of the main source file in the archive. 
+ * Default Midi channel is 16. You can change in the top of the main source file in the archive.
 
 ## Schematics
 ![pro mini](Schematic/promini.png)
@@ -65,10 +65,10 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 
 ## Thanks To
   * [Arduino](http://arduino.cc)
-  * [Nitro2k01](http://gameboygenius.8bitcollective.com nitro2k01) for ASM help with mGB 
+  * [Nitro2k01](http://gameboygenius.8bitcollective.com nitro2k01) for ASM help with mGB
   * [GWEM](http://www.preromanbritain.com/gwem/lsdj_midi/g33k.html) g33k page
   * [Midines](http://wayfar.net) Thanks for the help x|k!
-  * [firestARTer](http://www.firestarter-music.de) help with keyboard & Midi handling information. 
+  * [firestARTer](http://www.firestarter-music.de) help with keyboard & Midi handling information.
   * [Gijs Gieskes](http://gieskes.nl) Found source code that gave insight into Nanoloop sync
   * [Little Sound DJ](http://littlesounddj.com)
   * [http://devrs.com/gb](http://devrs.com/gb) Madcatz PC link port for gb serial specs

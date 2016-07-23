@@ -11,17 +11,14 @@
  *                                                                         *
  ***************************************************************************/
 
-boolean midiTickHit;
-unsigned long midiTickTime;
-unsigned long currentTime;
-int midiTickWait = 4000; //1 ms
-
 void modeLSDJMapSetup()
 {
   digitalWrite(pinStatusLed,LOW);
-  DDRC  = B00111111; //Set analog in pins as outputs
-  PORTC = B00000001;
-  midiSyncByte = 0xFF;
+  pinMode(pinGBClock,OUTPUT);
+  digitalWrite(pinGBClock, HIGH);
+ #ifdef MIDI_INTERFACE
+  usbMIDI.setHandleRealTimeSystem(usbMidiLSDJMapRealtimeMessage);
+ #endif
   blinkMaxCount=1000;
   modeLSDJMap();
 }
@@ -30,63 +27,180 @@ void modeLSDJMap()
 {
   while(1){  //Loop forever
 
-  checkClockTick();
-  if (Serial.available()) {                 //If MIDI Byte Availaibleleleiel
-    incomingMidiByte = Serial.read();           //Read it
+  modeLSDJMapUsbMidiReceive();
+  checkMapQueue();
+  if (serial->available()) {                 //If MIDI Byte Availaibleleleiel
+    incomingMidiByte = serial->read();           //Read it
+
     checkForProgrammerSysex(incomingMidiByte);
-    
+
     if(incomingMidiByte & 0x80) {                //If we have received a MIDI Status Byte
-      switch (incomingMidiByte) {                    
-        case 0xF8:                                //Case: Clock Message Recieved
-          if(sequencerStarted){
-            midiTickHit=true;
-            midiTickTime=micros();
-          }
-          midiSyncByte = 0xFF;
+      switch (incomingMidiByte) {
+        case 0xF8:
+          setMapByte(0xFF, false);
+          usbMidiSendRTMessage(incomingMidiByte);
           break;
         case 0xFA:                                // Case: Transport Start Message
         case 0xFB:                                // and Case: Transport Continue Message
-          sequencerStart();                     // Start the sequencer
-          midiTickHit=false;
+          sequencerStart();                       // Start the sequencer
+          usbMidiSendRTMessage(incomingMidiByte);
           break;
         case 0xFC:                                // Case: Transport Stop Message
-          sequencerStop();                        // Stop the sequencer
-          midiTickHit=false;
+          sequencerStop();
+          setMapByte(0xFE, false);
+          usbMidiSendRTMessage(incomingMidiByte);
           break;
         default:
           midiData[0] = incomingMidiByte;
           midiNoteOnMode = true;
-          if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
+
+          if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+             || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) resetMapCue();
         }
     } else if(midiNoteOnMode) {   //if we've received a message thats not a status and our note capture mode is true
+
       midiNoteOnMode = false;
       midiData[1] = incomingMidiByte;
-      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])) midiTickHit=false;
+
+      usbMidiSendTwoByteMessage(midiData[0],midiData[1]);
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+         || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) resetMapCue();
+
     } else {
       midiNoteOnMode = true;
-      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH]) && incomingMidiByte) {
-          sendByteToGameboy(midiData[1]);
-          updateVisualSync();
-          midiTickHit = false;
+      if(midiData[0] == (0x90+memory[MEM_LIVEMAP_CH])
+        || midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
+          if(incomingMidiByte) {
+              if(midiData[0] == (0x90+(memory[MEM_LIVEMAP_CH]+1))) {
+                  setMapByte(128+midiData[1], false);
+              } else {
+                  setMapByte(midiData[1], false);
+              }
+          } else {
+              setMapByte(0xFE, false);
+          }
+      } else if (midiData[0] == (0x80+memory[MEM_LIVEMAP_CH])
+                 || midiData[0] == (0x80+(memory[MEM_LIVEMAP_CH]+1))) {
+          setMapByte(0xFE, false);
       }
+      usbMidiSendThreeByteMessage(midiData[0], midiData[1], incomingMidiByte);
+      checkMapQueue();
     }
-    //Serial.write(incomingMidiByte);
-    checkClockTick();
   } else {
     setMode();         //Check if the mode button was depressed
     updateStatusLight();
-    checkClockTick();
+    checkMapQueue();
     updateBlinkLights();
   }
   }
 }
 
-void checkClockTick()
+void setMapByte(uint8_t b, boolean usb)
 {
-  currentTime = micros();
-  if(midiTickHit && currentTime>(midiTickTime+midiTickWait)) {
-      sendByteToGameboy(0xFF);
+    uint8_t wait = mapQueueWaitSerial;
+    if(usb) {
+        wait = mapQueueWaitUsb;
+    }
+
+    switch(b) {
+      case 0xFF:
+        setMapQueueMessage(0xFF, wait);
+        break;
+      case 0xFE:
+        if(!sequencerStarted) {
+            sendByteToGameboy(0xFE);
+        } else if (mapCurrentRow >= 0) {
+            setMapQueueMessage(mapCurrentRow, wait);
+        }
+        break;
+      default:
+        mapCurrentRow = b;
+        sendByteToGameboy(b);
+        resetMapCue();
+    }
+}
+
+void setMapQueueMessage(uint8_t m, uint8_t wait)
+{
+    if(mapQueueMessage == -1 || mapQueueMessage == 0xFF) {
+        mapQueueTime=millis()+wait;
+        mapQueueMessage=m;
+    }
+}
+
+void resetMapCue()
+{
+    mapQueueMessage=-1;
+}
+
+void checkMapQueue()
+{
+  if(mapQueueMessage >= 0 && millis()>mapQueueTime) {
+      if(mapQueueMessage == 0xFF) {
+          sendByteToGameboy(mapQueueMessage);
+      } else {
+          if(mapQueueMessage == 0xFE || mapCurrentRow == mapQueueMessage) {
+              // Only kill playback if the row is the last one that's been played.
+              mapCurrentRow = -1;
+              sendByteToGameboy(0xFE);
+          }
+      }
+      mapQueueMessage=-1;
       updateVisualSync();
-      midiTickHit=false;
-  }  
+  }
+}
+
+
+void usbMidiLSDJMapRealtimeMessage(uint8_t message)
+{
+    switch(message) {
+      case 0xF8:
+        setMapByte(0xFF, true);
+      break;
+      case 0xFA:                                // Case: Transport Start Message
+      case 0xFB:                                // and Case: Transport Continue Message
+        resetMapCue();
+        sequencerStart();                     // Start the sequencer
+      break;
+      case 0xFC:                                // Case: Transport Stop Message
+        sequencerStop();                        // Stop the sequencer
+        setMapByte(0xFE, true);
+      break;
+    }
+}
+
+void modeLSDJMapUsbMidiReceive()
+{
+#ifdef MIDI_INTERFACE
+
+    while(usbMIDI.read()) {
+        uint8_t ch = usbMIDI.getChannel() - 1;
+        if(ch != memory[MEM_LIVEMAP_CH] && ch != (memory[MEM_LIVEMAP_CH] + 1)){
+            continue;
+        }
+
+        switch(usbMIDI.getType()) {
+            case 0: // note off
+                setMapByte(0xFE, true);
+            break;
+            case 1: // note on
+                if(ch == (memory[MEM_LIVEMAP_CH] + 1)) {
+                    setMapByte(128+usbMIDI.getData1(), true);
+                } else {
+                    setMapByte(usbMIDI.getData1(), true);
+                }
+            break;
+            /*
+            case 3: // CC
+            break;
+            case 4: // PG
+            break;
+            case 5: // AT
+            break;
+            case 6: // PB
+            break;
+            */
+        }
+    }
+#endif
 }

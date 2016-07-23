@@ -2,7 +2,7 @@ void modeProgrammer()
 {
   while(sysexProgrammingConnected || sysexProgrammingMode) {
     checkProgrammerConnected();
-    if (Serial.available()) checkForProgrammerSysex(Serial.read());
+    if (serial->available()) checkForProgrammerSysex(serial->read());
     updateProgrammerLeds();
     setMode();
   }
@@ -27,19 +27,24 @@ void checkProgrammerConnected()
 
 void programmerSendSettings()
 {
-  Serial.write(0xF0);
-  Serial.write(sysexManufacturerId);
-  Serial.write(0x40);
-  sendMemory();
-  Serial.write(0xF7);
+  sysexData[0] = 0xF0;
+  sysexData[1] = sysexManufacturerId;
+  sysexData[2] = 0x40;
+  memcpy(&sysexData[3], memory, MEM_MAX+1);
+  sysexData[MEM_MAX+3] = 0xF7;
+  serial->write(sysexData, MEM_MAX+4);
+#ifdef MIDI_INTERFACE
+  usbMIDI.sendSysEx(MEM_MAX+4, sysexData);
+#endif
 }
 
 void setProgrammerRequestConnect()
 {
-  Serial.write(0xF0);
-  Serial.write(sysexManufacturerId);
-  Serial.write(65);
-  Serial.write(0xF7);
+  uint8_t data[4] = {0xF0,sysexManufacturerId,65,0xF7};
+  serial->write(data, 4);
+#ifdef MIDI_INTERFACE
+  usbMIDI.sendSysEx(4, data);
+#endif
 }
 
 void setProgrammerMemorySave()
@@ -77,12 +82,11 @@ void programmerCheckTimeout()
 void programmerSendConnectRequest()
 {
   if(millis() > (sysexProgrammerLastSent+sysexProgrammerCallTime)) {
-    Serial.write(0xF0);
-    Serial.write(sysexManufacturerId);
-    Serial.write(0x7F);
-    Serial.write(defaultMemoryMap[MEM_VERSION_FIRST]);
-    Serial.write(defaultMemoryMap[MEM_VERSION_SECOND]);
-    Serial.write(0xF7);
+    uint8_t data[6] = {0xF0, sysexManufacturerId, 0x7F, defaultMemoryMap[MEM_VERSION_FIRST], defaultMemoryMap[MEM_VERSION_SECOND], 0xF7};
+    serial->write(data, 6);
+#ifdef MIDI_INTERFACE
+    usbMIDI.sendSysEx(6, data);
+#endif
     sysexProgrammerLastSent = millis();
   }
 }
@@ -121,10 +125,11 @@ void setMode(byte mode)
 
 void sendMode()
 {
-  Serial.write(0xF0);
-  Serial.write(sysexManufacturerId);
-  Serial.write(memory[MEM_MODE]);
-  Serial.write(0xF7);
+  uint8_t data[4] = {0xF0, sysexManufacturerId, memory[MEM_MODE], 0xF7};
+  serial->write(data, 4);
+#ifdef MIDI_INTERFACE
+  usbMIDI.sendSysEx(4, data);
+#endif
 }
 
 void setMidioutDelay(byte a,byte b,byte c,byte d)
@@ -142,24 +147,24 @@ void getSysexData()
   if(sysexData[0] == 0x69 && checkSysexChecksum()) {
     //sysex good, do stuff
     if(sysexProgrammingMode) {
-      if(sysexData[1] == 64 
-      && sysexData[2] == defaultMemoryMap[MEM_VERSION_FIRST] 
+      if(sysexData[1] == 64
+      && sysexData[2] == defaultMemoryMap[MEM_VERSION_FIRST]
       && sysexData[3] == defaultMemoryMap[MEM_VERSION_SECOND]) {
         //serial connected to programmer
         setProgrammerRequestConnect();
       }
-      if(sysexData[1] == 66 
-      && sysexData[2] == defaultMemoryMap[MEM_VERSION_FIRST] 
+      if(sysexData[1] == 66
+      && sysexData[2] == defaultMemoryMap[MEM_VERSION_FIRST]
       && sysexData[3] == defaultMemoryMap[MEM_VERSION_SECOND]) {
         //serial connected to programmer
         setProgrammerConnected();
       }
       if(sysexData[1] == 70) {
-        //save states 
+        //save states
         setProgrammerMemorySave();
       }
       if(sysexData[1] == 71) {
-        //save states 
+        //save states
         setProgrammerRestoreMemory();
       }
     }

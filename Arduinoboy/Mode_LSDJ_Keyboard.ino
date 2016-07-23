@@ -14,21 +14,24 @@
 void modeLSDJKeyboardSetup()
 {
   digitalWrite(pinStatusLed,LOW);
-  DDRC  = B00111111; //Set analog in pins as outputs
-  PORTC = B00000010;
+  pinMode(pinGBClock,OUTPUT);
+  digitalWrite(pinGBClock,HIGH);
+ #ifdef MIDI_INTERFACE
+  usbMIDI.setHandleRealTimeSystem(NULL);
+ #endif
   blinkMaxCount=1000;
-  
+
   /* The stuff below makes sure the code is in the same state as LSDJ on reset / restart, mode switched, etc. */
-  
+
   for(int rst=0;rst<5;rst++) sendKeyboardByteToGameboy(keyboardOctDn);   //Return lsdj to the first octave
   for(int rst=0;rst<41;rst++) sendKeyboardByteToGameboy(keyboardInsDn);  //Return lsdj to the first instrument
-  
+
   keyboardCurrentOct = 0;  //Set our current octave to 0.
   keyboardLastOct    = 0;  //Set our last octave to 0.
   keyboardCurrentIns = 0;  //Set out current instrument to 0.
   keyboardLastIns    = 0;  //Set out last used instrument to 0.
-  
-  
+
+
   modeLSDJKeyboard();      //.... And start the fun
 }
 
@@ -36,16 +39,17 @@ void modeLSDJKeyboardSetup()
 void modeLSDJKeyboard()
 {
   while(1){                              //Loop foreverrrr
-  if (Serial.available()) {          //If MIDI is sending
-    incomingMidiByte = Serial.read();    //Get the byte sent from MIDI
-    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) Serial.write(incomingMidiByte);//Echo the Byte to MIDI Output
-    
+  modeLSDJKeyboardMidiReceive();
+  if (serial->available()) {          //If MIDI is sending
+    incomingMidiByte = serial->read();    //Get the byte sent from MIDI
+    if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) serial->write(incomingMidiByte);//Echo the Byte to MIDI Output
+
 
     /***************************************************************************
      * Midi to LSDJ Keyboard Handling                                          *
      ***************************************************************************/
     //If the byte is a Status Message
-    if(incomingMidiByte & 0x80) {    
+    if(incomingMidiByte & 0x80) {
       /* Status message Information (# = midi channel 0 to F [1-16] )
           0x8# = Note Off
           0x9# = Note On
@@ -53,11 +57,11 @@ void modeLSDJKeyboard()
           0xB# = Control Change
           0xC# = Program (patch) change
           0xD# = Channel Pressure
-          0xE# = Pitch Wheel      
+          0xE# = Pitch Wheel
           0xF0 - 0xF7 = System Common Messages
           0xF8 - 0xFF = System Realtime Messages
       */
-      
+
       //Weee hello world bitwise and. ... make the second hex digit zero so we can have a simple case statement
       // - the second digit is usually the midi channel 0 to F (1-16) unless its a 0xF0 message...
       switch (incomingMidiByte & 0xF0) {
@@ -89,18 +93,18 @@ void modeLSDJKeyboard()
          //If we dont have a note number, we assume this byte is the note number, get it...
          midiData[1] = incomingMidiByte;
       } else {
-         //We have our note and channel, so call our note function...   
-              
+         //We have our note and channel, so call our note function...
+
          playLSDJNote(midiData[0], midiData[1], incomingMidiByte);
          midiData[1] = false; //Set the note to false, forcing to capture the next note
       }
     } else if (midiProgramChange) {
-        changeLSDJInstrument(midiData[0], incomingMidiByte); 
+        changeLSDJInstrument(midiData[0], incomingMidiByte);
         midiProgramChange = false;
         midiData[0] = false;
     }
   }
-  
+
   updateStatusLed();        // Update our status blinker
   setMode();                // Check if mode button was depressed
   }
@@ -112,9 +116,9 @@ void modeLSDJKeyboard()
  */
 void changeLSDJInstrument(byte channel,byte message)
 {
-  keyboardCurrentIns = message; //set the current instrument number 
-  
-  if(channel == (0x90+memory[MEM_KEYBD_CH]) && keyboardCurrentIns != keyboardLastIns) { 
+  keyboardCurrentIns = message; //set the current instrument number
+
+  if(channel == (0x90+memory[MEM_KEYBD_CH]) && keyboardCurrentIns != keyboardLastIns) {
   //if its on our midi channel and the instrument isnt the same as our currrent
     if(!memory[MEM_KEYBD_COMPAT_MODE]) {
       sendKeyboardByteToGameboy(0x80 | message); // <- this is suppose to work but doesn't :/
@@ -147,15 +151,15 @@ void playLSDJNote(byte channel,byte note, byte velocity)
      && velocity > 0x00) { //If midi channel = ours and the velocity is greater then 0
     if(note >= keyboardNoteStart) {
       keyboardNoteOffset = 0;
-      note = note - keyboardNoteStart;  //subtract the octave offset to get a value ranging from 0 to 48 for comparison 
-      
+      note = note - keyboardNoteStart;  //subtract the octave offset to get a value ranging from 0 to 48 for comparison
+
       keyboardCurrentOct = note / 0x0C;  //get a octave value from 0 to 4 by deviding the current note by 12
-      changeLSDJOctave(); 
-      
+      changeLSDJOctave();
+
       if(note >= 0x3C) keyboardNoteOffset = 0x0C; //if the note really high we need to use the second row of keyboard keys
-      note = (note % 12) + keyboardNoteOffset;    //get a 0 to 11 range of notes and add the offset 
+      note = (note % 12) + keyboardNoteOffset;    //get a 0 to 11 range of notes and add the offset
       sendKeyboardByteToGameboy(keyboardNotes[note]);        // and finally send the note
-    
+
     } else if (note >= keyboardStartOctave) { //If we are at the octave below notes
       keyboardDiff = note - keyboardStartOctave; //Get a value between 0 and 11
       if(keyboardDiff < 8 && keyboardDiff > 3) sendKeyboardByteToGameboy(0xE0); //if we are sending cursor values we have to send a 0xE0 byte for "extended" pc keyboard mode
@@ -171,9 +175,9 @@ void playLSDJNote(byte channel,byte note, byte velocity)
  */
 void changeLSDJOctave()
 {
-  if(keyboardCurrentOct != keyboardLastOct) { 
+  if(keyboardCurrentOct != keyboardLastOct) {
     if(!memory[MEM_KEYBD_COMPAT_MODE]) { // This new mode doesnt work yet. :/
-      keyboardCurrentOct = 0xB3 + keyboardCurrentOct; 
+      keyboardCurrentOct = 0xB3 + keyboardCurrentOct;
       sendKeyboardByteToGameboy(keyboardCurrentOct);
     } else {
       ///We will find out which is greater, the current octave or the last. then
@@ -200,34 +204,61 @@ void changeLSDJOctave()
 /*
   sendKeyboardByteToGameboy
 */
-void sendKeyboardByteToGameboy(byte send_byte) 
+void sendKeyboardByteToGameboy(byte send_byte)
 {
-  PORTC = B00000000;
+  GB_SET(0,0,0);
   delayMicroseconds(50);  //Delays are added to simulate PC keyboard rate
-  PORTC = B00000001;
+  GB_SET(1,0,0);
   delayMicroseconds(50);
   for(countLSDJTicks=0;countLSDJTicks<8;countLSDJTicks++) {  //we are going to send 8 bits, so do a loop 8 times
     if(send_byte & 0x01) {          //if the first bit is equal to 1
-      PORTC = B00000010;
+      GB_SET(0,1,0);
       delayMicroseconds(50);
-      PORTC = B00000011;
+      GB_SET(1,1,0);
       delayMicroseconds(50);
     } else {
-      PORTC = B00000000;
+      GB_SET(0,0,0);
       delayMicroseconds(50);
-      PORTC = B00000001;
+      GB_SET(1,0,0);
       delayMicroseconds(50);
     }
     send_byte >>= 1;                //bitshift right once for the next bit we are going to send
   }
-  
-  PORTC = B00000000;
+
+  GB_SET(0,0,0);
   delayMicroseconds(50);
-  PORTC = B00000001;
+  GB_SET(1,0,0);
   delayMicroseconds(50);
-  PORTC = B00000010;
+  GB_SET(0,1,0);
   delayMicroseconds(50);
-  PORTC = B00000011;
-  delay(4);
+  GB_SET(1,1,0);
+  delayMicroseconds(4000);
 }
 
+void modeLSDJKeyboardMidiReceive()
+{
+#ifdef MIDI_INTERFACE
+
+    while(usbMIDI.read(memory[MEM_KEYBD_CH]+1)) {
+        switch(usbMIDI.getType()) {
+            case 0: // note off
+                playLSDJNote(0x90+memory[MEM_KEYBD_CH], usbMIDI.getData1(), 0);
+            break;
+            case 1: // note on
+                playLSDJNote(0x90+memory[MEM_KEYBD_CH], usbMIDI.getData1(), usbMIDI.getData2());
+            break;
+            case 4: // PG
+                changeLSDJInstrument(0xC0+memory[MEM_KEYBD_CH], usbMIDI.getData1());
+            break;
+            /*
+            case 3: // CC
+            break;
+            case 5: // AT
+            break;
+            case 6: // PB
+            break;
+            */
+        }
+    }
+#endif
+}
