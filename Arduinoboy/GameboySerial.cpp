@@ -26,6 +26,15 @@ void GameboySerialClass::sendByte(uint8_t data)
     }
 }
 
+void GameboySerialClass::sendBit(uint8_t data)
+{
+    digitalWriteFast(pinDataOut, data);
+    digitalWriteFast(pinClock, LOW);
+    delayMicroseconds(1);
+    digitalWriteFast(pinClock, HIGH);
+    data <<= 1;
+}
+
 void GameboySerialClass::sendKeyboard(uint8_t data)
 {
 
@@ -33,23 +42,27 @@ void GameboySerialClass::sendKeyboard(uint8_t data)
 
 int GameboySerialClass::receiveByte()
 {
-    if(!digitalReadFast(pinClock)) {
-        //Clock is low, start read sequence
-        unsigned long timeout = millis() + 100;
+    if(digitalReadFast(pinClock)) {
+        active = true;
+    } else if(active) {
+        //Clock is low, start read
+        unsigned long timeout = millis() + 2;
         uint8_t d = digitalReadFast(pinDataIn);
         uint8_t count = 7;
 
         while((count--) && timeout > millis()) {
             while(!digitalReadFast(pinClock) && timeout > millis());
-            while(digitalReadFast(pinClock) && timeout > millis());
             d<<=1;
             d |= digitalReadFast(pinDataIn);
+            while(digitalReadFast(pinClock) && timeout > millis());
         }
 
         while(!digitalReadFast(pinClock) && timeout > millis());
 
         if(timeout > millis()) {
             return d;
+        } else {
+            active = false;
         }
     }
     return -1;

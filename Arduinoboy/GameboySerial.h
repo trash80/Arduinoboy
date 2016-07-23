@@ -12,6 +12,7 @@ class GameboySerialClass {
     void setOutputMode();
     void setInputMode();
     void sendByte(uint8_t data);
+    void sendBit(uint8_t data);
     void sendKeyboard(uint8_t data);
     int receiveByte();
     uint8_t readClock();
@@ -20,6 +21,7 @@ class GameboySerialClass {
     const uint8_t pinClock;
     const uint8_t pinDataOut;
     const uint8_t pinDataIn;
+    bool active;
     LedInterfaceClass * interface;
 };
 
