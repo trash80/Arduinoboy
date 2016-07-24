@@ -25,6 +25,7 @@ void GameboySerialClass::sendByte(uint8_t data)
         digitalWriteFast(pinClock, HIGH);
         data <<= 1;
     }
+    delayMicroseconds(250);
 }
 
 void GameboySerialClass::sendBit(uint8_t data)

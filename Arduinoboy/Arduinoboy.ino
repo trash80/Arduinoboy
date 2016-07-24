@@ -34,13 +34,17 @@ ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
 ModeNanoloopSlave NanoloopSlave1(&gameboy1, &midi, &interface);
 ModeNanoloopSlave NanoloopSlave2(&gameboy2, &midi, &interface);
 
-/*
+ModeLSDJMidiout LSDJKeyboard1(&gameboy1, &midi, &interface);
+ModeLSDJMidiout LSDJKeyboard2(&gameboy2, &midi, &interface);
 
 ModeLSDJMidiout LSDJMidiout1(&gameboy1, &midi, &interface);
 ModeLSDJMidiout LSDJMidiout2(&gameboy2, &midi, &interface);
 
-ModeMidiGameboy MidiGameboy1(&gameboy2, &midi, &interface);
+ModeMidiGameboy MidiGameboy1(&gameboy1, &midi, &interface);
 ModeMidiGameboy MidiGameboy2(&gameboy2, &midi, &interface);
+
+/*
+
 
 midiSerial has serial device
 midiMerger merges midi devices together
@@ -72,8 +76,9 @@ void setup()
     LSDJMap1.setChannels(1,2);
     LSDJMap2.setChannels(3,4);
 
-    controller.attachMode(0, &LSDJMap1);
-    controller.attachMode(0, &LSDJMap2);
+    MidiGameboy1.setChannels(5,4,3,2,1);
+    controller.attachMode(0, &MidiGameboy1);
+    controller.attachMode(0, &MidiGameboy2);
 
     controller.attachMode(1, &LSDJSlave1);
     controller.attachMode(1, &LSDJSlave2);
@@ -82,7 +87,7 @@ void setup()
     controller.attachMode(2, &NanoloopSlave2);
 
     controller.begin();
-    controller.setMode(2);
+    controller.setMode(0);
 
 }
 

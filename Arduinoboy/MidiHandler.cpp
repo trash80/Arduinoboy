@@ -188,8 +188,7 @@ void MidiHandlerClass::update()
                     break;
                 case 0xE0:
                     // Pitch Wheel
-                    data1 = ((unsigned short)data2<<7) | (unsigned short)data1;
-                    if(relayMidi) usbMIDI.sendPitchBend(data1, channel);
+                    if(relayMidi) usbMIDI.sendPitchBend(((unsigned short)data2<<7) | (unsigned short)data1, channel);
                     callback->onPitchBend();
                     break;
             }
