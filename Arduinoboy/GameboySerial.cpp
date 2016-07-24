@@ -17,7 +17,8 @@ void GameboySerialClass::setInputMode()
 
 void GameboySerialClass::sendByte(uint8_t data)
 {
-    for(uint8_t i=0;i<8;i++) {
+    uint8_t count = 8;
+    while(count--) {
         digitalWriteFast(pinDataOut, (data & 0x80));
         digitalWriteFast(pinClock, LOW);
         delayMicroseconds(1);
@@ -35,9 +36,16 @@ void GameboySerialClass::sendBit(uint8_t data)
     data <<= 1;
 }
 
-void GameboySerialClass::sendKeyboard(uint8_t data)
+void GameboySerialClass::sendKeyboardByte(uint8_t data)
 {
-
+    sendBit(0);
+    uint8_t count = 8;
+    while(count--) {
+        sendBit(data&0x01);
+        data >>= 1;
+    }
+    sendBit(0);
+    sendBit(1);
 }
 
 int GameboySerialClass::receiveByte()
