@@ -21,6 +21,8 @@ class LSDJMidioutClass : public ModeClass {
         channel[3] = c4;
     }
 
+    void allNotesOff();
+
   private:
     bool sequencerStarted;
     int lastNote[NUM_MIDIOUT];

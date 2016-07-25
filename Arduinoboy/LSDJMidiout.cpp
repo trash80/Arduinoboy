@@ -19,6 +19,7 @@ void LSDJMidioutClass::update()
             break;
             case 0x7E:
                 //stop
+                allNotesOff();
                 midi->sendTransportStop();
             break;
             case 0x7D:
@@ -57,6 +58,17 @@ void LSDJMidioutClass::noteMessage(uint8_t chan, uint8_t data)
     } else if (lastNote[chan]>=0) {
         midi->sendNoteOff(channel[chan], lastNote[chan], 0x40);
         lastNote[chan] = -1;
+    }
+}
+
+void LSDJMidioutClass::allNotesOff()
+{
+    for(uint8_t chan = 0; chan < 4; chan++) {
+        if(lastNote[chan] >= 0) {
+            midi->sendNoteOff(channel[chan], lastNote[chan], 0x40);
+            lastNote[chan] = -1;
+        }
+        midi->sendControlChange(channel[chan], 123, 0);
     }
 }
 

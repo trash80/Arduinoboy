@@ -76,10 +76,11 @@ void setup()
     LSDJMap1.setChannels(1,2);
     LSDJMap2.setChannels(3,4);
 
-    MidiGameboy1.setChannels(5,4,3,2,1);
+    MidiGameboy1.setChannels(1,2,3,4,5);
+    LSDJMidiout1.setChannels(1,2,3,4);
     LSDJKeyboard1.setChannels(1);
 
-    controller.attachMode(0, &LSDJKeyboard1);
+    controller.attachMode(0, &LSDJMidiout1);
     //controller.attachMode(0, &MidiGameboy2);
 
     controller.attachMode(1, &LSDJSlave1);
