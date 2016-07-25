@@ -11,7 +11,7 @@ class LSDJKeyboardClass : public ModeClass {
 
     void begin();
     void update();
-    void setChannel(uint8_t ch) { channel = ch; };
+    void setChannels(uint8_t ch) { channel = ch; };
     void onNoteOn();
     void onNoteOff();
     void onProgramChange();
@@ -64,7 +64,7 @@ class LSDJKeyboardClass : public ModeClass {
       const uint8_t keyboardPgDn = 0x7A;
       const uint8_t keyboardEntr = 0x5A;
 
-      void playNote(uint8_t note);
+      void noteAction(uint8_t note);
       void changeOctave(uint8_t octave);
       void changeInstrument(uint8_t instrument);
 

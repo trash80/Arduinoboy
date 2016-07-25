@@ -14,6 +14,13 @@ class LSDJMidioutClass : public ModeClass {
     void begin();
     void update();
 
+    void setChannels(uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4) {
+        channel[0] = c1;
+        channel[1] = c2;
+        channel[2] = c3;
+        channel[3] = c4;
+    }
+
   private:
     bool sequencerStarted;
     int lastNote[NUM_MIDIOUT];

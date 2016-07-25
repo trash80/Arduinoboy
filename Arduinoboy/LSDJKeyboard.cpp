@@ -19,13 +19,13 @@ void LSDJKeyboardClass::update()
 void LSDJKeyboardClass::onNoteOn()
 {
     if(midi->getChannel() == channel) {
-        playNote(midi->getData1());
+        noteAction(midi->getData1());
     }
 }
 
 void LSDJKeyboardClass::onNoteOff()
 {
-
+    return;
 }
 
 void LSDJKeyboardClass::onProgramChange()
@@ -35,7 +35,7 @@ void LSDJKeyboardClass::onProgramChange()
     }
 }
 
-void LSDJKeyboardClass::playNote(uint8_t note)
+void LSDJKeyboardClass::noteAction(uint8_t note)
 {
     if(note >= noteStart) {
         note -= noteStart;
@@ -48,7 +48,7 @@ void LSDJKeyboardClass::playNote(uint8_t note)
         } else {
             note = (note % 12);
         }
-
+        interface->blink();
         gameboy->sendKeyboardByte(keyboardNoteMap[note]);
 
     } else if (note >= startOctave) {
@@ -73,7 +73,7 @@ void LSDJKeyboardClass::changeOctave(uint8_t octave)
             }
         } else {
             while(diff--) {
-                gameboy->sendKeyboardByte(keyboardOctUp);
+                gameboy->sendKeyboardByte(keyboardOctDn);
             }
         }
         currentOctave = octave;

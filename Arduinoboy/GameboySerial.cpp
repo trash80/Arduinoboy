@@ -40,6 +40,7 @@ void GameboySerialClass::sendBit(uint8_t data)
 void GameboySerialClass::sendKeyboardByte(uint8_t data)
 {
     sendBit(0);
+    delayMicroseconds(49);
     uint8_t count = 8;
     while(count--) {
         sendBit(data&0x01);
@@ -47,6 +48,7 @@ void GameboySerialClass::sendKeyboardByte(uint8_t data)
     }
     sendBit(0);
     sendBit(1);
+    delay(2);
 }
 
 int GameboySerialClass::receiveByte()

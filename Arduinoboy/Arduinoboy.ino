@@ -34,8 +34,8 @@ ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
 ModeNanoloopSlave NanoloopSlave1(&gameboy1, &midi, &interface);
 ModeNanoloopSlave NanoloopSlave2(&gameboy2, &midi, &interface);
 
-ModeLSDJMidiout LSDJKeyboard1(&gameboy1, &midi, &interface);
-ModeLSDJMidiout LSDJKeyboard2(&gameboy2, &midi, &interface);
+ModeLSDJKeyboard LSDJKeyboard1(&gameboy1, &midi, &interface);
+ModeLSDJKeyboard LSDJKeyboard2(&gameboy2, &midi, &interface);
 
 ModeLSDJMidiout LSDJMidiout1(&gameboy1, &midi, &interface);
 ModeLSDJMidiout LSDJMidiout2(&gameboy2, &midi, &interface);
@@ -77,8 +77,10 @@ void setup()
     LSDJMap2.setChannels(3,4);
 
     MidiGameboy1.setChannels(5,4,3,2,1);
-    controller.attachMode(0, &MidiGameboy1);
-    controller.attachMode(0, &MidiGameboy2);
+    LSDJKeyboard1.setChannels(1);
+
+    controller.attachMode(0, &LSDJKeyboard1);
+    //controller.attachMode(0, &MidiGameboy2);
 
     controller.attachMode(1, &LSDJSlave1);
     controller.attachMode(1, &LSDJSlave2);
