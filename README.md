@@ -1,9 +1,12 @@
 ![ScreenShot](http://trash80.net/arduinoboy/aboy1_2_0.jpg)
 
+# Experimental New Arduinoboy branch
+This branch is a CPP rebuild of ArduinoBoy. It features the ability to have multiple gameboys controlled on the same hardware, as well as custom routing per mode. This version is currently incomplete and in active development. 
+
 # Arduinoboy
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
 
-## About 
+## About
 Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and [mGB](https://github.com/trash80/mGB)
 
 ## News
@@ -12,7 +15,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
    * Added Teensy 3.x & LC support. Check the main file for the pin configuration.
    * Added USB MIDI support for Teensy
    * Updated LSDJ LIVEMAP / SYNCMAP mode. This only works with LSDJ Arduinoboy version 4.8.7 and above. Licensed users can [download it here](http://littlesounddj.com/lsd/latest/full_version/lsdj4_8_7-arduinoboy.zip) Livemap has been removed in favor of stable sync slave mode.
- * 06/26/15 
+ * 06/26/15
    * Project has been moved to GitHub. mGB has been moved to it's own project [Available here](https://github.com/trash80/mGB)
  * 12/23/11
    * Arduinoboy to version 1.2.3
@@ -41,11 +44,11 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
  * 02/02/09
    * mGB to version 1.3.0
      * Rewrote 90% of code into assembly for much faster performance- especially noticeable on DMG.
-     * Changed note behavior. Removed Monophonic note memory to increase performance. 
-     * Envelope does not retrigger if the notes overlap and have the same velocity- Good for arpeggios / broken chords. 
-     * Note off has a slight delay so immediate retrigged notes don't cause "clicking" effect due to turning off the synth. 
+     * Changed note behavior. Removed Monophonic note memory to increase performance.
+     * Envelope does not retrigger if the notes overlap and have the same velocity- Good for arpeggios / broken chords.
+     * Note off has a slight delay so immediate retrigged notes don't cause "clicking" effect due to turning off the synth.
      * Added screen off mode for great signal-to-noise ratio, longer battery life, and better performance on DMG. (To toggle the screen mode hold Select and press A.)
-     * Created back-end routine that prioritizes processes for better performance. 
+     * Created back-end routine that prioritizes processes for better performance.
      * Added 8 "noise" shapes to the Wav synth for more interesting effects.
      * Made Wav pitch sweep stable and changed it so it glitches out at values above 8. :D
 
@@ -56,7 +59,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
     * Fixed small bug with the indicator arrow, it was offset vertically a bit.
     * Fixed bug with unexpected behavior with large PB Ranges
     * PB Range Max is now 48 notes. (hehe)
-    * Octave Shift max is now -2/+3 
+    * Octave Shift max is now -2/+3
     * Added some Octave shift logic. If the current note is greater than what the GB can play due to octave shifting, it will select the lower octave note, so no off key notes will play.
     * Added Gameboy Color fast-cpu mode- better performance with newer Gameboys.
  * 10/28/08
@@ -71,11 +74,11 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
  * 10/25/08
    * Added Program Change messages to mGB
    * Rewrote MIDI data input for mGB. (Rewrote the function in ASM to make it faster)
-   * Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature 
+   * Added Controller Priority. While changing parameters on the gameboy itself, MIDI messages will not overwrite your changes while your editing them. This is a good live mode feature
    * Arduinoboy code updated yet again for mGB behavior. Arduinoboy release will now always be included in a zip file inside the mGB zip so you know that the version of Arduinoboy thats included with the mGB archive is the one to use.
 
  * 10/23/08
-   * Found & Fixed various bugs in 1.2.0 
+   * Found & Fixed various bugs in 1.2.0
    * Changed help text. Made it more clear.
 
  * 10/23/08
@@ -85,7 +88,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
    * Arduinoboy 1.0.3 has better behavior for mGB 1.2.0 but should also work better for old mGB versions as well.
 
  * 10/20/08
-   * Added interface to mGB. 
+   * Added interface to mGB.
    * Changed WAV CC Parameters
    * Arduinoboy 1.0.2 has better behavior for mGB 1.1.0
 
@@ -142,7 +145,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
   * 47 - B-1 Cue Table
   * 48 - C-2 to C-8 Notes!
   * Prgram Change to select from instrument table
- * Default Midi channel is 16. You can change in the top of the main source file in the archive. 
+ * Default Midi channel is 16. You can change in the top of the main source file in the archive.
 
 ## How To
 ![ScreenShot](http://farm3.static.flickr.com/2229/2316803721_c22f9c2387.jpg)
@@ -152,10 +155,10 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 
 ## Thanks To
   * [Arduino](http://arduino.cc)
-  * [Nitro2k01](http://gameboygenius.8bitcollective.com nitro2k01) for ASM help with mGB 
+  * [Nitro2k01](http://gameboygenius.8bitcollective.com nitro2k01) for ASM help with mGB
   * [GWEM](http://www.preromanbritain.com/gwem/lsdj_midi/g33k.html) g33k page
   * [Midines](http://wayfar.net) Thanks for the help x|k!
-  * [firestARTer](http://www.firestarter-music.de) help with keyboard & Midi handling information. 
+  * [firestARTer](http://www.firestarter-music.de) help with keyboard & Midi handling information.
   * [Gijs Gieskes](http://gieskes.nl) Found source code that gave insight into Nanoloop sync
   * [Little Sound DJ](http://littlesounddj.com)
   * [http://devrs.com/gb](http://devrs.com/gb) Madcatz PC link port for gb serial specs
