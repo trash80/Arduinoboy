@@ -46,7 +46,7 @@ void modeLSDJKeyboard()
       sendKeyboardByteToGameboy(incomingPS2Byte);
     }
   }
-  
+
   modeLSDJKeyboardMidiReceive();
   if (serial->available()) {          //If MIDI is sending
     incomingMidiByte = serial->read();    //Get the byte sent from MIDI
