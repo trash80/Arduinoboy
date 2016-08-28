@@ -25,13 +25,13 @@
 #include "LedInterface.h"
 #include "MidiHandler.h"
 
-#include "modules/LSDJSlave.h"
-#include "modules/LSDJMaster.h"
-#include "modules/LSDJMap.h"
-#include "modules/NanoloopSlave.h"
-#include "modules/LSDJKeyboard.h"
-#include "modules/LSDJMidiout.h"
-#include "modules/MidiGameboy.h"
+#include "LSDJSlave.h"
+#include "LSDJMaster.h"
+#include "LSDJMap.h"
+#include "NanoloopSlave.h"
+#include "LSDJKeyboard.h"
+#include "LSDJMidiout.h"
+#include "MidiGameboy.h"
 
 
 const uint8_t ledPins[2] = {13,13};
