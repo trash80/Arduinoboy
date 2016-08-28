@@ -16,28 +16,26 @@ void LSDJMapClass::update()
     if(queueMessage >= 0 && millis() > queueTime) {
         if(queueMessage == 0xFF) {
             gameboy->sendByte(queueMessage);
-        } else {
-            if(queueMessage == 0xFE || currentRow == queueMessage) {
-                // Only kill playback if the row is the last one that's been played.
-                currentRow = -1;
-                gameboy->sendByte(0xFE);
-            }
+        } else if(queueMessage == 0xFE || currentRow == queueMessage) {
+            // Only kill playback if the row is the last one that's been played.
+            currentRow = -1;
+            gameboy->sendByte(0xFE);
         }
-        clearQueue();
+        queueMessage = -1;
     }
 }
 
 void LSDJMapClass::onCommand()
 {
     if(midi->getChannel() == channel1 || midi->getChannel() == channel2) {
-        clearQueue();
+        if(queueMessage == 0xFF) clearQueue();
     }
 }
 
 void LSDJMapClass::onData1()
 {
     if(midi->getChannel() == channel1 || midi->getChannel() == channel2) {
-        clearQueue();
+        if(queueMessage == 0xFF) clearQueue();
     }
 }
 
@@ -46,9 +44,11 @@ void LSDJMapClass::onNoteOn()
     if(midi->getChannel() == channel1) {
         currentRow = midi->getData1();
         gameboy->sendByte(currentRow);
+        clearQueue();
     } else if (midi->getChannel() == channel2) {
-        currentRow = midi->getData1() + 128;
-        gameboy->sendByte(currentRow);
+        currentRow = midi->getData1();
+        gameboy->sendByte(currentRow + 128);
+        clearQueue();
     }
     interface->blink(0, 100);
 }
@@ -101,5 +101,5 @@ void LSDJMapClass::clearQueue()
 void LSDJMapClass::setQueueMessage(uint8_t message)
 {
     queueMessage = message;
-    queueTime = millis() + 4;
+    queueTime = millis()+4;
 }
