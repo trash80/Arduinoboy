@@ -32,88 +32,47 @@
 #include "LSDJKeyboard.h"
 #include "LSDJMidiout.h"
 #include "MidiGameboy.h"
+#include "SynthController.h"
 
 
 const uint8_t ledPins[2] = {13,13};
 LedInterface interface(ledPins, 2);
 
-GameboySerial gameboy1(16,17,18, &interface);
-GameboySerial gameboy2(19,20,21, &interface);
+GameboySerial gameboy(16,17,18, &interface);
 
 ArduinoboyController controller(&interface);
 
 MidiHandler midi(&Serial1, &controller);
 
-ModeLSDJMap LSDJMap1(&gameboy1, &midi, &interface);
-ModeLSDJMap LSDJMap2(&gameboy2, &midi, &interface);
+SynthController YmSynth(&gameboy, &midi, &interface);
+ModeLSDJMap LSDJMap(&gameboy, &midi, &interface);
+ModeLSDJSlave LSDJSlave(&gameboy, &midi, &interface);
+ModeLSDJMaster LSDJMaster(&gameboy, &midi, &interface);
+ModeNanoloopSlave NanoloopSlave(&gameboy, &midi, &interface);
+ModeLSDJKeyboard LSDJKeyboard(&gameboy, &midi, &interface);
+ModeLSDJMidiout LSDJMidiout(&gameboy, &midi, &interface);
+ModeMidiGameboy MidiGameboy(&gameboy, &midi, &interface);
 
-ModeLSDJSlave LSDJSlave1(&gameboy1, &midi, &interface);
-ModeLSDJSlave LSDJSlave2(&gameboy2, &midi, &interface);
-
-ModeLSDJMaster LSDJMaster1(&gameboy1, &midi, &interface);
-ModeLSDJMaster LSDJMaster2(&gameboy2, &midi, &interface);
-
-ModeNanoloopSlave NanoloopSlave1(&gameboy1, &midi, &interface);
-ModeNanoloopSlave NanoloopSlave2(&gameboy2, &midi, &interface);
-
-ModeLSDJKeyboard LSDJKeyboard1(&gameboy1, &midi, &interface);
-ModeLSDJKeyboard LSDJKeyboard2(&gameboy2, &midi, &interface);
-
-ModeLSDJMidiout LSDJMidiout1(&gameboy1, &midi, &interface);
-ModeLSDJMidiout LSDJMidiout2(&gameboy2, &midi, &interface);
-
-ModeMidiGameboy MidiGameboy1(&gameboy1, &midi, &interface);
-ModeMidiGameboy MidiGameboy2(&gameboy2, &midi, &interface);
-
-/*
-
-
-midiSerial has serial device
-midiMerger merges midi devices together
-midiMapper maps an aggragator to midi channels of arduinoboy ModeLSDJSlave
-
-MidiSerial midi1(&Serial1);
-MidiSerial midi2(&Serial2);
-MidiSerialUsb midi3(&usbMIDI);
-
-MidiSerialMerger midiAll(&midi1);
-midiAll.addDevice(&midi3);
-
-MidiChannelFilter LSDJMapFilter1(channels);
-MidiChannelFilter LSDJMapFilter2(channels);
-
-MidiMapper midiMapper;
-midiMapper.connectInput(&midiAll, &LSDJMapFilter1, &LSDJMap1);
-midiMapper.connectInput(&midiAll, &LSDJMapFilter2, &LSDJMap2);
-
-*/
 void setup()
 {
-    //midi.attachDevice(&usb);
-    //midi.attachRelay(&usb);
     midi.enableUsbMidi();
     midi.enableMidiRelay();
     midi.begin();
 
-    LSDJMap1.setChannels(1,2);
-    LSDJMap2.setChannels(3,4);
+    YmSynth.setChannels(3,4,5);
+    LSDJMap.setChannels(1,2);
+    MidiGameboy.setChannels(1,2,3,4,5);
+    LSDJMidiout.setChannels(1,2,3,4);
+    LSDJKeyboard.setChannels(1);
 
-    MidiGameboy1.setChannels(1,2,3,4,5);
-    LSDJMidiout1.setChannels(1,2,3,4);
-    LSDJKeyboard1.setChannels(1);
+    controller.attachMode(0, &LSDJMap);
+    controller.attachMode(0, &YmSynth);
 
-    controller.attachMode(0, &LSDJMidiout1);
-    //controller.attachMode(0, &MidiGameboy2);
-
-    controller.attachMode(1, &LSDJSlave1);
-    controller.attachMode(1, &LSDJSlave2);
-
-    controller.attachMode(2, &NanoloopSlave1);
-    controller.attachMode(2, &NanoloopSlave2);
+    controller.attachMode(1, &LSDJSlave);
+    controller.attachMode(2, &NanoloopSlave);
 
     controller.begin();
     controller.setMode(0);
-
 }
 
 void loop()
