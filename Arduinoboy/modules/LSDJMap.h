@@ -20,46 +20,43 @@
  *
  */
  
-#ifndef ModeController_h
-#define ModeController_h
+#ifndef ModeLSDJMap_h
+#define ModeLSDJMap_h
 
-#include "MidiCallback.h"
-#include "Mode.h"
-#define MAX_HANDLERS 4
-#define MAX_MODES 8
+#include "ArduinoboyModule.h"
 
-class ModeControllerClass : public MidiCallbackClass {
+class LSDJMapClass : public ArduinoboyModuleClass {
   public:
+    LSDJMapClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
-    ModeControllerClass(LedInterface * inter) : interface(inter) {};
+    void setChannels(uint8_t c1, uint8_t c2) {
+        channel1 = c1;
+        channel2 = c2;
+    };
 
     void begin();
     void update();
-    void attachMode(uint8_t modeNumber, ModeClass * mode);
-    void setMode(uint8_t modeNumber);
     void onCommand();
     void onData1();
     void onNoteOn();
     void onNoteOff();
-    void onPolyPressure();
-    void onControlChange();
-    void onProgramChange();
-    void onAfterTouch();
-    void onPitchBend();
     void onTransportClock();
     void onTransportStart();
-    void onTransportStop();
     void onTransportContinue();
+    void onTransportStop();
 
-  protected:
-     struct mode {
-         ModeClass * mode[MAX_HANDLERS];
-         uint8_t numberHandlers;
-     } modes[MAX_MODES];
-     mode * currentMode;
-     LedInterface * interface;
+  private:
+      uint8_t channel1;
+      uint8_t channel2;
+      bool sequencerStarted;
+      int  currentRow;
+      int  queueMessage;
+      unsigned long queueTime;
+      void clearQueue();
+      void setQueueMessage(uint8_t message);
 };
 
-typedef ModeControllerClass ModeController;
+typedef LSDJMapClass ModeLSDJMap;
 
 #endif

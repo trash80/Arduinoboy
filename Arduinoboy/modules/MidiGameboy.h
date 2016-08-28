@@ -20,33 +20,37 @@
  *
  */
  
-#ifndef Mode_h
-#define Mode_h
+#ifndef MidiGameboy_h
+#define MidiGameboy_h
 
-#include "GameboySerial.h"
-#include "MidiCallback.h"
-#include "MidiHandler.h"
-#include "LedInterface.h"
+#include "ArduinoboyModule.h"
 
-class ModeClass : public MidiCallbackClass {
+class MidiGameboyClass : public ArduinoboyModuleClass {
   public:
-    ModeClass(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
-        : gameboy(gb), midi(midiHandler), interface(inter){};
+    MidiGameboyClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
-    void init(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
-    {
-        gameboy  = gb;
-        midi     = midiHandler;
-        interface= inter;
+    void setChannels(uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4, uint8_t c5) {
+        channel[0] = c1;
+        channel[1] = c2;
+        channel[2] = c3;
+        channel[3] = c4;
+        channel[4] = c5;
     };
 
-    virtual void setChannels(){};
+    void begin();
+    void update();
+    void onNoteOn();
+    void onNoteOff();
+    void onControlChange();
+    void onProgramChange();
+    void onPitchBend();
 
-  protected:
-      GameboySerialClass * gameboy;
-      MidiHandlerClass * midi;
-      LedInterfaceClass * interface;
-
+  private:
+    uint8_t channel[5];
+    int getChennel();
 };
+
+typedef MidiGameboyClass ModeMidiGameboy;
 
 #endif

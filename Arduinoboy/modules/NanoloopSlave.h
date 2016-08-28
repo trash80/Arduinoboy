@@ -20,24 +20,28 @@
  *
  */
  
-#ifndef LSDJMaster_h
-#define LSDJMaster_h
+#ifndef NanoloopSlave_h
+#define NanoloopSlave_h
 
-#include "Mode.h"
+#include "ArduinoboyModule.h"
 
-class LSDJMasterClass : public ModeClass {
+class NanoloopSlaveClass : public ArduinoboyModuleClass {
   public:
-    LSDJMasterClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ModeClass(gameboy, midi, interface) {};
+    NanoloopSlaveClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();
+    void onTransportClock();
+    void onTransportStart();
+    void onTransportContinue();
+    void onTransportStop();
 
   private:
       bool sequencerStarted;
-      unsigned long wait;
+      bool syncSwitch;
 };
 
-typedef LSDJMasterClass ModeLSDJMaster;
+typedef NanoloopSlaveClass ModeNanoloopSlave;
 
 #endif

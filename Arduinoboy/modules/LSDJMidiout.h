@@ -25,12 +25,12 @@
 
 #define NUM_MIDIOUT 4
 
-#include "Mode.h"
+#include "ArduinoboyModule.h"
 
-class LSDJMidioutClass : public ModeClass {
+class LSDJMidioutClass : public ArduinoboyModuleClass {
   public:
     LSDJMidioutClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ModeClass(gameboy, midi, interface) {};
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();

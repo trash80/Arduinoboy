@@ -23,12 +23,12 @@
 #ifndef LSDJSlave_h
 #define LSDJSlave_h
 
-#include "Mode.h"
+#include "ArduinoboyModule.h"
 
-class LSDJSlaveClass : public ModeClass {
+class LSDJSlaveClass : public ArduinoboyModuleClass {
   public:
     LSDJSlaveClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ModeClass(gameboy, midi, interface) {};
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();

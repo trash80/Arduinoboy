@@ -19,29 +19,34 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
-#ifndef NanoloopSlave_h
-#define NanoloopSlave_h
 
-#include "Mode.h"
+#ifndef ArduinoboyModuleClass_h
+#define ArduinoboyModuleClass_h
 
-class NanoloopSlaveClass : public ModeClass {
+#include "GameboySerial.h"
+#include "MidiCallback.h"
+#include "MidiHandler.h"
+#include "LedInterface.h"
+
+class ArduinoboyModuleClass : public MidiCallbackClass {
   public:
-    NanoloopSlaveClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ModeClass(gameboy, midi, interface) {};
+    ArduinoboyModuleClass(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
+        : gameboy(gb), midi(midiHandler), interface(inter){};
 
-    void begin();
-    void update();
-    void onTransportClock();
-    void onTransportStart();
-    void onTransportContinue();
-    void onTransportStop();
+    void init(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
+    {
+        gameboy  = gb;
+        midi     = midiHandler;
+        interface= inter;
+    };
 
-  private:
-      bool sequencerStarted;
-      bool syncSwitch;
+    virtual void setChannels(){};
+
+  protected:
+      GameboySerialClass * gameboy;
+      MidiHandlerClass * midi;
+      LedInterfaceClass * interface;
+
 };
-
-typedef NanoloopSlaveClass ModeNanoloopSlave;
 
 #endif

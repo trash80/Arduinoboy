@@ -19,16 +19,16 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef LSDJKeyboard_h
 #define LSDJKeyboard_h
 
-#include "Mode.h"
+#include "ArduinoboyModule.h"
 
-class LSDJKeyboardClass : public ModeClass {
+class LSDJKeyboardClass : public ArduinoboyModuleClass {
   public:
     LSDJKeyboardClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ModeClass(gameboy, midi, interface) {};
+    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();

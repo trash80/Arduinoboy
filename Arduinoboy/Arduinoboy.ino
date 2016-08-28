@@ -19,19 +19,19 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
-#include "ModeController.h"
+
+#include "ArduinoboyController.h"
 #include "GameboySerial.h"
 #include "LedInterface.h"
 #include "MidiHandler.h"
 
-#include "LSDJSlave.h"
-#include "LSDJMaster.h"
-#include "LSDJMap.h"
-#include "NanoloopSlave.h"
-#include "LSDJKeyboard.h"
-#include "LSDJMidiout.h"
-#include "MidiGameboy.h"
+#include "modules/LSDJSlave.h"
+#include "modules/LSDJMaster.h"
+#include "modules/LSDJMap.h"
+#include "modules/NanoloopSlave.h"
+#include "modules/LSDJKeyboard.h"
+#include "modules/LSDJMidiout.h"
+#include "modules/MidiGameboy.h"
 
 
 const uint8_t ledPins[2] = {13,13};
@@ -40,7 +40,7 @@ LedInterface interface(ledPins, 2);
 GameboySerial gameboy1(16,17,18, &interface);
 GameboySerial gameboy2(19,20,21, &interface);
 
-ModeController controller(&interface);
+ArduinoboyController controller(&interface);
 
 MidiHandler midi(&Serial1, &controller);
 
