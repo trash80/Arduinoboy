@@ -1,12 +1,32 @@
+/*
+ * Arduinoboy
+ * http://trash80.com
+ * Copyright (c) 2016 Timothy Lamb
+ *
+ * This file is part of Arduinoboy.
+ *
+ * Arduinoboy is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * Arduinoboy is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ *
+ */
+
 #include "MidiHandler.h"
 
-void MidiHandlerClass::begin(bool usbBaud)
+//@TODO document this class
+
+void MidiHandlerClass::begin()
 {
-    if(usbBaud) {
-        serial->begin(38400);
-        return;
-    }
-    serial->begin(31250);
+    serial->begin(baudRate);
 }
 
 void MidiHandlerClass::onUsbRealTime(uint8_t message)
@@ -56,16 +76,18 @@ void MidiHandlerClass::update()
 
 
         if(relayMidi) {
+            uint8_t status = 0x80 + (usbMIDI.getType()<<4) + ((uint8_t)channel-1);
+
             if(usbMIDI.getType() == 4 || usbMIDI.getType() == 5) {
-                uint8_t m[2] = {((uint8_t) (channel-1)), (uint8_t) data1};
+                uint8_t m[2] = {status, (uint8_t) data1};
                 serial->write(m,2);
             } else if(usbMIDI.getType() == 6){
                 uint8_t d1 = (uint8_t) data1;
                 uint8_t d2 = (uint8_t) (data1>>7);
-                uint8_t m[3] = {((uint8_t) (channel-1)), d1, d2};
+                uint8_t m[3] = {status, d1, d2};
                 serial->write(m,3);
             } else {
-                uint8_t m[3] = {((uint8_t) (channel-1)), (uint8_t) data1, (uint8_t) data2};
+                uint8_t m[3] = {status, (uint8_t) data1, (uint8_t) data2};
                 serial->write(m,3);
             }
         }
@@ -117,22 +139,30 @@ void MidiHandlerClass::update()
             switch (data) {
                 case 0xF8:
                     // Transport Sync Message
-                    if(relayMidi) usbMIDI.sendRealTime(command);
+                    #ifdef MIDI_INTERFACE
+                    if(relayMidi) usbMIDI.sendRealTime(data);
+                    #endif
                     callback->onTransportClock();
                     break;
                 case 0xFA:
                     // Transport Start Message
-                    if(relayMidi) usbMIDI.sendRealTime(command);
+                    #ifdef MIDI_INTERFACE
+                    if(relayMidi) usbMIDI.sendRealTime(data);
+                    #endif
                     callback->onTransportStart();
                     break;
                 case 0xFB:
                     // Transport Continue Message
-                    if(relayMidi) usbMIDI.sendRealTime(command);
+                    #ifdef MIDI_INTERFACE
+                    if(relayMidi) usbMIDI.sendRealTime(data);
+                    #endif
                     callback->onTransportContinue();
                     break;
                 case 0xFC:
                     // Case: Transport Stop Message
-                    if(relayMidi) usbMIDI.sendRealTime(command);
+                    #ifdef MIDI_INTERFACE
+                    if(relayMidi) usbMIDI.sendRealTime(data);
+                    #endif
                     callback->onTransportStop();
                     break;
                 case 0xFD:
@@ -151,12 +181,16 @@ void MidiHandlerClass::update()
             data1 = data;
             callback->onData1();
 
-            if((command & 0x80) == 0xC0) {
+            if((command & 0xF0) == 0xC0) {
+                #ifdef MIDI_INTERFACE
                 if(relayMidi) usbMIDI.sendProgramChange(data1, channel);
+                #endif
                 callback->onProgramChange();
                 data1 = -1;
-            } else if((command & 0x80) == 0xD0) {
+            } else if((command & 0xF0) == 0xD0) {
+                #ifdef MIDI_INTERFACE
                 if(relayMidi) usbMIDI.sendAfterTouch(data1, channel);
+                #endif
                 callback->onAfterTouch();
                 data1 = -1;
             }
@@ -166,29 +200,39 @@ void MidiHandlerClass::update()
                 case 0x90:
                     // Note On
                     if(data2 != 0) {
+                        #ifdef MIDI_INTERFACE
                         if(relayMidi) usbMIDI.sendNoteOn(data1, data2, channel);
+                        #endif
                         callback->onNoteOn();
                         break;
                     }
                     // Fall though to Note Off
                 case 0x80:
                     // Note Off
+                    #ifdef MIDI_INTERFACE
                     if(relayMidi) usbMIDI.sendNoteOff(data1, data2, channel);
+                    #endif
                     callback->onNoteOff();
                     break;
                 case 0xA0:
                     // After Touch
+                    #ifdef MIDI_INTERFACE
                     if(relayMidi) usbMIDI.sendPolyPressure(data1, data2, channel);
+                    #endif
                     callback->onPolyPressure();
                     break;
                 case 0xB0:
                     // Control Change
+                    #ifdef MIDI_INTERFACE
                     if(relayMidi) usbMIDI.sendControlChange(data1, data2, channel);
+                    #endif
                     callback->onControlChange();
                     break;
                 case 0xE0:
                     // Pitch Wheel
+                    #ifdef MIDI_INTERFACE
                     if(relayMidi) usbMIDI.sendPitchBend(((unsigned short)data2<<7) | (unsigned short)data1, channel);
+                    #endif
                     callback->onPitchBend();
                     break;
             }
