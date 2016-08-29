@@ -99,7 +99,8 @@ void MidiDeviceSerialClass::sendNoteOn(uint8_t c, uint8_t number, uint8_t value)
 
     c--;
 
-    uint8_t d[3] = {c, number, value};
+    uint8_t cmd = (uint8_t)c|0x90;
+    uint8_t d[3] = {cmd, number, value};
     serial->write(d, 3);
 }
 
@@ -111,7 +112,8 @@ void MidiDeviceSerialClass::sendNoteOff(uint8_t c, uint8_t number, uint8_t value
 
     c--;
 
-    uint8_t d[3] = {c, number, value};
+    uint8_t cmd = (uint8_t)c|0x80;
+    uint8_t d[3] = {cmd, number, value};
     serial->write(d, 3);
 }
 
@@ -122,7 +124,8 @@ void MidiDeviceSerialClass::sendPolyPressure(uint8_t c, uint8_t number, uint8_t 
     data2 = value;
 
     c--;
-    uint8_t d[3] = {c, number, value};
+    uint8_t cmd = (uint8_t)c|0xA0;
+    uint8_t d[3] = {cmd, number, value};
     serial->write(d, 3);
 }
 
@@ -133,7 +136,8 @@ void MidiDeviceSerialClass::sendControlChange(uint8_t c, uint8_t number, uint8_t
     data2 = value;
 
     c--;
-    uint8_t d[3] = {c, number, value};
+    uint8_t cmd = (uint8_t)c|0xB0;
+    uint8_t d[3] = {cmd, number, value};
     serial->write(d, 3);
 }
 
@@ -143,7 +147,8 @@ void MidiDeviceSerialClass::sendProgramChange(uint8_t c, uint8_t value)
     data1 = value;
     data2 = 0;
     c--;
-    uint8_t d[2] = {c, value};
+    uint8_t cmd = (uint8_t)c|0xC0;
+    uint8_t d[2] = {cmd, value};
     serial->write(d, 2);
 }
 
@@ -153,7 +158,8 @@ void MidiDeviceSerialClass::sendAfterTouch(uint8_t c, uint8_t value)
     data1 = value;
     data2 = 0;
     c--;
-    uint8_t d[2] = {c, value};
+    uint8_t cmd = (uint8_t)c|0xD0;
+    uint8_t d[2] = {cmd, value};
     serial->write(d, 2);
 }
 
@@ -163,7 +169,8 @@ void MidiDeviceSerialClass::sendPitchBend(uint8_t c, uint8_t value1, uint8_t val
     data1 = value1;
     data2 = value2;
     c--;
-    uint8_t d[3] = {c, value1, value2};
+    uint8_t cmd = (uint8_t)c|0xE0;
+    uint8_t d[3] = {cmd, value1, value2};
     serial->write(d, 3);
 }
 
