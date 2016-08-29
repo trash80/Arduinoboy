@@ -47,10 +47,10 @@ void MidiDeviceSerialClass::update()
             data1 = data;
             callback->onData1(this);
 
-            if((command & 0x80) == 0xC0) {
+            if((command & 0xF0) == 0xC0) {
                 callback->onProgramChange(this);
                 data1 = -1;
-            } else if((command & 0x80) == 0xD0) {
+            } else if((command & 0xF0) == 0xD0) {
                 callback->onAfterTouch(this);
                 data1 = -1;
             }
