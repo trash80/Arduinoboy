@@ -33,7 +33,7 @@ void LSDJMapClass::begin()
 
 void LSDJMapClass::update()
 {
-    midi->update();
+
 
     if(queueMessage >= 0 && millis() > queueTime) {
         if(queueMessage == 0xFF) {
@@ -47,21 +47,21 @@ void LSDJMapClass::update()
     }
 }
 
-void LSDJMapClass::onCommand()
+void LSDJMapClass::onCommand(MidiCallbackClass * midi)
 {
     if(midi->getChannel() == channel1 || midi->getChannel() == channel2) {
         if(queueMessage == 0xFF) clearQueue();
     }
 }
 
-void LSDJMapClass::onData1()
+void LSDJMapClass::onData1(MidiCallbackClass * midi)
 {
     if(midi->getChannel() == channel1 || midi->getChannel() == channel2) {
         if(queueMessage == 0xFF) clearQueue();
     }
 }
 
-void LSDJMapClass::onNoteOn()
+void LSDJMapClass::onNoteOn(MidiCallbackClass * midi)
 {
     if(midi->getChannel() == channel1) {
         currentRow = midi->getData1();
@@ -72,10 +72,9 @@ void LSDJMapClass::onNoteOn()
         gameboy->sendByte(currentRow + 128);
         clearQueue();
     }
-    interface->blink(0, 100);
 }
 
-void LSDJMapClass::onNoteOff()
+void LSDJMapClass::onNoteOff(MidiCallbackClass * midi)
 {
     uint8_t row = midi->getData1();
     if(midi->getChannel() == channel1
@@ -96,13 +95,11 @@ void LSDJMapClass::onTransportClock()
     if(queueMessage == -1) {
         setQueueMessage(0xFF);
     }
-    if(sequencerStarted) interface->blinkEvery(48);
 }
 
 void LSDJMapClass::onTransportStart()
 {
     sequencerStarted = true;
-    interface->reset();
 }
 
 void LSDJMapClass::onTransportContinue()

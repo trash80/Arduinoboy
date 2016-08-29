@@ -19,16 +19,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef LSDJSlave_h
 #define LSDJSlave_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class LSDJSlaveClass : public ArduinoboyModuleClass {
+class LSDJSlaveClass : public ArduinoboyGameboyModuleClass {
   public:
-    LSDJSlaveClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();

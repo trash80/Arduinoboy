@@ -75,7 +75,7 @@ void SynthControllerClass::setChannels(uint8_t c1, int8_t c2, int8_t c3){
     channels[2] = c3;
 }
 
-void SynthControllerClass::onNoteOn()
+void SynthControllerClass::onNoteOn(MidiCallbackClass * midi)
 {
     uint8_t * m = &channels[2];
     uint8_t synth = 3;
@@ -100,7 +100,7 @@ void SynthControllerClass::onNoteOn()
     }
 }
 
-void SynthControllerClass::onNoteOff()
+void SynthControllerClass::onNoteOff(MidiCallbackClass * midi)
 {
     uint8_t * m = &channels[2];
     uint8_t synth = 3;
@@ -118,7 +118,7 @@ void SynthControllerClass::onNoteOff()
     }
 }
 
-void SynthControllerClass::onControlChange()
+void SynthControllerClass::onControlChange(MidiCallbackClass * midi)
 {
     uint8_t * m = &channels[2];
     uint8_t synth = 3;
@@ -183,7 +183,7 @@ void SynthControllerClass::onControlChange()
     }
 }
 
-void SynthControllerClass::onProgramChange()
+void SynthControllerClass::onProgramChange(MidiCallbackClass * midi)
 {
     uint8_t * m = &channels[2];
     uint8_t synth = 3;
@@ -195,12 +195,12 @@ void SynthControllerClass::onProgramChange()
     }
 }
 
-void SynthControllerClass::onAfterTouch()
+void SynthControllerClass::onAfterTouch(MidiCallbackClass * midi)
 {
 
 }
 
-void SynthControllerClass::onPitchBend()
+void SynthControllerClass::onPitchBend(MidiCallbackClass * midi)
 {
     uint8_t * m = &channels[2];
     uint8_t synth = 3;

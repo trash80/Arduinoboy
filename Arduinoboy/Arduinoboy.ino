@@ -22,8 +22,10 @@
 
 #include "ArduinoboyController.h"
 #include "GameboySerial.h"
+#include "MidiDeviceSerial.h"
+#include "MidiDeviceUsb.h"
+
 #include "LedInterface.h"
-#include "MidiHandler.h"
 
 #include "LSDJSlave.h"
 #include "LSDJMaster.h"
@@ -36,46 +38,74 @@
 
 
 const uint8_t ledPins[2] = {13,13};
-LedInterface interface(ledPins, 2);
+const uint8_t numLeds = 2;
 
-GameboySerial gameboy(16,17,18, &interface);
+LedInterface Interface(ledPins, numLeds);
 
-ArduinoboyController controller(&interface);
+GameboySerial Gameboy(16,17,18);
 
-MidiHandler midi(&Serial1, &controller);
+ArduinoboyController Controller;
 
-SynthController YmSynth(&gameboy, &midi, &interface);
-ModeLSDJMap LSDJMap(&gameboy, &midi, &interface);
-ModeLSDJSlave LSDJSlave(&gameboy, &midi, &interface);
-ModeLSDJMaster LSDJMaster(&gameboy, &midi, &interface);
-ModeNanoloopSlave NanoloopSlave(&gameboy, &midi, &interface);
-ModeLSDJKeyboard LSDJKeyboard(&gameboy, &midi, &interface);
-ModeLSDJMidiout LSDJMidiout(&gameboy, &midi, &interface);
-ModeMidiGameboy MidiGameboy(&gameboy, &midi, &interface);
+MidiDeviceSerial Midi(&Serial1);
+MidiDeviceUsb MidiUsb;
+
+SynthController YmSynth;
+ModeLSDJMap LSDJMap;
+ModeLSDJSlave LSDJSlave;
+ModeLSDJMaster LSDJMaster;
+ModeNanoloopSlave NanoloopSlave;
+ModeLSDJKeyboard LSDJKeyboard;
+ModeLSDJMidiout LSDJMidiout;
+ModeMidiGameboy MidiGameboy;
+
+IntervalTimer samplerTimer;
+IntervalTimer eventTimer;
+
+const float sampleRate = 22050;
+const float softSynthTimer = 1000000L/sampleRate;
+
+void updateSoftSynth()
+{
+    YmSynth.updateSoftSynths();
+}
+
+void updateEvents()
+{
+    YmSynth.updateEvents();
+}
 
 void setup()
 {
-    midi.enableUsbMidi();
-    midi.enableMidiRelay();
-    midi.begin();
+    LSDJKeyboard.setGameboy(&Gameboy);
+    LSDJMaster.setGameboy(&Gameboy);
+    LSDJSlave.setGameboy(&Gameboy);
+    LSDJMap.setGameboy(&Gameboy);
+    NanoloopSlave.setGameboy(&Gameboy);
+    LSDJMidiout.setGameboy(&Gameboy);
+    MidiGameboy.setGameboy(&Gameboy);
 
-    YmSynth.setChannels(3,4,5);
+    LSDJKeyboard.setChannels(1);
     LSDJMap.setChannels(1,2);
     MidiGameboy.setChannels(1,2,3,4,5);
     LSDJMidiout.setChannels(1,2,3,4);
-    LSDJKeyboard.setChannels(1);
 
-    controller.attachMode(0, &LSDJMap);
-    controller.attachMode(0, &YmSynth);
+    YmSynth.setChannels(3,4,5);
 
-    controller.attachMode(1, &LSDJSlave);
-    controller.attachMode(2, &NanoloopSlave);
+    Controller.attachMode(0, &Midi);
+    Controller.attachMode(0, &MidiUsb);
+    Controller.attachMode(0, &YmSynth);
+    Controller.attachMode(0, &LSDJMap);
+    Controller.attachMode(0, &Interface);
 
-    controller.begin();
-    controller.setMode(0);
+    samplerTimer.begin(updateSoftSynth, softSynthTimer);
+    samplerTimer.priority(0);
+    eventTimer.begin(updateEvents, 1000);
+    eventTimer.priority(1);
+
+    Controller.begin();
 }
 
 void loop()
 {
-    controller.update();
+    Controller.update();
 }

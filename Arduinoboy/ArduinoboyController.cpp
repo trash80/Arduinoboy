@@ -29,99 +29,102 @@ void ArduinoboyControllerClass::begin()
 
 void ArduinoboyControllerClass::update()
 {
-    int i = currentModule->numberHandlers;
+    int i = currentMode->numberHandlers;
     while(i--) {
-        currentModule->module[i]->update();
+        currentUpdateId = i;
+        currentMode->module[i]->update();
     }
-    interface->update();
 }
 
 void ArduinoboyControllerClass::attachMode(uint8_t moduleNumber, ArduinoboyModuleClass * module)
 {
-    modules[moduleNumber].module[modules[moduleNumber].numberHandlers] = module;
-    modules[moduleNumber].numberHandlers++;
+    modes[moduleNumber].module[modes[moduleNumber].numberHandlers] = module;
+    modes[moduleNumber].numberHandlers++;
 }
 
 void ArduinoboyControllerClass::setMode(uint8_t moduleNumber) {
-    currentModule = &modules[moduleNumber];
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->begin();
+    currentMode = &modes[moduleNumber];
+    int i = currentMode->numberHandlers;
+    while(i--) {
+        currentMode->module[i]->setCallback(this);
+        currentMode->module[i]->begin();
+    }
 }
 
-void ArduinoboyControllerClass::onCommand()
+void ArduinoboyControllerClass::onCommand(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onCommand();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onData1(midi);
 }
 
-void ArduinoboyControllerClass::onData1()
+void ArduinoboyControllerClass::onData1(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onData1();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onData1(midi);
 }
 
-void ArduinoboyControllerClass::onNoteOn()
+void ArduinoboyControllerClass::onNoteOn(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onNoteOn();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onNoteOn(midi);
 }
 
-void ArduinoboyControllerClass::onNoteOff()
+void ArduinoboyControllerClass::onNoteOff(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onNoteOff();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onNoteOff(midi);
 }
 
-void ArduinoboyControllerClass::onPolyPressure()
+void ArduinoboyControllerClass::onPolyPressure(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onPolyPressure();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onPolyPressure(midi);
 }
 
-void ArduinoboyControllerClass::onControlChange()
+void ArduinoboyControllerClass::onControlChange(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onControlChange();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onControlChange(midi);
 }
 
-void ArduinoboyControllerClass::onProgramChange()
+void ArduinoboyControllerClass::onProgramChange(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onProgramChange();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onProgramChange(midi);
 }
 
-void ArduinoboyControllerClass::onAfterTouch()
+void ArduinoboyControllerClass::onAfterTouch(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onAfterTouch();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onAfterTouch(midi);
 }
 
-void ArduinoboyControllerClass::onPitchBend()
+void ArduinoboyControllerClass::onPitchBend(MidiCallbackClass * midi)
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onPitchBend();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onPitchBend(midi);
 }
 
 void ArduinoboyControllerClass::onTransportClock()
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onTransportClock();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onTransportClock();
 }
 
 void ArduinoboyControllerClass::onTransportStart()
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onTransportStart();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onTransportStart();
 }
 
 void ArduinoboyControllerClass::onTransportContinue()
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onTransportContinue();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onTransportContinue();
 }
 
 void ArduinoboyControllerClass::onTransportStop()
 {
-    int i = currentModule->numberHandlers;
-    while(i--) currentModule->module[i]->onTransportStop();
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->onTransportStop();
 }

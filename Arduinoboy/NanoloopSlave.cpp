@@ -19,7 +19,7 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #include "NanoloopSlave.h"
 
 void NanoloopSlaveClass::begin()
@@ -30,7 +30,7 @@ void NanoloopSlaveClass::begin()
 
 void NanoloopSlaveClass::update()
 {
-    midi->update();
+
 }
 
 void NanoloopSlaveClass::onTransportClock()
@@ -44,7 +44,6 @@ void NanoloopSlaveClass::onTransportClock()
             gameboy->sendBit(0);
         }
         syncSwitch = !syncSwitch;
-        interface->blinkEvery(24);
     }
 }
 
@@ -52,14 +51,12 @@ void NanoloopSlaveClass::onTransportStart()
 {
     sequencerStarted = true;
     syncSwitch = false;
-    interface->reset();
 }
 
 void NanoloopSlaveClass::onTransportContinue()
 {
     sequencerStarted = true;
     syncSwitch = false;
-    interface->reset();
 }
 
 void NanoloopSlaveClass::onTransportStop()

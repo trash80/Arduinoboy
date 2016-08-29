@@ -29,57 +29,55 @@ void MidiGameboyClass::begin()
 
 void MidiGameboyClass::update()
 {
-    midi->update();
+
 }
 
-void MidiGameboyClass::onNoteOn()
+void MidiGameboyClass::onNoteOn(MidiCallbackClass * midi)
 {
     int ch = 0;
-    if((ch = getChennel()) == -1) return;
+    if((ch = getChennel(midi->getChannel())) == -1) return;
     gameboy->sendByte(0x90 + ((uint8_t) ch));
     gameboy->sendByte(midi->getData1());
     gameboy->sendByte(midi->getData2());
-    interface->blink();
 }
 
-void MidiGameboyClass::onNoteOff()
+void MidiGameboyClass::onNoteOff(MidiCallbackClass * midi)
 {
     int ch = 0;
-    if((ch = getChennel()) == -1) return;
+    if((ch = getChennel(midi->getChannel())) == -1) return;
     gameboy->sendByte(0x80 + ((uint8_t) ch));
     gameboy->sendByte(midi->getData1());
     gameboy->sendByte(midi->getData2());
 }
 
-void MidiGameboyClass::onControlChange()
+void MidiGameboyClass::onControlChange(MidiCallbackClass * midi)
 {
     int ch = 0;
-    if((ch = getChennel()) == -1) return;
+    if((ch = getChennel(midi->getChannel())) == -1) return;
     gameboy->sendByte(0xB0 + ((uint8_t) ch));
     gameboy->sendByte(midi->getData1());
     gameboy->sendByte(midi->getData2());
 }
 
-void MidiGameboyClass::onProgramChange()
+void MidiGameboyClass::onProgramChange(MidiCallbackClass * midi)
 {
     int ch = 0;
-    if((ch = getChennel()) == -1) return;
+    if((ch = getChennel(midi->getChannel())) == -1) return;
     gameboy->sendByte(0xC0 + ((uint8_t) ch));
     gameboy->sendByte(midi->getData1());
 }
 
-void MidiGameboyClass::onPitchBend()
+void MidiGameboyClass::onPitchBend(MidiCallbackClass * midi)
 {
     int ch = 0;
-    if((ch = getChennel()) == -1) return;
+    if((ch = getChennel(midi->getChannel())) == -1) return;
     gameboy->sendByte(0xE0 + ((uint8_t) ch));
     gameboy->sendByte(((uint8_t)midi->getData1()));
     gameboy->sendByte(((uint8_t)midi->getData2()));
 }
 
-int MidiGameboyClass::getChennel()
+int MidiGameboyClass::getChennel(uint8_t ch)
 {
-    uint8_t ch = midi->getChannel();
     for(int i=0;i<6;i++) {
         if(ch == channel[i]) {
             return i;

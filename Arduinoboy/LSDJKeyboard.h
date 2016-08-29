@@ -23,19 +23,17 @@
 #ifndef LSDJKeyboard_h
 #define LSDJKeyboard_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class LSDJKeyboardClass : public ArduinoboyModuleClass {
+class LSDJKeyboardClass : public ArduinoboyGameboyModuleClass {
   public:
-    LSDJKeyboardClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void begin();
     void update();
     void setChannels(uint8_t ch) { channel = ch; };
-    void onNoteOn();
-    void onNoteOff();
-    void onProgramChange();
+    void onNoteOn(MidiCallbackClass * midi);
+    void onNoteOff(MidiCallbackClass * midi);
+    void onProgramChange(MidiCallbackClass * midi);
 
   private:
       uint8_t channel;

@@ -30,24 +30,20 @@ void LSDJMasterClass::begin()
 
 void LSDJMasterClass::update()
 {
-    midi->update();
+
     if(sequencerStarted && !gameboy->readClock()) {
-        midi->sendTransportClock();
-        interface->blinkEvery(24);
+        callback->sendTransportClock();
         wait = millis() + 100;
         delay(1);
     } else if (sequencerStarted && gameboy->readClock() && wait < millis()) {
-        midi->sendTransportStop();
-        interface->reset();
+        callback->sendTransportStop();
         sequencerStarted = false;
     } else if (!sequencerStarted) {
         int data = gameboy->receiveByte();
 
         if (data >= 0) {
-            midi->sendTransportClock();
-            midi->sendTransportStart();
-            interface->reset();
-            interface->blinkEvery(24);
+            callback->sendTransportClock();
+            callback->sendTransportStart();
             sequencerStarted = true;
             wait = millis() + 100;
         }

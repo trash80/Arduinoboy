@@ -35,22 +35,22 @@ void LSDJKeyboardClass::begin()
 
 void LSDJKeyboardClass::update()
 {
-    midi->update();
+
 }
 
-void LSDJKeyboardClass::onNoteOn()
+void LSDJKeyboardClass::onNoteOn(MidiCallbackClass * midi)
 {
     if(midi->getChannel() == channel) {
         noteAction(midi->getData1());
     }
 }
 
-void LSDJKeyboardClass::onNoteOff()
+void LSDJKeyboardClass::onNoteOff(MidiCallbackClass * midi)
 {
     return;
 }
 
-void LSDJKeyboardClass::onProgramChange()
+void LSDJKeyboardClass::onProgramChange(MidiCallbackClass * midi)
 {
     if(midi->getChannel() == channel) {
         changeInstrument(midi->getData1());
@@ -70,7 +70,6 @@ void LSDJKeyboardClass::noteAction(uint8_t note)
         } else {
             note = (note % 12);
         }
-        interface->blink();
         gameboy->sendKeyboardByte(keyboardNoteMap[note]);
 
     } else if (note >= startOctave) {

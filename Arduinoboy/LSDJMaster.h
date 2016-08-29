@@ -19,17 +19,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef LSDJMaster_h
 #define LSDJMaster_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class LSDJMasterClass : public ArduinoboyModuleClass {
+class LSDJMasterClass : public ArduinoboyGameboyModuleClass {
   public:
-    LSDJMasterClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
-
     void begin();
     void update();
 

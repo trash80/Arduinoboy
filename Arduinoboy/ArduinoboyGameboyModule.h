@@ -20,31 +20,18 @@
  *
  */
 
-#ifndef GameboySerial_h
-#define GameboySerial_h
+#ifndef ArduinoboyGameboyModuleClass_h
+#define ArduinoboyGameboyModuleClass_h
 
-#include "Arduino.h"
+#include "GameboySerial.h"
+#include "ArduinoboyModule.h"
 
-class GameboySerialClass {
+class ArduinoboyGameboyModuleClass : public ArduinoboyModuleClass {
   public:
-    GameboySerialClass(uint8_t clockPin, uint8_t dataOutputPin, uint8_t dataInputPin) :
-        pinClock(clockPin), pinDataOut(dataOutputPin), pinDataIn(dataInputPin) {};
-    void setOutputMode();
-    void setInputMode();
-    void sendByte(uint8_t data);
-    void sendBit(uint8_t data);
-    void sendKeyboardByte(uint8_t data);
-    int receiveByte();
-    int receiveByteClocked();
-    uint8_t readClock();
-    uint8_t readData();
-  private:
-    const uint8_t pinClock;
-    const uint8_t pinDataOut;
-    const uint8_t pinDataIn;
-    bool active;
-};
+    void setGameboy(GameboySerial * gb) { gameboy = gb; };
+  protected:
+    GameboySerial * gameboy;
 
-typedef GameboySerialClass GameboySerial;
+};
 
 #endif

@@ -31,22 +31,22 @@ void LSDJMidioutClass::begin()
 
 void LSDJMidioutClass::update()
 {
-    midi->update();
+
     int data = gameboy->receiveByteClocked();
     if(data > 0x6f) {
         switch(data){
             case 0x7F:
                 //clock tick
-                midi->sendTransportClock();
+                callback->sendTransportClock();
             break;
             case 0x7E:
                 //stop
                 allNotesOff();
-                midi->sendTransportStop();
+                callback->sendTransportStop();
             break;
             case 0x7D:
                 //start
-                midi->sendTransportStart();
+                callback->sendTransportStart();
             break;
             default:
                 command = data - 0x70;
@@ -73,12 +73,12 @@ void LSDJMidioutClass::noteMessage(uint8_t chan, uint8_t data)
 {
     if(data) {
         if(lastNote[chan] >= 0) {
-            midi->sendNoteOff(channel[chan], lastNote[chan], 0x40);
+            callback->sendNoteOff(channel[chan], lastNote[chan], 0x40);
         }
-        midi->sendNoteOn(channel[chan], data, 0x7F);
+        callback->sendNoteOn(channel[chan], data, 0x7F);
         lastNote[chan] = data;
     } else if (lastNote[chan]>=0) {
-        midi->sendNoteOff(channel[chan], lastNote[chan], 0x40);
+        callback->sendNoteOff(channel[chan], lastNote[chan], 0x40);
         lastNote[chan] = -1;
     }
 }
@@ -87,10 +87,10 @@ void LSDJMidioutClass::allNotesOff()
 {
     for(uint8_t chan = 0; chan < 4; chan++) {
         if(lastNote[chan] >= 0) {
-            midi->sendNoteOff(channel[chan], lastNote[chan], 0x40);
+            callback->sendNoteOff(channel[chan], lastNote[chan], 0x40);
             lastNote[chan] = -1;
         }
-        midi->sendControlChange(channel[chan], 123, 0);
+        callback->sendControlChange(channel[chan], 123, 0);
     }
 }
 
@@ -103,16 +103,16 @@ void LSDJMidioutClass::controlChangeMessage(uint8_t chan, uint8_t data)
             value = (value & 0x0F)*8;
         }
         data = (data>>4) & 0x07;
-        midi->sendControlChange(channel[chan], cc[chan][data], value);
+        callback->sendControlChange(channel[chan], cc[chan][data], value);
     } else {
         if(ccScaling[chan]) {
             value = (uint8_t) ((((float)data) / 0x6f) * 0x7f);
         }
-        midi->sendControlChange(channel[chan], cc[chan][0], value);
+        callback->sendControlChange(channel[chan], cc[chan][0], value);
     }
 }
 
 void LSDJMidioutClass::programChangeMessage(uint8_t chan, uint8_t data)
 {
-    midi->sendProgramChange(channel[chan], data);
+    callback->sendProgramChange(channel[chan], data);
 }

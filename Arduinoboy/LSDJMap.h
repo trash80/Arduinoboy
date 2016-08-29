@@ -19,17 +19,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef ModeLSDJMap_h
 #define ModeLSDJMap_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class LSDJMapClass : public ArduinoboyModuleClass {
+class LSDJMapClass : public ArduinoboyGameboyModuleClass {
   public:
-    LSDJMapClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
-
     void setChannels(uint8_t c1, uint8_t c2) {
         channel1 = c1;
         channel2 = c2;
@@ -37,10 +34,10 @@ class LSDJMapClass : public ArduinoboyModuleClass {
 
     void begin();
     void update();
-    void onCommand();
-    void onData1();
-    void onNoteOn();
-    void onNoteOff();
+    void onCommand(MidiCallbackClass * midi);
+    void onData1(MidiCallbackClass * midi);
+    void onNoteOn(MidiCallbackClass * midi);
+    void onNoteOff(MidiCallbackClass * midi);
     void onTransportClock();
     void onTransportStart();
     void onTransportContinue();

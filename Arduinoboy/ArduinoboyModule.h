@@ -23,29 +23,13 @@
 #ifndef ArduinoboyModuleClass_h
 #define ArduinoboyModuleClass_h
 
-#include "GameboySerial.h"
 #include "MidiCallback.h"
-#include "MidiHandler.h"
-#include "LedInterface.h"
 
 class ArduinoboyModuleClass : public MidiCallbackClass {
   public:
-    ArduinoboyModuleClass(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
-        : gameboy(gb), midi(midiHandler), interface(inter){};
-
-    void init(GameboySerialClass * gb, MidiHandlerClass * midiHandler, LedInterfaceClass * inter)
-    {
-        gameboy  = gb;
-        midi     = midiHandler;
-        interface= inter;
-    };
-
-    virtual void setChannels(){};
-
+    void setCallback(MidiCallback * m) { callback = m; };
   protected:
-      GameboySerialClass * gameboy;
-      MidiHandlerClass * midi;
-      LedInterfaceClass * interface;
+    MidiCallback * callback;
 
 };
 

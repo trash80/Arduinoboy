@@ -19,17 +19,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef NanoloopSlave_h
 #define NanoloopSlave_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class NanoloopSlaveClass : public ArduinoboyModuleClass {
+class NanoloopSlaveClass : public ArduinoboyGameboyModuleClass {
   public:
-    NanoloopSlaveClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
-
     void begin();
     void update();
     void onTransportClock();

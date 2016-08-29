@@ -19,15 +19,16 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef LedInterface_h
 #define LedInterface_h
 
 #include "Arduino.h"
+#include "ArduinoboyModule.h"
 
 #define MAX_LEDS 8
 
-class LedInterfaceClass {
+class LedInterfaceClass : public ArduinoboyModuleClass {
   public:
     LedInterfaceClass(const uint8_t ledPins[], uint8_t numLeds) : pins(ledPins), numberLeds(numLeds) {
         for(int i=0;i<numberLeds;i++) {
@@ -35,9 +36,17 @@ class LedInterfaceClass {
         }
     };
 
-    void begin();
+    void begin(){};
     void update();
     void reset();
+
+    void onNoteOn(MidiCallbackClass * midi);
+    void onControlChange(MidiCallbackClass * midi);
+    void onTransportClock();
+    void onTransportStart();
+    void onTransportStop();
+    void onTransportContinue();
+
     void blink(uint8_t pin, uint16_t milli);
     void blink(uint16_t milli) {
         blink(0,milli);

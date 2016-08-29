@@ -19,16 +19,14 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef MidiGameboy_h
 #define MidiGameboy_h
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class MidiGameboyClass : public ArduinoboyModuleClass {
+class MidiGameboyClass : public ArduinoboyGameboyModuleClass {
   public:
-    MidiGameboyClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
 
     void setChannels(uint8_t c1, uint8_t c2, uint8_t c3, uint8_t c4, uint8_t c5) {
         channel[0] = c1;
@@ -40,15 +38,15 @@ class MidiGameboyClass : public ArduinoboyModuleClass {
 
     void begin();
     void update();
-    void onNoteOn();
-    void onNoteOff();
-    void onControlChange();
-    void onProgramChange();
-    void onPitchBend();
+    void onNoteOn(MidiCallbackClass * midi);
+    void onNoteOff(MidiCallbackClass * midi);
+    void onControlChange(MidiCallbackClass * midi);
+    void onProgramChange(MidiCallbackClass * midi);
+    void onPitchBend(MidiCallbackClass * midi);
 
   private:
     uint8_t channel[5];
-    int getChennel();
+    int getChennel(uint8_t ch);
 };
 
 typedef MidiGameboyClass ModeMidiGameboy;

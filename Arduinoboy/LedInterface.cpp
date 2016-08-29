@@ -20,14 +20,7 @@
  *
  */
 
- #include "LedInterface.h"
-/*
-void LedInterfaceClass::LedInterfaceClass()
-{
-    for(int i=0;i<numberLeds;i++) {
-        pinMode(pins[i],OUTPUT);
-    }
-}*/
+#include "LedInterface.h"
 
 void LedInterfaceClass::update()
 {
@@ -48,6 +41,36 @@ void LedInterfaceClass::reset()
     }
 
     blinkEveryCountCurrent = 0;
+}
+
+void LedInterfaceClass::onNoteOn(MidiCallbackClass * midi)
+{
+    blink(0,50);
+}
+
+void LedInterfaceClass::onControlChange(MidiCallbackClass * midi)
+{
+    blink(0,50);
+}
+
+void LedInterfaceClass::onTransportClock()
+{
+    blinkEvery(0,24,10);
+}
+
+void LedInterfaceClass::onTransportStart()
+{
+    blink(0,50);
+}
+
+void LedInterfaceClass::onTransportStop()
+{
+    reset();
+}
+
+void LedInterfaceClass::onTransportContinue()
+{
+    reset();
 }
 
 void LedInterfaceClass::blink(uint8_t pin, uint16_t milli)

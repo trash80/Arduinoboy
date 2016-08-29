@@ -19,19 +19,16 @@
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  *
  */
- 
+
 #ifndef LSDJMidiout_h
 #define LSDJMidiout_h
 
 #define NUM_MIDIOUT 4
 
-#include "ArduinoboyModule.h"
+#include "ArduinoboyGameboyModule.h"
 
-class LSDJMidioutClass : public ArduinoboyModuleClass {
+class LSDJMidioutClass : public ArduinoboyGameboyModuleClass {
   public:
-    LSDJMidioutClass(GameboySerialClass * gameboy, MidiHandlerClass * midi, LedInterfaceClass * interface)
-    : ArduinoboyModuleClass(gameboy, midi, interface) {};
-
     void begin();
     void update();
 
