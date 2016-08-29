@@ -1,3 +1,5 @@
+#include <Arduino.h>
+#line 1 "/Users/trash80/Programming/Projects/Trash80/Arduinoboy/Arduinoboy/Arduinoboy.ino"
 /*
  * Arduinoboy
  * http://trash80.com
@@ -56,6 +58,10 @@ ModeLSDJKeyboard LSDJKeyboard;
 ModeLSDJMidiout LSDJMidiout;
 ModeMidiGameboy MidiGameboy;
 
+void setup();
+
+void loop();
+#line 59 "/Users/trash80/Programming/Projects/Trash80/Arduinoboy/Arduinoboy/Arduinoboy.ino"
 void setup()
 {
     LSDJKeyboard.setGameboy(&Gameboy);
