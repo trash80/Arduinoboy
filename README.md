@@ -1,3 +1,6 @@
+# Dual-Mode Keyboard
+In order to use the PS2 functionality, you must install a separate library. Download [this](https://github.com/PaulStoffregen/PS2Keyboard/archive/master.zip) library and put it wherever your libraries are stored (usually in your documents folder).
+
 # Arduinoboy
 Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gameboy.
 
