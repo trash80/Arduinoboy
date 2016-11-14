@@ -31,7 +31,7 @@
  *     - Serial Data from gameboy on analog in pin 2                       *
  *                                                                         *
  *   Teensy pin settings:                                                  *
- *     - 7 LEDS on pins 23,22,21,20,4,3,13                                 *
+ *     - 6 LEDS on pins 23,22,21,20,4,13                                   *
  *     - Push button on pin 2 (for selecting mode)                         *
  *     - MIDI Opto-isolator power connected to +3v                         *
  *     - Gameboy Clock line on pin 17                                      *
