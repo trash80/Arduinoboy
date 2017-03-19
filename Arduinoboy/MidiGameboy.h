@@ -35,6 +35,12 @@ class MidiGameboyClass : public ArduinoboyGameboyModuleClass {
         channel[3] = c4;
         channel[4] = c5;
     };
+    
+    void setOptions(const uint8_t *opts) {
+        for(uint8_t i=0;i<5;i++) {
+            channel[i] = *(opts++);
+        }
+    };
 
     void begin();
     void update();

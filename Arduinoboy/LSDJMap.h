@@ -31,6 +31,10 @@ class LSDJMapClass : public ArduinoboyGameboyModuleClass {
         channel1 = c1;
         channel2 = c2;
     };
+    void setOptions(const uint8_t *opts) {
+        channel1 = *(opts++);
+        channel2 = *(opts);
+    };
 
     void begin();
     void update();

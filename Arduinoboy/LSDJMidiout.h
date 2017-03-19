@@ -24,6 +24,7 @@
 #define LSDJMidiout_h
 
 #define NUM_MIDIOUT 4
+#define NUM_MIDIOUT_CC 7
 
 #include "ArduinoboyGameboyModule.h"
 
@@ -39,13 +40,33 @@ class LSDJMidioutClass : public ArduinoboyGameboyModuleClass {
         channel[3] = c4;
     }
 
+    void setOptions(const uint8_t *opts) {
+        for(uint8_t i=0;i<NUM_MIDIOUT;i++) {
+            channel[i] = *(opts++);
+        }
+
+        for(uint8_t i=0;i<NUM_MIDIOUT;i++) {
+            for(uint8_t c=0;c<NUM_MIDIOUT_CC;c++) {
+                cc[i][c] = *(opts++);
+            }
+        }
+
+        for(uint8_t i=0;i<NUM_MIDIOUT;i++) {
+            ccMode[i] = *(opts++);
+        }
+
+        for(uint8_t i=0;i<NUM_MIDIOUT;i++) {
+            ccScaling[i] = *(opts++);
+        }
+    };
+
     void allNotesOff();
 
   private:
     bool sequencerStarted;
     int lastNote[NUM_MIDIOUT];
-    int channel[NUM_MIDIOUT];
-    int cc[NUM_MIDIOUT][7];
+    uint8_t channel[NUM_MIDIOUT];
+    uint8_t cc[NUM_MIDIOUT][NUM_MIDIOUT_CC];
     bool ccMode[NUM_MIDIOUT];
     bool ccScaling[NUM_MIDIOUT];
     int command;

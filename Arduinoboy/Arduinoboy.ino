@@ -66,10 +66,11 @@ void setup()
     LSDJMidiout.setGameboy(&Gameboy);
     MidiGameboy.setGameboy(&Gameboy);
 
-    LSDJKeyboard.setChannels(1);
-    LSDJMap.setChannels(1,2);
-    MidiGameboy.setChannels(1,2,3,4,5);
-    LSDJMidiout.setChannels(1,2,3,4);
+    LSDJKeyboard.setOptions((const uint8_t[]){1});
+    LSDJMap.setOptions((const uint8_t[]){1, 2});
+    MidiGameboy.setOptions((const uint8_t[]){1, 2, 3, 4, 5});
+    LSDJMidiout.setOptions((const uint8_t[]){1, 2, 3, 4, 1,2,3,4,5,6,7, 1,2,3,4,5,6,7, 1,2,3,4,5,6,7, 1,2,3,4,5,6,7, 0,0,0,0,1,1,1,1});
+
 
     Controller.attachMode(0, &Midi);
     Controller.attachMode(0, &MidiUsb);

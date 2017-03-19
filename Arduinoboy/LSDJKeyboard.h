@@ -31,6 +31,9 @@ class LSDJKeyboardClass : public ArduinoboyGameboyModuleClass {
     void begin();
     void update();
     void setChannels(uint8_t ch) { channel = ch; };
+    void setOptions(const uint8_t *opts) {
+        channel = *(opts);
+    };
     void onNoteOn(MidiCallbackClass * midi);
     void onNoteOff(MidiCallbackClass * midi);
     void onProgramChange(MidiCallbackClass * midi);
