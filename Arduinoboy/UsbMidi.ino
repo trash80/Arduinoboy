@@ -5,6 +5,7 @@ void usbMidiSendThreeByteMessage(uint8_t b1, uint8_t b2, uint8_t b3) {};
 void usbMidiSendRTMessage(uint8_t b) {};
 void usbMidiHandleSysEx(const uint8_t *data, uint16_t length, bool complete) {};
 void usbMidiInit() {};
+void usbMidiUpdate() {};
 #else
 
 void usbMidiSendTwoByteMessage(uint8_t b1, uint8_t b2)
@@ -52,19 +53,34 @@ void usbMidiSendRTMessage(uint8_t b)
     usbMIDI.sendRealTime(b);
 }
 
+void usbMidiUpdate()
+{
+    usbMIDI.read();
+}
+
 void usbMidiHandleSysEx(const uint8_t *data, uint16_t length, bool complete)
 {
-    // @TODO this is broken, at least on OSX - Cannot receive any sysex message.
-    if(sysexPosition + length > longestSysexMessage) {
+    if(sysexPosition + length >= longestSysexMessage || (length < 3 && complete)) {
         //wrapped!
         sysexPosition = 0;
         return ;
     }
-    memcpy(&sysexData[sysexPosition],data,length);
-    sysexPosition += length;
+
+    if(sysexPosition == 0 && complete) {
+        memcpy(&sysexData[0], &data[1], length-2);
+        sysexPosition += length-2;
+    } else if (sysexPosition == 0 && !complete) {
+        memcpy(&sysexData[0], &data[1], length-1);
+        sysexPosition += length-1;
+    } else if (!complete) {
+        memcpy(&sysexData[sysexPosition], &data[0], length);
+        sysexPosition += length;
+    } else {
+        memcpy(&sysexData[sysexPosition], &data[0], length-1);
+        sysexPosition += length-1;
+    }
 
     if(complete) {
-        sysexPosition = 0;
         getSysexData();
     }
 }

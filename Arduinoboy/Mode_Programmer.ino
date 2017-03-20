@@ -5,6 +5,7 @@ void modeProgrammer()
     if (serial->available()) checkForProgrammerSysex(serial->read());
     updateProgrammerLeds();
     setMode();
+    usbMidiUpdate();
   }
   showSelectedMode();
   switchMode();
@@ -113,6 +114,7 @@ void clearSysexBuffer()
   for(int x=0;x!=sysexPosition;x++) {
     sysexData[x]= 0;
   }
+  sysexPosition = 0;
 }
 
 void setMode(byte mode)
@@ -146,6 +148,7 @@ void getSysexData()
 {
   if(sysexData[0] == 0x69 && checkSysexChecksum()) {
     //sysex good, do stuff
+    sysexPosition = 0;
     if(sysexProgrammingMode) {
       if(sysexData[1] == 64
       && sysexData[2] == defaultMemoryMap[MEM_VERSION_FIRST]
