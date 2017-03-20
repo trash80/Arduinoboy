@@ -50,14 +50,14 @@ class ArduinoboyControllerClass : public MidiCallbackClass {
     void onTransportStop();
     void onTransportContinue();
 
-    void sendRealTime(uint8_t message){};
-    void sendNoteOn(uint8_t channel, uint8_t note, uint8_t value){};
-    void sendNoteOff(uint8_t channel, uint8_t note, uint8_t value){};
-    void sendPolyPressure(uint8_t channel, uint8_t number, uint8_t value){};
-    void sendControlChange(uint8_t channel, uint8_t number, uint8_t value){};
-    void sendProgramChange(uint8_t channel, uint8_t patchNumber){};
-    void sendAfterTouch(uint8_t channel, uint8_t patchNumber){};
-    void sendPitchBend(uint8_t channel, uint16_t value){};
+    void sendRealTime(uint8_t message);
+    void sendNoteOn(uint8_t channel, uint8_t note, uint8_t value);
+    void sendNoteOff(uint8_t channel, uint8_t note, uint8_t value);
+    void sendPolyPressure(uint8_t channel, uint8_t number, uint8_t value);
+    void sendControlChange(uint8_t channel, uint8_t number, uint8_t value);
+    void sendProgramChange(uint8_t channel, uint8_t patchNumber);
+    void sendAfterTouch(uint8_t channel, uint8_t patchNumber);
+    void sendPitchBend(uint8_t channel, uint16_t value);
     void sendTransportClock() { sendRealTime(0xF8); };
     void sendTransportStart() { sendRealTime(0xFA); };
     void sendTransportContinue() { sendRealTime(0xFB); };

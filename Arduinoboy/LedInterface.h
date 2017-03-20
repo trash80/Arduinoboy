@@ -46,6 +46,9 @@ class LedInterfaceClass : public ArduinoboyModuleClass {
     void onTransportStart();
     void onTransportStop();
     void onTransportContinue();
+    void sendNoteOn(uint8_t channel, uint8_t note, uint8_t value);
+    void sendControlChange(uint8_t channel, uint8_t number, uint8_t value);
+
 
     void blink(uint8_t pin, uint16_t milli);
     void blink(uint16_t milli) {

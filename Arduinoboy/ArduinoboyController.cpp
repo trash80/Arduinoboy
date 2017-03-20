@@ -128,3 +128,51 @@ void ArduinoboyControllerClass::onTransportStop()
     int i = currentMode->numberHandlers;
     while(i--) if(i != currentUpdateId) currentMode->module[i]->onTransportStop();
 }
+
+void ArduinoboyControllerClass::sendRealTime(uint8_t message)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendRealTime(message);
+}
+
+void ArduinoboyControllerClass::sendNoteOn(uint8_t channel, uint8_t note, uint8_t value)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendNoteOn(channel, note, value);
+}
+
+void ArduinoboyControllerClass::sendNoteOff(uint8_t channel, uint8_t note, uint8_t value)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendNoteOff(channel, note, value);
+}
+
+void ArduinoboyControllerClass::sendPolyPressure(uint8_t channel, uint8_t number, uint8_t value)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendPolyPressure(channel, number, value);
+}
+
+void ArduinoboyControllerClass::sendControlChange(uint8_t channel, uint8_t number, uint8_t value)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendControlChange(channel, number, value);
+}
+
+void ArduinoboyControllerClass::sendProgramChange(uint8_t channel, uint8_t patchNumber)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendProgramChange(channel, patchNumber);
+}
+
+void ArduinoboyControllerClass::sendAfterTouch(uint8_t channel, uint8_t patchNumber)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendAfterTouch(channel, patchNumber);
+}
+
+void ArduinoboyControllerClass::sendPitchBend(uint8_t channel, uint16_t value)
+{
+    int i = currentMode->numberHandlers;
+    while(i--) if(i != currentUpdateId) currentMode->module[i]->sendPitchBend(channel, value);
+}

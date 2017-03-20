@@ -50,7 +50,7 @@ void LedInterfaceClass::onNoteOn(MidiCallbackClass * midi)
 
 void LedInterfaceClass::onControlChange(MidiCallbackClass * midi)
 {
-    blink(0,50);
+    blink(0,1);
 }
 
 void LedInterfaceClass::onTransportClock()
@@ -71,6 +71,16 @@ void LedInterfaceClass::onTransportStop()
 void LedInterfaceClass::onTransportContinue()
 {
     reset();
+}
+
+void LedInterfaceClass::sendNoteOn(uint8_t channel, uint8_t note, uint8_t value)
+{
+    blink(0,50);
+}
+
+void LedInterfaceClass::sendControlChange(uint8_t channel, uint8_t number, uint8_t value)
+{
+    blink(0,10);
 }
 
 void LedInterfaceClass::blink(uint8_t pin, uint16_t milli)
