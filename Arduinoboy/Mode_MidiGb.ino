@@ -129,16 +129,16 @@ void modeMidiGbUsbMidiReceive()
         if(ch == memory[MEM_MGB_CH]) {
             ch = 0;
             send = true;
-        } else if (midiStatusChannel == memory[MEM_MGB_CH+1]) {
+        } else if (ch == memory[MEM_MGB_CH+1]) {
             ch = 1;
             send = true;
-        } else if (midiStatusChannel == memory[MEM_MGB_CH+2]) {
+        } else if (ch == memory[MEM_MGB_CH+2]) {
             ch = 2;
             send = true;
-        } else if (midiStatusChannel == memory[MEM_MGB_CH+3]) {
+        } else if (ch == memory[MEM_MGB_CH+3]) {
             ch = 3;
             send = true;
-        } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
+        } else if (ch == memory[MEM_MGB_CH+4]) {
             ch = 4;
             send = true;
         }
