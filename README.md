@@ -101,13 +101,13 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
   * Affordable and easily accessible parts for assembly.
   * Accurate MIDI Sync, Start and Stop commands.
   * Push Button to select the sync/state mode (7 modes available)
-   # LSDJ as MIDI Slave Sync with sync effects and midi note transport control. Also Note value to LSDJ song position row offset on Song Start.
-   # LSDJ as MIDI Master Sync. Send Midi sync with LSDJ, LSDJ also sends a Midi Note on message that corresponds to the song row number
-   # LSDJ PC Keyboard mode. with the first octave controlling M-U-T-E, Cursor control (LSDJ Live mode only), Table selection and table cue.
-   # MIDI to Nanoloop sync
-   # Full MIDI with mGB (Details below)
-   # LSDJ LIVE MAP ... incoming MIDI notes cue LSDJ row numbers, requires custom LSDJ version on the LSDJ site.
-   # LSDJ MIDIOUT ... sends MIDI out from LSDJ, requires custom LSDJ version on the LSDJ site.
+   * LSDJ as MIDI Slave Sync with sync effects and midi note transport control. Also Note value to LSDJ song position row offset on Song Start.
+   * LSDJ as MIDI Master Sync. Send Midi sync with LSDJ, LSDJ also sends a Midi Note on message that corresponds to the song row number
+   * LSDJ PC Keyboard mode. with the first octave controlling M-U-T-E, Cursor control (LSDJ Live mode only), Table selection and table cue.
+   * MIDI to Nanoloop sync
+   * Full MIDI with mGB (Details below)
+   * LSDJ LIVE MAP ... incoming MIDI notes cue LSDJ row numbers, requires custom LSDJ version on the LSDJ site.
+   * LSDJ MIDIOUT ... sends MIDI out from LSDJ, requires custom LSDJ version on the LSDJ site.
   * Midi Out Doubles as a Midi Thru
   * "Filtering" data for only sync messages, no dedicated MIDI line required.
   * Tested and works with DMG (Original), Gameboy Color, and Advance/SP.
