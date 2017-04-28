@@ -7,7 +7,7 @@ Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gam
 Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and [mGB](https://github.com/trash80/mGB)
 
 
-## Current Features
+# Current Features
 * Affordable and easily accessible parts for assembly.
 * Accurate MIDI Sync, Start and Stop commands.
 * Push Button selector sets the sync/state modes [(7 modes available)](#modes-details)
@@ -20,7 +20,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 * Midi settings configurable using a Mac/PC editor built in Max.
 * Tested and works with DMG (Original), Gameboy Color, and Advance/SP.
 
-## Modes Details
+# Modes Details
 #### Mode 1 - LSDJ as MIDI Slave Sync
 Slave your Game Boy running [LittleSoundDJ](http://littlesounddj.com) to your midi sequencer or Digital audio workstation.  
 
@@ -114,7 +114,8 @@ In LSDJ the `sync` mode should be set to `Midiout`.
 
 
 ## Max Editor
-![Editor gui](editor/editor.png)
+![Editor gui](Editor/editor.png)
+
 [The Arduinoboy Editor for Max](https://github.com/trash80/Arduinoboy/tree/master/Editor) for PC/OSX machines is a gui editor that allows you to edit the various global midi settings of your arduinoboy without editing or flashing code, over midi. It used to required the now deprecated Max Runtime, but you can also run it using a demo of [Cycling '74's Max application](https://cycling74.com/downloads/)
 
 ### Maxpat Settings
