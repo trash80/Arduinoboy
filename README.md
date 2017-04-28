@@ -114,7 +114,7 @@ In LSDJ the `sync` mode should be set to `Midiout`.
 
 
 ## Max Editor
-![Editor gui](editor/editor.png)
+![Editor gui](Editor/editor.png)
 [The Arduinoboy Editor for Max](https://github.com/trash80/Arduinoboy/tree/master/Editor) for PC/OSX machines is a gui editor that allows you to edit the various global midi settings of your arduinoboy without editing or flashing code, over midi. It used to required the now deprecated Max Runtime, but you can also run it using a demo of [Cycling '74's Max application](https://cycling74.com/downloads/)
 
 ### Maxpat Settings
