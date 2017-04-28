@@ -7,7 +7,7 @@ Official ArduinoBoy Repository for serial MIDI communication to the Nintendo Gam
 Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) that allows serial communication (MIDI) to the Nintendo Gameboy for music applications such as [LittleSoundDJ](http://littlesounddj.com), [Nanoloop.](http://www.nanoloop.com/), and [mGB](https://github.com/trash80/mGB)
 
 
-## Current Features
+# Current Features
 * Affordable and easily accessible parts for assembly.
 * Accurate MIDI Sync, Start and Stop commands.
 * Push Button to select the sync/state mode [(7 modes available)](#modes-details)
@@ -19,7 +19,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 * Midi settings configurable using a Mac/PC editor built in Max.
 * Tested and works with DMG (Original), Gameboy Color, and Advance/SP.
 
-## Modes Details
+# Modes Details
 #### Mode 1 - LSDJ as MIDI Slave Sync
 Slave your Game Boy running [LittleSoundDJ](http://littlesounddj.com) to your midi sequencer or Digital audio workstation.  
 
