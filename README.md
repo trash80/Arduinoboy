@@ -10,7 +10,7 @@ Arduinoboy is software for the [Arduino hardware platform](http://arduino.cc) th
 ## Current Features
 * Affordable and easily accessible parts for assembly.
 * Accurate MIDI Sync, Start and Stop commands.
-* Push Button to select the sync/state mode [(7 modes available)](#modes)
+* Push Button to select the sync/state mode [(7 modes available)](#modes-details)
 * mGB Mode: Full MIDI in support across all Gameboy Channels, including a unique "poly" mode allows you to play your Game Boy like a synthesizer. 
 * Midi Out Doubles as a Midi Thru
 * "Filtering" data for only sync messages, no dedicated MIDI line required.
