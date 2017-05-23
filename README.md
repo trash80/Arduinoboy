@@ -86,19 +86,14 @@ In Nanoloop, the sync mode should be set to `slave`.
 
 It works with the old DMG Gameboy as well as GBC/GBA.
 
-#### Mode 6 LSDJ LIVE/SYNC MAP 
-This mode will perform one of two functions depending on the `Sync` setting in LSDJ:
-
-* `LIVE MAP` - Lsdj will use its own clock, but a incoming midi note will cue midi note # to song row # in live mode.
-* `SYNC MAP` - Lsdj will sync to incoming MIDI sync, and notes immediately change the song row #.
+#### Mode 6 LSDJ MIDIMAP 
+Lsdj will sync to incoming MIDI sync, and incoming MIDI notes are mapped to LSDJ's song row #. The currently selected row's MIDI note is displayed on the top right of the LSDJ screen, and incoming MIDI notes will also display the relative song row number in the same location.
 
 In LSDJ the `sync` mode should be set to `Live/Sync`. 
 
 *This requires a special version of LSDJ, which can be found in your account on the [LSDJ website](http://littlesounddj.com/lsd/latest/full_version/).*
 
-
 #### Mode 7 LSDJ MIDIOUT
-
 Each of the 4 gameboy channels send MIDI data on 4 midi channels by the use of effects commands:
 
 * `Nxx` - Sends a MIDI Note - Absolute to the value placed in the effect. N00 sends note off, `N01`-`N6F` send midi notes 1 to 112.
