@@ -34,9 +34,9 @@
  *     - 6 LEDS on pins 23,22,21,20,4,13                                   *
  *     - Push button on pin 2 (for selecting mode)                         *
  *     - MIDI Opto-isolator power connected to +3v                         *
- *     - Gameboy Clock line on pin 17                                      *
- *     - Gameboy Serial Data input on analog in pin 18                     *
- *     - Serial Data from gameboy on analog in pin 19                      *
+ *     - Gameboy Clock line on pin 16                                      *
+ *     - Gameboy Serial Data input on analog in pin 17                     *
+ *     - Serial Data from gameboy on analog in pin 18                      *
  *                                                                         *
  *   Teensy USB MIDI is supported                                          *
  *   Teensy LC should work but untested                                    *
