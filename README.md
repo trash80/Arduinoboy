@@ -89,7 +89,7 @@ It works with the old DMG Gameboy as well as GBC/GBA.
 #### Mode 6 LSDJ MIDIMAP 
 Lsdj will sync to incoming MIDI sync, and incoming MIDI notes are mapped to LSDJ's song row #. The currently selected row's MIDI note is displayed on the top right of the LSDJ screen, and incoming MIDI notes will also display the relative song row number in the same location.
 
-In LSDJ the `sync` mode should be set to `Live/Sync`. 
+In LSDJ the `sync` mode should be set to `MI.MAP`. 
 
 *This requires a special version of LSDJ, which can be found in your account on the [LSDJ website](http://littlesounddj.com/lsd/latest/full_version/).*
 

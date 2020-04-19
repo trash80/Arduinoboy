@@ -17,7 +17,7 @@ void modeLSDJSlaveSyncSetup()
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
   usbMIDI.setHandleRealTimeSystem(usbMidiLSDJSlaveRealtimeMessage);
 #endif
 
@@ -160,11 +160,11 @@ void usbMidiLSDJSlaveRealtimeMessage(uint8_t message)
 
 void modeLSDJSlaveSyncUsbMidiReceive()
 {
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
 
     while(usbMIDI.read(memory[MEM_LSDJSLAVE_MIDI_CH]+1)) {
         switch(usbMIDI.getType()) {
-            case 1: // note on
+            case 0x90: // note on
                 getSlaveSyncEffect(usbMIDI.getData1());
             break;
             /*
@@ -181,5 +181,45 @@ void modeLSDJSlaveSyncUsbMidiReceive()
             */
         }
     }
+#endif
+#ifdef USE_LEONARDO
+
+    midiEventPacket_t rx;
+    do
+    {
+      rx = MidiUSB.read();
+      uint8_t ch = rx.byte1 & 0x0F;
+      if (ch == memory[MEM_LSDJSLAVE_MIDI_CH] && rx.header == 0x09)
+      {
+        getSlaveSyncEffect(rx.byte2);
+      }
+      switch (rx.byte1)
+      {
+      case 0xF8:
+        if ((sequencerStarted && midiSyncEffectsTime && !countSyncTime) //If the seq has started and our sync effect is on and at zero
+            || (sequencerStarted && !midiSyncEffectsTime))
+        { //or seq is started and there is no sync effects
+          if (!countSyncPulse && midiDefaultStartOffset)
+          { //if we received a note for start offset
+            //sendByteToGameboy(midiDefaultStartOffset);              //send the offset
+          }
+          sendClockTickToLSDJ(); //send the clock tick
+          updateVisualSync();
+        }
+        if (midiSyncEffectsTime)
+        {                                                 //If sync effects are turned on
+          countSyncTime++;                                //increment our tick counter
+          countSyncTime = countSyncTime % countSyncSteps; //and mod it by the number of steps we want for the effect
+        }
+        break;
+      case 0xFA:          // Case: Transport Start Message
+      case 0xFB:          // and Case: Transport Continue Message
+        sequencerStart(); // Start the sequencer
+        break;
+      case 0xFC: // Case: Transport Stop Message
+        sequencerStop();
+        break;
+      }
+    } while (rx.header != 0);
 #endif
 }
