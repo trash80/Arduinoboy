@@ -28,9 +28,7 @@ void modeNanoloopSetup()
 void modeNanoloopSync()
 {
   while(1){  //Loop forever
-
-    modeNanoloopUsbMidiReceive();
-
+  modeNanoloopUsbMidiReceive();
   if (serial->available()) {                 //If MIDI Byte Availaibleleleiel
     incomingMidiByte = serial->read();           //Read it
     if(!checkForProgrammerSysex(incomingMidiByte) && !usbMode) serial->write(incomingMidiByte);       //Send it back to the Midi out
@@ -116,7 +114,6 @@ void usbMidiNanoloopRealtimeMessage(uint8_t message)
 void modeNanoloopUsbMidiReceive()
 {
 #ifdef USE_TEENSY
-
     while(usbMIDI.read(memory[MEM_LSDJSLAVE_MIDI_CH]+1)) {
         switch(usbMIDI.getType()) {
             case 0x90: // note on
