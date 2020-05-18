@@ -17,7 +17,7 @@ void modeLSDJMidioutSetup()
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock,HIGH);
 
- #ifdef MIDI_INTERFACE
+ #ifdef USE_TEENSY
   usbMIDI.setHandleRealTimeSystem(NULL);
  #endif
 
@@ -31,6 +31,9 @@ void modeLSDJMidioutSetup()
 
 void modeLSDJMidiout()
 {
+#ifdef USE_LEONARDO
+  midiEventPacket_t packet;
+#endif
   while(1){
      if(getIncommingSlaveByte()) {
         if(incomingMidiByte > 0x6f) {
@@ -38,21 +41,36 @@ void modeLSDJMidiout()
           {
            case 0x7F: //clock tick
              serial->write(0xF8);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
              usbMIDI.sendRealTime((int)0xF8);
 #endif
-             break;
+#ifdef USE_LEONARDO
+             packet = {0x0F, 0xF8};
+             MidiUSB.sendMIDI(packet);
+             MidiUSB.flush();
+#endif
+                 break;
            case 0x7E: //seq stop
              serial->write(0xFC);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
              usbMIDI.sendRealTime((int)0xFC);
+#endif
+#ifdef USE_LEONARDO
+             packet = {0x0F, 0xFC};
+             MidiUSB.sendMIDI(packet);
+             MidiUSB.flush();
 #endif
              stopAllNotes();
              break;
            case 0x7D: //seq start
              serial->write(0xFA);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
              usbMIDI.sendRealTime((int)0xFA);
+#endif
+#ifdef USE_LEONARDO
+             packet = {0x0F, 0xFA};
+             MidiUSB.sendMIDI(packet);
+             MidiUSB.flush();
 #endif
              break;
            default:
@@ -68,8 +86,11 @@ void modeLSDJMidiout()
       } else {
         setMode();                // Check if mode button was depressed
         updateBlinkLights();
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
         while(usbMIDI.read()) ;
+#endif
+#ifdef USE_LEONARDO
+        // while (MidiUSB.read()) ;
 #endif
         if (serial->available()) {                  //If serial data was send to midi inp
           checkForProgrammerSysex(serial->read());
@@ -113,8 +134,13 @@ void stopNote(byte m)
     midiData[1] = midioutNoteHold[m][x];
     midiData[2] = 0x00;
     serial->write(midiData,3);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     usbMIDI.sendNoteOff(midioutNoteHold[m][x], 0, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+    midiEventPacket_t packet = { 0x08, 0x80 | memory[MEM_MIDIOUT_NOTE_CH + m], midioutNoteHold[m][x], 0 };
+    MidiUSB.sendMIDI(packet);
+    MidiUSB.flush();
 #endif
   }
   midiOutLastNote[m] = -1;
@@ -127,8 +153,13 @@ void playNote(byte m, byte n)
   midiData[1] = n;
   midiData[2] = 0x7F;
   serial->write(midiData,3);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
   usbMIDI.sendNoteOn(n, 127, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+  midiEventPacket_t packet = { 0x09, 0x90 | memory[MEM_MIDIOUT_NOTE_CH + m], n, 127 };
+  MidiUSB.sendMIDI(packet);
+  MidiUSB.flush();
 #endif
 
   midioutNoteHold[m][midioutNoteHoldCounter[m]] =n;
@@ -142,17 +173,22 @@ void playCC(byte m, byte n)
   byte v = n;
 
   if(memory[MEM_MIDIOUT_CC_MODE+m]) {
-    if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
-      v = (v & 0x0F)*8;
-      //if(v) v --;
-    }
+//    if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
+//      v = (v & 0x0F)*8;
+//      //if(v) v --;
+//    }
     n=(m*7)+((n>>4) & 0x07);
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
     midiData[2] = v;
     serial->write(midiData,3);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     usbMIDI.sendControlChange((memory[MEM_MIDIOUT_CC_NUMBERS+n]), v, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+    midiEventPacket_t packet = {0x0B, 0xB0 | (memory[MEM_MIDIOUT_NOTE_CH + m]+1), (memory[MEM_MIDIOUT_CC_NUMBERS + n]), v};
+    MidiUSB.sendMIDI(packet);
+    MidiUSB.flush();
 #endif
   } else {
     if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
@@ -165,8 +201,13 @@ void playCC(byte m, byte n)
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
     midiData[2] = v;
     serial->write(midiData,3);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     usbMIDI.sendControlChange((memory[MEM_MIDIOUT_CC_NUMBERS+n]), v, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+    midiEventPacket_t packet = {0x0B, 0xB0 | (memory[MEM_MIDIOUT_NOTE_CH + m]+1), (memory[MEM_MIDIOUT_CC_NUMBERS + n]), v};
+    MidiUSB.sendMIDI(packet);
+    MidiUSB.flush();
 #endif
   }
 }
@@ -176,8 +217,13 @@ void playPC(byte m, byte n)
   midiData[0] = (0xC0 + (memory[MEM_MIDIOUT_NOTE_CH+m]));
   midiData[1] = n;
   serial->write(midiData,2);
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
   usbMIDI.sendProgramChange(n, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+  midiEventPacket_t packet = {0x0C, 0xC0 | (memory[MEM_MIDIOUT_NOTE_CH + m]+1), n};
+  MidiUSB.sendMIDI(packet);
+  MidiUSB.flush();
 #endif
 }
 
@@ -191,8 +237,13 @@ void stopAllNotes()
     midiData[1] = 123;
     midiData[2] = 0x7F;
     serial->write(midiData,3); //Send midi
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     usbMIDI.sendControlChange(123, 127, memory[MEM_MIDIOUT_NOTE_CH+m]+1);
+#endif
+#ifdef USE_LEONARDO
+    midiEventPacket_t packet = {0x0B, 0xB0 | memory[MEM_MIDIOUT_NOTE_CH + m], 123, 127};
+    MidiUSB.sendMIDI(packet);
+    MidiUSB.flush();
 #endif
   }
 }
@@ -216,3 +267,25 @@ boolean getIncommingSlaveByte()
   }
   return false;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

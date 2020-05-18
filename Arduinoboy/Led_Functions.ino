@@ -109,7 +109,27 @@ void blinkLight(byte midiMessage, byte midiValue)
       blinkSwitch[0]=1;
       blinkSwitchTime[0]=0;
       break;
+    case 0x95:
+      if(!blinkSwitch[0]) digitalWrite(pinLeds[0],HIGH);
+      blinkSwitch[0]=1;
+      blinkSwitchTime[0]=0;
+      break;
+    case 0x9A:
+      if(!blinkSwitch[0]) digitalWrite(pinLeds[0],HIGH);
+      blinkSwitch[0]=1;
+      blinkSwitchTime[0]=0;
+      break;
     case 0x91:
+      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
+      blinkSwitch[1]=1;
+      blinkSwitchTime[1]=0;
+      break;
+    case 0x96:
+      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
+      blinkSwitch[1]=1;
+      blinkSwitchTime[1]=0;
+      break;
+    case 0x9B:
       if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
       blinkSwitch[1]=1;
       blinkSwitchTime[1]=0;
@@ -119,12 +139,54 @@ void blinkLight(byte midiMessage, byte midiValue)
       blinkSwitch[2]=1;
       blinkSwitchTime[2]=0;
       break;
+    case 0x97:
+      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
+      blinkSwitch[2]=1;
+      blinkSwitchTime[2]=0;
+      break;
+    case 0x9C:
+      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
+      blinkSwitch[2]=1;
+      blinkSwitchTime[2]=0;
+      break;
     case 0x93:
       if(!blinkSwitch[3]) digitalWrite(pinLeds[3],HIGH);
       blinkSwitch[3]=1;
       blinkSwitchTime[3]=0;
       break;
+    case 0x98:
+      if(!blinkSwitch[3]) digitalWrite(pinLeds[3],HIGH);
+      blinkSwitch[3]=1;
+      blinkSwitchTime[3]=0;
+      break;
+    case 0x9D:
+      if(!blinkSwitch[3]) digitalWrite(pinLeds[3],HIGH);
+      blinkSwitch[3]=1;
+      blinkSwitchTime[3]=0;
+      break;
     case 0x94:
+      if(!blinkSwitch[0])  digitalWrite(pinLeds[0],HIGH);
+      blinkSwitch[0]=1;
+      blinkSwitchTime[0]=0;
+      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
+      blinkSwitch[1]=1;
+      blinkSwitchTime[1]=0;
+      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
+      blinkSwitch[2]=1;
+      blinkSwitchTime[2]=0;
+      break;
+    case 0x99:
+      if(!blinkSwitch[0])  digitalWrite(pinLeds[0],HIGH);
+      blinkSwitch[0]=1;
+      blinkSwitchTime[0]=0;
+      if(!blinkSwitch[1]) digitalWrite(pinLeds[1],HIGH);
+      blinkSwitch[1]=1;
+      blinkSwitchTime[1]=0;
+      if(!blinkSwitch[2]) digitalWrite(pinLeds[2],HIGH);
+      blinkSwitch[2]=1;
+      blinkSwitchTime[2]=0;
+      break;
+    case 0x9E:
       if(!blinkSwitch[0])  digitalWrite(pinLeds[0],HIGH);
       blinkSwitch[0]=1;
       blinkSwitchTime[0]=0;
