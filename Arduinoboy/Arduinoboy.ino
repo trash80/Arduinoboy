@@ -76,7 +76,7 @@
  *                                                                         *
  ***************************************************************************/
 #include <EEPROM.h>
-#define MEM_MAX 65
+#define MEM_MAX 75
 #define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
 
 //!!! do not edit these, they are the position in EEPROM memory that contain the value of each stored setting
@@ -101,10 +101,10 @@
 #define MEM_MIDIOUT_CC_NUMBERS 27
 
 #define MEM_MGB_CH 55
-#define MEM_LIVEMAP_CH 60
+#define MEM_LIVEMAP_CH 70
 
-#define MEM_MIDIOUT_BIT_DELAY 61
-#define MEM_MIDIOUT_BYTE_DELAY 63
+#define MEM_MIDIOUT_BIT_DELAY 71
+#define MEM_MIDIOUT_BYTE_DELAY 73
 
 /***************************************************************************
 * User Settings
@@ -137,6 +137,9 @@ byte defaultMemoryMap[MEM_MAX] = {
   1,2,3,7,10,11,12, //noi
 
   0, 1, 2, 3, 4, //mGB midi channels (0-15 = 1-16)
+  5, 6, 7, 8, 9, //mGB midi channels (0-15 = 1-16)
+  10, 11, 12, 13, 14, //mGB midi channels (0-15 = 1-16)
+
   0, //sync map midi channel start (0-15 = 1-16) (for song rows 0x80 to 0xFF it's this channel plus 1)
   80,1,  //midiout bit check delay & bit check delay multiplier
   0,0//midiout byte received delay & byte received delay multiplier

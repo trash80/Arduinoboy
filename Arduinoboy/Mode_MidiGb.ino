@@ -60,6 +60,36 @@ void modeMidiGb()
             } else if (midiStatusChannel == memory[MEM_MGB_CH+4]) {
                midiData[0] = midiStatusType+4;
                sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+5]) {
+               midiData[0] = midiStatusType+5;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+6]) {
+               midiData[0] = midiStatusType+6;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+7]) {
+               midiData[0] = midiStatusType+7;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+8]) {
+               midiData[0] = midiStatusType+8;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+9]) {
+               midiData[0] = midiStatusType+9;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+10]) {
+               midiData[0] = midiStatusType+10;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+11]) {
+               midiData[0] = midiStatusType+11;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+12]) {
+               midiData[0] = midiStatusType+12;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+13]) {
+               midiData[0] = midiStatusType+13;
+               sendByte = true;
+            } else if (midiStatusChannel == memory[MEM_MGB_CH+14]) {
+               midiData[0] = midiStatusType+14;
+               sendByte = true;
             } else {
               midiValueMode  =false;
               midiAddressMode=false;
@@ -140,6 +170,36 @@ void modeMidiGbUsbMidiReceive()
             send = true;
         } else if (ch == memory[MEM_MGB_CH+4]) {
             ch = 4;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+5]) {
+            ch = 5;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+6]) {
+            ch = 6;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+7]) {
+            ch = 7;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+8]) {
+            ch = 8;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+9]) {
+            ch = 9;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+10]) {
+            ch = 10;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+11]) {
+            ch = 11;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+12]) {
+            ch = 12;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+13]) {
+            ch = 13;
+            send = true;
+        } else if (ch == memory[MEM_MGB_CH+14]) {
+            ch = 14;
             send = true;
         }
         if(!send) return;
