@@ -16,7 +16,7 @@ void modeLSDJMapSetup()
   digitalWrite(pinStatusLed,LOW);
   pinMode(pinGBClock,OUTPUT);
   digitalWrite(pinGBClock, HIGH);
- #ifdef MIDI_INTERFACE
+ #ifdef USE_TEENSY
   usbMIDI.setHandleRealTimeSystem(usbMidiLSDJMapRealtimeMessage);
  #endif
   blinkMaxCount=1000;
@@ -171,7 +171,7 @@ void usbMidiLSDJMapRealtimeMessage(uint8_t message)
 
 void modeLSDJMapUsbMidiReceive()
 {
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
 
     while(usbMIDI.read()) {
         uint8_t ch = usbMIDI.getChannel() - 1;
@@ -180,10 +180,10 @@ void modeLSDJMapUsbMidiReceive()
         }
 
         switch(usbMIDI.getType()) {
-            case 0: // note off
+            case 0x80: // note off
                 setMapByte(0xFE, true);
             break;
-            case 1: // note on
+            case 0x90: // note on
                 if(ch == (memory[MEM_LIVEMAP_CH] + 1)) {
                     setMapByte(128+usbMIDI.getData1(), true);
                 } else {
@@ -202,5 +202,34 @@ void modeLSDJMapUsbMidiReceive()
             */
         }
     }
+#endif
+#ifdef USE_LEONARDO
+    midiEventPacket_t rx;
+    do
+    {
+      rx = MidiUSB.read();
+      usbMidiLSDJMapRealtimeMessage(rx.byte1);
+      uint8_t ch = rx.byte1 & 0x0F;
+      if (ch != memory[MEM_LIVEMAP_CH] && ch != (memory[MEM_LIVEMAP_CH] + 1))
+      {
+        continue;
+      }
+      switch (rx.header)
+      {
+      case 0x08: // note off
+        setMapByte(0xFE, true);
+        break;
+      case 0x09: // note on
+        if (ch == (memory[MEM_LIVEMAP_CH] + 1))
+        {
+          setMapByte(128 + rx.byte2, true);
+        }
+        else
+        {
+          setMapByte(rx.byte2, true);
+        }
+        break;
+      }
+    } while (rx.header != 0);
 #endif
 }

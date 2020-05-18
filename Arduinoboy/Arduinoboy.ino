@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.3.1                                                          *
- * Date:    April 19 2020                                                  *
+ * Version: 1.3.3                                                          *
+ * Date:    May 17 2020                                                    *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -20,7 +20,7 @@
  *                                                                         *
  * NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE NOTICE   *
  *                                                                         *
- *  http://code.google.com/p/arduinoboy/                                   *
+ *  https://github.com/trash80/Arduinoboy                                  *
  *                                                                         *
  *   Arduino pin settings:  (Layout is final)                              *
  *     - 6 LEDS on pins 8 to 13                                            *
@@ -75,7 +75,6 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
-#include <EEPROM.h>
 #define MEM_MAX 65
 #define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
 
@@ -109,8 +108,6 @@
 /***************************************************************************
 * User Settings
 ***************************************************************************/
-
-boolean alwaysUseDefaultSettings = false; //set to true to always use the settings below, else they are pulled from memory for the software editor
 
 boolean usbMode                  = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
 
@@ -149,7 +146,7 @@ byte memory[MEM_MAX];
 
 
 /***************************************************************************
-* Teensy 3.2, Teensy 3.0, Teensy LC
+* Teensy 3.2, Teensy LC
 *
 * Notes on Teensy: Pins are not the same as in the schematic, the mapping is below.
 * Feel free to change, all related config in is this block.
@@ -157,6 +154,8 @@ byte memory[MEM_MAX];
 ***************************************************************************/
 #if defined (__MK20DX256__) || defined (__MK20DX128__) || defined (__MKL26Z64__)
 #define USE_TEENSY 1
+#define USE_USB 1
+#include <MIDI.h>
 
 #if defined (__MKL26Z64__)
 #define GB_SET(bit_cl,bit_out,bit_in) GPIOB_PDOR = ((bit_in<<3) | (bit_out<<1) | bit_cl)
@@ -175,9 +174,78 @@ int pinButtonMode = 2; //toggle button for selecting the mode
 HardwareSerial *serial = &Serial1;
 
 /***************************************************************************
-* Arudino Atmega 328 (assumed)
+* Arduino Leonardo/Yún/Micro (ATmega32U4)
+***************************************************************************/
+#elif defined (__AVR_ATmega32U4__)
+#define USE_LEONARDO
+#include <MIDIUSB.h>
+#include <PS2Keyboard.h>
+
+// values for the PS/2 Keyboard input
+#define PS2_DATA_PIN 7
+#define PS2_CLOCK_PIN 3
+PS2Keyboard keyboard;
+#define GB_SET(bit_cl, bit_out, bit_in) PORTF = (PINF & B00011111) | ((bit_cl<<7) | ((bit_out)<<6) | ((bit_in)<<5))
+// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
+// Pin distribution comes from official Arduino Leonardo documentation
+
+int pinGBClock     = A0;    // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = A1;    // Analog In 1 - serial data to gameboy
+int pinGBSerialIn  = A2;    // Analog In 2 - serial data from gameboy
+int pinMidiInputPower = 4; // power pin for midi input opto-isolator
+int pinStatusLed = 13; // Status LED
+int pinLeds[] = {12,11,10,9,8,13}; // LED Pins
+int pinButtonMode = 3; //toggle button for selecting the mode
+
+HardwareSerial *serial = &Serial1;
+
+byte incomingPS2Byte;
+
+
+/***************************************************************************
+* Arduino Due (ATmSAM3X8E)
+***************************************************************************/
+#elif defined (__SAM3X8E__)
+#define USE_DUE
+
+#define USE_LEONARDO
+#include <MIDIUSB.h>
+#include <PS2Keyboard.h>
+#include <digitalWriteFast.h>
+
+
+// values for the PS/2 Keyboard input
+#define PS2_DATA_PIN 7
+#define PS2_CLOCK_PIN 3
+PS2Keyboard keyboard;
+
+
+#define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(A0, bit_cl); digitalWriteFast(A1, bit_out); digitalWriteFast(A2, bit_in);
+// ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
+
+int pinGBClock     = A0;    // Analog In 0 - clock out to gameboy
+int pinGBSerialOut = A1;    // Analog In 1 - serial data to gameboy
+int pinGBSerialIn  = A2;    // Analog In 2 - serial data from gameboy
+int pinMidiInputPower = 4; // power pin for midi input opto-isolator
+int pinStatusLed = 13; // Status LED
+int pinLeds[] = {12,11,10,9,8,13}; // LED Pins
+int pinButtonMode = 3; //toggle button for selecting the mode
+
+HardwareSerial *serial = &Serial;
+
+byte incomingPS2Byte;
+
+
+/***************************************************************************
+* Arduino UNO/Ethernet/Nano (ATmega328) or Mega 2560 (ATmega2560) (assumed)
 ***************************************************************************/
 #else
+#include <PS2Keyboard.h>
+
+// values for the PS/2 Keyboard input
+#define PS2_DATA_PIN 7
+#define PS2_CLOCK_PIN 3
+PS2Keyboard keyboard;
 #define GB_SET(bit_cl,bit_out,bit_in) PORTC = (PINC & B11111000) | ((bit_in<<2) | ((bit_out)<<1) | bit_cl)
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
 
@@ -191,11 +259,19 @@ int pinButtonMode = 3; //toggle button for selecting the mode
 
 HardwareSerial *serial = &Serial;
 
+byte incomingPS2Byte;
+
 #endif
 
 /***************************************************************************
 * Memory
 ***************************************************************************/
+#ifndef USE_DUE
+    #include <EEPROM.h>
+    boolean alwaysUseDefaultSettings = false; //set to true to always use the settings below, else they are pulled from memory for the software editor
+#else
+    boolean alwaysUseDefaultSettings = true; //set to true to always use the default settings, in Due board is necessary as it doesn't have EEPROM
+#endif
 
 int eepromMemoryByte = 0; //Location of where to store settings from mem
 
@@ -362,7 +438,6 @@ uint8_t mapQueueWaitUsb = 5; //5ms - Needs to be longer because message packet i
 ***************************************************************************/
 #define GB_MIDI_DELAY 500 //Microseconds to delay the sending of a byte to gb
 
-
 void setup() {
 /*
   Init Memory
@@ -383,7 +458,7 @@ void setup() {
   Set MIDI Serial Rate
 */
 
-#ifdef USE_TEENSY
+#ifdef USE_USB
   serial->begin(31250); //31250
 #else
   if(usbMode == true) {
@@ -391,7 +466,11 @@ void setup() {
   } else {
     pinMode(pinMidiInputPower,OUTPUT);
     digitalWrite(pinMidiInputPower,HIGH); // turn on the optoisolator
-    Serial.begin(31250); //31250
+    #ifdef USE_LEONARDO
+      Serial1.begin(31250); //31250
+    #else
+      Serial.begin(31250); //31250
+    #endif
   }
 #endif
 
@@ -422,7 +501,9 @@ void setup() {
 /*
   Load Settings from EEPROM
 */
+  #ifndef USE_DUE
   if(!memory[MEM_FORCE_MODE]) memory[MEM_MODE] = EEPROM.read(MEM_MODE);
+  #endif
   lastMode = memory[MEM_MODE];
 
 /*

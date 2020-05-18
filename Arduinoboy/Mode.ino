@@ -30,7 +30,9 @@ void setMode()
   if(!memory[MEM_FORCE_MODE] && buttonDepressed) { //if the button is pressed
     memory[MEM_MODE]++;                           //increment the mode number
     if(memory[MEM_MODE] > (NUMBER_OF_MODES - 1)) memory[MEM_MODE]=0;  //if the mode is greater then 4 it will wrap back to 0
+    #ifndef USE_DUE
     if(!memory[MEM_FORCE_MODE]) EEPROM.write(MEM_MODE, memory[MEM_MODE]); //write mode to eeprom if we arnt forcing a mode in the config
+    #endif
     showSelectedMode();            //set the LEDS
     switchMode();
   }
@@ -110,5 +112,3 @@ void sequencerStop()
   digitalWrite(pinLeds[3],LOW);
   digitalWrite(pinLeds[memory[MEM_MODE]],HIGH);
 }
-
-

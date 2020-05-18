@@ -1,5 +1,13 @@
 ## Changelog
 
+### 05/17/20
+* Arduinoboy to version 1.3.3
+* Added support for Arduino Due
+
+### 05/03/20
+* Arduinoboy to version 1.3.2
+* Added support for Arduino Leonardo/Yún/Micro (ATmega32U4) (only Leonardo tested)
+
 ### 04/19/20
 * Arduinoboy to version 1.3.1
 * Fixed Nanoloop sync through USB (teensy and Leonardo tested)

@@ -17,7 +17,7 @@ void modeLSDJMasterSyncSetup()
   digitalWrite(pinStatusLed,LOW);
   pinMode(pinGBClock,INPUT);
 
-  #ifdef MIDI_INTERFACE
+  #ifdef USE_TEENSY
   usbMIDI.setHandleRealTimeSystem(NULL);
   #endif
 
@@ -30,7 +30,7 @@ void modeLSDJMasterSync()
 {
   while(1){
 
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     while(usbMIDI.read()) ;
 #endif
 
@@ -77,8 +77,13 @@ boolean checkLSDJStopped()
       readgbClockLine=false;
       countClockPause = 0;                      //reset our clock
       serial->write(0xFC);                      //send the transport stop message
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
       usbMIDI.sendRealTime(0xFC);
+#endif
+#ifdef USE_LEONARDO
+      midiEventPacket_t event = {0x0F, 0xFC};
+      MidiUSB.sendMIDI(event);
+      MidiUSB.flush();
 #endif
       sequencerStop();                          //call the global sequencer stop function
     }
@@ -102,18 +107,30 @@ void sendMidiClockSlaveFromLSDJ()
       serial->write(0x7F);                          //Send a velocity 127
       serial->write(0xFA);     //send MIDI transport start message
 
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
       usbMIDI.sendNoteOn(memory[MEM_LSDJMASTER_MIDI_CH]+1,readGbSerialIn,0x7F);
       usbMIDI.sendRealTime(0xFA);
+#endif
+#ifdef USE_LEONARDO
+      midiEventPacket_t event = {0x09, 0x90 | memory[MEM_LSDJMASTER_MIDI_CH] + 1, readGbSerialIn, 0x7F};
+      MidiUSB.sendMIDI(event);
+      MidiUSB.flush();
+      event = {0x0F, 0xFA};
+      MidiUSB.sendMIDI(event);
+      MidiUSB.flush();
 #endif
       sequencerStart();             //call the global sequencer start function
     }
     serial->write(0xF8);       //Send the MIDI Clock Tick
 
-#ifdef MIDI_INTERFACE
+#ifdef USE_TEENSY
     usbMIDI.sendRealTime(0xF8);
 #endif
-
+#ifdef USE_LEONARDO
+    midiEventPacket_t event = {0x0F, 0xF8};
+    MidiUSB.sendMIDI(event);
+    MidiUSB.flush();
+#endif
     countGbClockTicks=0;            //Reset the bit counter
     readGbSerialIn = 0x00;                //Reset our serial read value
 
