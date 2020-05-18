@@ -1,5 +1,9 @@
 ## Changelog
 
+### 04/19/20
+* Arduinoboy to version 1.3.1
+* Fixed Nanoloop sync through USB (teensy and Leonardo tested)
+
 ### 07/10/16
 * New Version 1.3.0a, please download from the [Releases] (https://github.com/trash80/Arduinoboy/releases) if you want the most recent stable version.
 * Added Teensy 3.x & LC support. Check the main file for the pin configuration.
