@@ -1,5 +1,9 @@
 ## Changelog
 
+### 05/19/20
+* Arduinoboy to version 1.3.4
+* Added support for Arduino Mega 2560 and Arduino UNO Wifi
+
 ### 05/17/20
 * Arduinoboy to version 1.3.3
 * Added support for Arduino Due
