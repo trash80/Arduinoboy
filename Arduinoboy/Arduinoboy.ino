@@ -10,8 +10,8 @@
  ***************************************************************************
  ***************************************************************************
  *                                                                         *
- * Version: 1.3.3                                                          *
- * Date:    May 17 2020                                                    *
+ * Version: 1.3.4                                                          *
+ * Date:    May 19 2020                                                    *
  * Name:    Timothy Lamb                                                   *
  * Email:   trash80@gmail.com                                              *
  *                                                                         *
@@ -242,7 +242,7 @@ byte incomingPS2Byte;
 
 
 /***************************************************************************
-* Arduino UNO/Ethernet/Nano (ATmega328) or Mega 2560 (ATmega2560) (assumed)
+* Arduino UNO/Ethernet/Nano (ATmega328), Arduino UNO Wifi (ATmega4809) or Mega 2560 (ATmega2560/ATmega1280) (assumed)
 ***************************************************************************/
 #else
 #include <PS2Keyboard.h>
@@ -251,7 +251,13 @@ byte incomingPS2Byte;
 #define PS2_DATA_PIN 7
 #define PS2_CLOCK_PIN 3
 PS2Keyboard keyboard;
+#if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
+#define GB_SET(bit_cl,bit_out,bit_in) PORTF = (PINF & B11111000) | ((bit_in<<2) | ((bit_out)<<1) | bit_cl)
+#elif defined(__AVR_ATmega4809__)
+#define GB_SET(bit_cl,bit_out,bit_in) PORTD = (PIND & B11111000) | ((bit_in<<2) | ((bit_out)<<1) | bit_cl)
+#else
 #define GB_SET(bit_cl,bit_out,bit_in) PORTC = (PINC & B11111000) | ((bit_in<<2) | ((bit_out)<<1) | bit_cl)
+#endif
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
 
 int pinGBClock     = A0;    // Analog In 0 - clock out to gameboy
