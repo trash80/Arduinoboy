@@ -179,12 +179,7 @@ HardwareSerial *serial = &Serial1;
 #elif defined (__AVR_ATmega32U4__)
 #define USE_LEONARDO
 #include <MIDIUSB.h>
-#include <PS2Keyboard.h>
 
-// values for the PS/2 Keyboard input
-#define PS2_DATA_PIN 7
-#define PS2_CLOCK_PIN 3
-PS2Keyboard keyboard;
 #define GB_SET(bit_cl, bit_out, bit_in) PORTF = (PINF & B00011111) | ((bit_cl<<7) | ((bit_out)<<6) | ((bit_in)<<5))
 // ^ The reason for not using digitalWrite is to allign clock and data pins for the GB shift reg.
 // Pin distribution comes from official Arduino Leonardo documentation
@@ -210,14 +205,7 @@ byte incomingPS2Byte;
 
 #define USE_LEONARDO
 #include <MIDIUSB.h>
-#include <PS2Keyboard.h>
 #include <digitalWriteFast.h>
-
-
-// values for the PS/2 Keyboard input
-#define PS2_DATA_PIN 7
-#define PS2_CLOCK_PIN 3
-PS2Keyboard keyboard;
 
 
 #define GB_SET(bit_cl, bit_out, bit_in) digitalWriteFast(A0, bit_cl); digitalWriteFast(A1, bit_out); digitalWriteFast(A2, bit_in);
@@ -240,12 +228,7 @@ byte incomingPS2Byte;
 * Arduino UNO/Ethernet/Nano (ATmega328), Arduino UNO Wifi (ATmega4809) or Mega 2560 (ATmega2560/ATmega1280) (assumed)
 ***************************************************************************/
 #else
-#include <PS2Keyboard.h>
 
-// values for the PS/2 Keyboard input
-#define PS2_DATA_PIN 7
-#define PS2_CLOCK_PIN 3
-PS2Keyboard keyboard;
 #if defined(__AVR_ATmega1280__) || defined(__AVR_ATmega2560__)
 #define GB_SET(bit_cl,bit_out,bit_in) PORTF = (PINF & B11111000) | ((bit_in<<2) | ((bit_out)<<1) | bit_cl)
 #elif defined(__AVR_ATmega4809__)
