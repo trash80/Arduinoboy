@@ -173,10 +173,10 @@ void playCC(byte m, byte n)
   byte v = n;
 
   if(memory[MEM_MIDIOUT_CC_MODE+m]) {
-//    if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
-//      v = (v & 0x0F)*8;
-//      //if(v) v --;
-//    }
+    if(memory[MEM_MIDIOUT_CC_SCALING+m]) {
+      v = (v & 0x0F)*8;
+      //if(v) v --;
+    }
     n=(m*7)+((n>>4) & 0x07);
     midiData[0] = (0xB0 + (memory[MEM_MIDIOUT_CC_CH+m]));
     midiData[1] = (memory[MEM_MIDIOUT_CC_NUMBERS+n]);
