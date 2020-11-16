@@ -70,7 +70,9 @@ void switchMode()
       modeLSDJMidioutSetup();
       break;
     case 7:
-      modeMidiGbHostSetup();
+      #ifdef USB_HOST
+        modeMidiGbHostSetup();
+      #endif
       break;
   }
 }
