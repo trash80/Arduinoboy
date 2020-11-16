@@ -76,7 +76,13 @@
  *                                                                         *
  ***************************************************************************/
 #define MEM_MAX 65
+#define USB_HOST 0           //To enable USB Host on a teensy
+
+#if defined (USB_HOST)
+#define NUMBER_OF_MODES 8    
+#else
 #define NUMBER_OF_MODES 7    //Right now there are 7 modes, Might be more in the future
+#endif
 
 //!!! do not edit these, they are the position in EEPROM memory that contain the value of each stored setting
 #define MEM_CHECK 0
@@ -110,6 +116,7 @@
 ***************************************************************************/
 
 boolean usbMode                  = false; //to use usb for serial communication as oppose to MIDI - sets baud rate to 38400
+boolean usbHost                  = false; //for teensy midi USB Host mode
 
 byte defaultMemoryMap[MEM_MAX] = {
   0x7F,0x01,0x03,0x7F, //memory init check
@@ -146,21 +153,29 @@ byte memory[MEM_MAX];
 
 
 /***************************************************************************
-* Teensy 3.2, Teensy LC
+* Teensy 4.1, Teensy 3.2, Teensy LC
 *
 * Notes on Teensy: Pins are not the same as in the schematic, the mapping is below.
 * Feel free to change, all related config in is this block.
 * Be sure to compile
 ***************************************************************************/
-#if defined (__MK20DX256__) || defined (__MK20DX128__) || defined (__MKL26Z64__)
+#if defined (__MK20DX256__) || defined (__MK20DX128__) || defined (__MKL26Z64__) || defined(__IMXRT1062__)
 #define USE_TEENSY 1
 #define USE_USB 1
 #include <MIDI.h>
+#include "USBHost_t36.h"
 
 #if defined (__MKL26Z64__)
 #define GB_SET(bit_cl,bit_out,bit_in) GPIOB_PDOR = ((bit_in<<3) | (bit_out<<1) | bit_cl)
+#elif defined (__IMXRT1062__)
+#define GB_SET(bit_cl,bit_out,bit_in) GPIO6_DR = (GPIO6_PSR & 0xff3dffff) | ((bit_in<<17) | (bit_out<<22) | bit_cl<<23)
 #else
 #define GB_SET(bit_cl,bit_out,bit_in) GPIOB_PDOR = (GPIOB_PDIR & 0xfffffff4) | ((bit_in<<3) | (bit_out<<1) | bit_cl)
+#endif
+
+#ifdef USB_HOST
+  USBHost myusb;
+  MIDIDevice midi1(myusb);
 #endif
 
 int pinGBClock     = 16;    // Analog In 0 - clock out to gameboy
@@ -170,6 +185,7 @@ int pinMidiInputPower = 0; // Not used!
 int pinStatusLed = 13; // Status LED
 int pinLeds[] = {23,22,21,20,4,13}; // LED Pins
 int pinButtonMode = 2; //toggle button for selecting the mode
+int midiChannelOffset = -1;
 
 HardwareSerial *serial = &Serial1;
 

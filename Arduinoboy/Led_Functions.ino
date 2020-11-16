@@ -30,6 +30,11 @@ void showSelectedMode()
         digitalWrite(pinLeds[4],HIGH);
         digitalWrite(pinLeds[5],HIGH);
         break;
+       case 7:
+        digitalWrite(pinLeds[0],HIGH);
+        digitalWrite(pinLeds[1],HIGH);
+        digitalWrite(pinLeds[2],HIGH);
+        break;
 
     }
   delay(100);
