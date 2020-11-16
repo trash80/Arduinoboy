@@ -69,6 +69,9 @@ void switchMode()
     case 6:
       modeLSDJMidioutSetup();
       break;
+    case 7:
+      modeMidiGbHostSetup();
+      break;
   }
 }
 
